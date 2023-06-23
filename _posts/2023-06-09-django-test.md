@@ -2,7 +2,8 @@
 layout: archive
 title:  "[Django] 테스트는 어떻게 수행할까?"
 date:   2023-06-09 10:05:07 +0900
-categories: [Django Strategy]
+categories: 
+    - Django Strategy
 ---
 
 ### 작성이유 및 목표

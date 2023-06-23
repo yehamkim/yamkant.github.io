@@ -1,15 +1,16 @@
 ---
 layout: archive
-title:  "[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?"
+title:  "[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?"
 date:   2023-05-13 20:05:07 +0900
-categories: [Database]
+categories: 
+    - Database
 ---
 
 # DBCP (DB Connection Pool)
 - 참고: https://youtu.be/zowzVqx3MQ4
 - 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.
 
-통신방법
+**통신방법**
 - 백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다.
 - DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다.
 
@@ -67,13 +68,13 @@ categories: [Database]
   - Sharding을 이용하는 방법이 있습니다.
 - thread per request 모델인 경우, active thread 수를 확인합니다.
 
-추가 공부
+**추가 공부**
 - Naver D2: https://d2.naver.com/helloworld/5102792
 - hikariCP github: https://github.com/brettwooldridge/HikariCP
 - MySQL 설정 페이지: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html
 
 ---
-참고:
+**참고**
 - https://jojoldu.tistory.com/634
 - https://d2.naver.com/helloworld/5102792 
 
@@ -131,7 +132,7 @@ app.listen(port, () => {
 - 아래와 같이 [Apache Bench](https://httpd.apache.org/docs/2.4/ko/programs/ab.html)를 사용하여 부하테스트를 수행하면 다음과 같은 결과를 얻을 수 있습니다.
 - 부하 테스트를 위해, 20명의 유저가 동시에 저희 서버에 100회 요청을 보내는 상황을 가정하였습니다.
 
-```plain
+```shell
 > ab -n 100 -c 20 https://localhost:4000/test-timeout
 This is ApacheBench, Version 2.3 <$Revision: 1879490 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
@@ -212,6 +213,7 @@ Lag: 12106.155959129333ms
 Lag: 12108.08195900917ms
 ...
 ```
+
 - 20명이 5개의 커넥션 풀로 모든 작업을 완료해야합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기중인 요청 10개)
 - 이 때, 처리된 요청이 다시 요청을 보내므로 6,7,8,9,10이 DB 동작을 처리하기 시작할 때, 이미 1,2,3,4,5번의 두 번째 요청이 대기 중입니다.
 - 따라서 1,2,3,4,5번의 두 번째 요청부터는 응답을 받으려면 12000ms 정도가 걸리게 되는 것입니다. 이와 같이 모든 유저의 두 번째 요청부터는 12000ms 정도가 걸리게 되어 Lag가 일정 시점부터는 12000ms로 고정됩니다.

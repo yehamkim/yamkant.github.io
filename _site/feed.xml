@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-06-21T17:13:18+07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">Aws</title><link href="http://localhost:4000/aws/" rel="alternate" type="text/html" title="Aws" /><published>2023-06-13T00:00:00+07:00</published><updated>2023-06-13T00:00:00+07:00</updated><id>http://localhost:4000/aws</id><content type="html" xml:base="http://localhost:4000/aws/"><![CDATA[<h3 id="61-amazon-vpc">6.1 Amazon VPC</h3>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-06-23T14:42:56+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">Aws</title><link href="http://localhost:4000/aws/" rel="alternate" type="text/html" title="Aws" /><published>2023-06-13T00:00:00+09:00</published><updated>2023-06-13T00:00:00+09:00</updated><id>http://localhost:4000/aws</id><content type="html" xml:base="http://localhost:4000/aws/"><![CDATA[<h3 id="61-amazon-vpc">6.1 Amazon VPC</h3>
 <ul>
   <li>AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다.</li>
   <li>EC2나 RDS의 경우, VPC를 먼저 선택해야합니다.</li>
@@ -78,7 +78,7 @@
   <li>인터페이스 엔드포인트는 네트워크 인터페이스로 구축하는 유형이며, 게이트웨이 엔드포인트는 라우팅 테이블에 설정된 내용을 라우팅하는 유형입니다.</li>
   <li>인터페이스 엔드포인트는 사설 IP 주소를 가진 ENI가 존재하며 각 서비스와 연결하는 출입구 역할을 합니다.</li>
   <li>AWS PrivateLink라는 방식을 사용하기 때문에, 타사 서비스가 PrivateLink를 지원한다면 사용 가능합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[6.1 Amazon VPC AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다. EC2나 RDS의 경우, VPC를 먼저 선택해야합니다. VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다. 외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까?</title><link href="http://localhost:4000/django%20strategy/django-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까?" /><published>2023-06-09T08:05:07+07:00</published><updated>2023-06-09T08:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-test</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-test/"><![CDATA[<h3 id="작성이유-및-목표">작성이유 및 목표</h3>
+</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[6.1 Amazon VPC AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다. EC2나 RDS의 경우, VPC를 먼저 선택해야합니다. VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다. 외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까?</title><link href="http://localhost:4000/django%20strategy/django-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까?" /><published>2023-06-09T10:05:07+09:00</published><updated>2023-06-09T10:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-test</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-test/"><![CDATA[<h3 id="작성이유-및-목표">작성이유 및 목표</h3>
 <ul>
   <li>흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.</li>
   <li>알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다.</li>
@@ -257,7 +257,7 @@
 <ul>
   <li>위와 같이, member 생성 테스트를 위한 테스트 클래스는 앞서 설명한 기본 테스트 클래스를 상속받습니다.</li>
   <li>기대하는 결과(생성이므로 생성되었는지)가 잘 반환되었는지, 테스트 중 오류는 없는지 확인할 수 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[작성이유 및 목표 흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다. 알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다. 해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다. 커스텀 유저를 위한 members 도메인을 예시로 설명합니다.]]></summary></entry><entry><title type="html">Django Custom User</title><link href="http://localhost:4000/django-custom-user/" rel="alternate" type="text/html" title="Django Custom User" /><published>2023-06-04T00:00:00+07:00</published><updated>2023-06-04T00:00:00+07:00</updated><id>http://localhost:4000/django-custom-user</id><content type="html" xml:base="http://localhost:4000/django-custom-user/"><![CDATA[<p>Django custom user 생성을 위한 설정 추가</p>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[작성이유 및 목표 흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다. 알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다. 해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다. 커스텀 유저를 위한 members 도메인을 예시로 설명합니다.]]></summary></entry><entry><title type="html">Django Custom User</title><link href="http://localhost:4000/django-custom-user/" rel="alternate" type="text/html" title="Django Custom User" /><published>2023-06-04T00:00:00+09:00</published><updated>2023-06-04T00:00:00+09:00</updated><id>http://localhost:4000/django-custom-user</id><content type="html" xml:base="http://localhost:4000/django-custom-user/"><![CDATA[<p>Django custom user 생성을 위한 설정 추가</p>
 
 <p><strong>작업을 위한 Directory Level</strong></p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web
@@ -489,7 +489,7 @@
     <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/swagger/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularSwaggerView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-ui</span><span class="sh">"</span><span class="p">,),</span>
     <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/redoc/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularRedocView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">redoc</span><span class="sh">"</span><span class="p">,),</span>
 <span class="p">]</span>
-</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[Django custom user 생성을 위한 설정 추가]]></summary></entry><entry><title type="html">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?" /><published>2023-05-27T18:05:07+07:00</published><updated>2023-05-27T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-view</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-view/"><![CDATA[<p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
+</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[Django custom user 생성을 위한 설정 추가]]></summary></entry><entry><title type="html">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?" /><published>2023-05-27T20:05:07+09:00</published><updated>2023-05-27T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-view</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-view/"><![CDATA[<p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
 <h3 id="generic-view의-동작방식">Generic view의 동작방식</h3>
 <ul>
   <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
@@ -616,7 +616,7 @@
   <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
   <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
   <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다. .get_permissions(self) queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다. .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다. .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다. serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다. .get_serializer_class(self) .get_serializer_context(self) .get_serializer(self, …) ``` queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted='N')과 같이 처리합니다. (정적 필터 적용) filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.]]></summary></entry><entry><title type="html">[Django] API를 어떻게 명세하여 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-spectacular/" rel="alternate" type="text/html" title="[Django] API를 어떻게 명세하여 사용할까?" /><published>2023-05-27T18:05:07+07:00</published><updated>2023-05-27T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-spectacular</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-spectacular/"><![CDATA[<h3 id="open-api와-oas-swagger">Open API와 OAS, Swagger</h3>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다. .get_permissions(self) queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다. .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다. .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다. serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다. .get_serializer_class(self) .get_serializer_context(self) .get_serializer(self, …) ``` queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted='N')과 같이 처리합니다. (정적 필터 적용) filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.]]></summary></entry><entry><title type="html">[Django] API를 어떻게 명세하여 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-spectacular/" rel="alternate" type="text/html" title="[Django] API를 어떻게 명세하여 사용할까?" /><published>2023-05-27T20:05:07+09:00</published><updated>2023-05-27T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-spectacular</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-spectacular/"><![CDATA[<h3 id="open-api와-oas-swagger">Open API와 OAS, Swagger</h3>
 <p><strong>Open API란?</strong></p>
 <ul>
   <li>Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다.</li>
@@ -861,7 +861,7 @@
 <ul>
   <li><a href="https://gruuuuu.github.io/programming/openapi/">gruuuuu님 블로그</a></li>
   <li><a href="https://techblog.yogiyo.co.kr/django-rest-framework-api-document-generator-feat-drf-spectacular-585fcabec404">요기요 테크 블로그</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.]]></summary></entry><entry><title type="html">Cs Database</title><link href="http://localhost:4000/cs-database/" rel="alternate" type="text/html" title="Cs Database" /><published>2023-05-26T00:00:00+07:00</published><updated>2023-05-26T00:00:00+07:00</updated><id>http://localhost:4000/cs-database</id><content type="html" xml:base="http://localhost:4000/cs-database/"><![CDATA[<h3 id="nosql">NoSQL</h3>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.]]></summary></entry><entry><title type="html">Cs Database</title><link href="http://localhost:4000/cs-database/" rel="alternate" type="text/html" title="Cs Database" /><published>2023-05-26T00:00:00+09:00</published><updated>2023-05-26T00:00:00+09:00</updated><id>http://localhost:4000/cs-database</id><content type="html" xml:base="http://localhost:4000/cs-database/"><![CDATA[<h3 id="nosql">NoSQL</h3>
 <p><strong>RDB의 단점은 무엇일까?</strong></p>
 <ul>
   <li>스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다.</li>
@@ -895,7 +895,7 @@
   <li>High Availability (replication, automatic failover)</li>
   <li>보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.</li>
   <li>memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 JOIN을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다. RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다. transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.]]></summary></entry><entry><title type="html">[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?</title><link href="http://localhost:4000/django%20strategy/django-auth/" rel="alternate" type="text/html" title="[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?" /><published>2023-05-25T18:05:07+07:00</published><updated>2023-05-25T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-auth</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-auth/"><![CDATA[<h1 id="custom-user-registration">Custom User Registration</h1>
+</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 JOIN을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다. RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다. transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.]]></summary></entry><entry><title type="html">[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?</title><link href="http://localhost:4000/django%20strategy/django-auth/" rel="alternate" type="text/html" title="[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?" /><published>2023-05-25T20:05:07+09:00</published><updated>2023-05-25T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-auth</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-auth/"><![CDATA[<h1 id="custom-user-registration">Custom User Registration</h1>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># requirements.txt
 </span><span class="n">asgiref</span><span class="o">==</span><span class="mf">3.6</span><span class="p">.</span><span class="mi">0</span>
@@ -1132,7 +1132,175 @@ code/
 <ul>
   <li>앞서 구축한 members.model과 members.serializer를 활용하여 새로운 멤버를 생성할 수 있도록 합니다.</li>
   <li><code class="language-plaintext highlighter-rouge">rest_framework_simplejwt</code>에서 기본적으로 사용하는 controller를 통해 토큰 관련 API를 처리합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Custom User Registration]]></summary></entry><entry><title type="html">[DB] [Real MySQL 8.0] 내용 정리</title><link href="http://localhost:4000/db/database-1/" rel="alternate" type="text/html" title="[DB] [Real MySQL 8.0] 내용 정리" /><published>2023-05-14T20:05:07+07:00</published><updated>2023-05-14T20:05:07+07:00</updated><id>http://localhost:4000/db/database-1</id><content type="html" xml:base="http://localhost:4000/db/database-1/"><![CDATA[<p>CH 4.1.4 플러그인 스토리지 엔진 모델</p>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Custom User Registration]]></summary></entry><entry><title type="html">[Error Async] connection pool 제한에 따른 비동기 처리</title><link href="http://localhost:4000/error%20async/errorasync-promise-pool/" rel="alternate" type="text/html" title="[Error Async] connection pool 제한에 따른 비동기 처리" /><published>2023-05-18T23:00:07+09:00</published><updated>2023-05-18T23:00:07+09:00</updated><id>http://localhost:4000/error%20async/errorasync-promise-pool</id><content type="html" xml:base="http://localhost:4000/error%20async/errorasync-promise-pool/"><![CDATA[<h3 id="오류-내용">오류 내용</h3>
+<ul>
+  <li>상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다.</li>
+  <li>이 때, <code class="language-plaintext highlighter-rouge">Promse.allSettled</code>를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다.</li>
+</ul>
+
+<h3 id="해결-내용">해결 내용</h3>
+<ul>
+  <li>promise-pool 모듈을 사용하여, 배치서버를 위해 사용할 connection pool을 제한하여 chunk 단위로</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.js</span>
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">PromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">@supercharge/promise-pool</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">excuteBasicPromisePool</span> <span class="o">=</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">{</span>
+        <span class="nx">results</span><span class="p">,</span> <span class="nx">errors</span>
+    <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">PromisePool</span><span class="p">.</span><span class="k">for</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="p">).</span><span class="nf">process</span><span class="p">(</span><span class="k">async</span> <span class="nx">num</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">num</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="nx">results</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">excuteBasicPromisePool</span><span class="p">,</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>-</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.test.js</span>
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">excuteBasicPromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./promise_pool</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">excuteBasicPromisePool</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="k">await</span> <span class="nf">excuteBasicPromisePool</span><span class="p">()).</span><span class="nf">toEqual</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]);</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<ul>
+  <li>jest를 사용한 테스트 파일을 작성합니다.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// utils.js</span>
+<span class="kd">const</span> <span class="nx">users</span> <span class="o">=</span> <span class="p">[{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userA</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userB</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userC</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userD</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">}]</span>
+
+<span class="kd">function</span> <span class="nf">getUserByIdWithDelayTime</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nc">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nf">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">users</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nx">obj</span> <span class="o">=&gt;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">id</span> <span class="o">===</span> <span class="nx">param</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+            <span class="nf">resolve</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+        <span class="p">},</span> <span class="nx">param</span><span class="p">.</span><span class="nx">time</span><span class="p">)</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">users</span><span class="p">,</span>
+    <span class="nx">getUserByIdWithDelayTime</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li>test에서 사용하기 위한 utility 파일을 작성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">getUserById()</code> 메서드는 id에 따른 user를 가져오는 함수입니다. 이 때, DB로 부터 값을 가지고 오는 것과 같이 시간이 소요되는 항목을 모킹하기 위해 delay time을 함께 param 변수에 넣도록 합니다.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.js</span>
+
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">PromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">@supercharge/promise-pool</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="p">{</span>
+    <span class="nx">getUserByIdWithDelayTime</span><span class="p">,</span>
+<span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./utils</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">_</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">lodash</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">measurePromiseAllWithChunk</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// chunkAll를 각각의 chunk로 나누기</span>
+    <span class="kd">const</span> <span class="nx">chunkSetAll</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nf">chunk</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="kd">let</span> <span class="nx">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for </span><span class="p">(</span><span class="kd">const</span> <span class="nx">chunkSet</span> <span class="k">of</span> <span class="nx">chunkSetAll</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">chunkStartTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+        <span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nf">all</span><span class="p">(</span><span class="nx">chunkSet</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="nx">param</span> <span class="o">=&gt;</span> <span class="nf">getUserByIdWithDelayTime</span><span class="p">(</span><span class="nx">param</span><span class="p">)));</span>
+        <span class="kd">const</span> <span class="nx">chunkEndTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromiseAllWihChunk: </span><span class="p">${</span><span class="nx">idx</span><span class="o">++</span><span class="p">}</span><span class="s2"> - elapsed time: </span><span class="p">${</span><span class="nx">chunkEndTime</span> <span class="o">-</span> <span class="nx">chunkStartTime</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="nx">endTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromiseAllWihChunk: total time: </span><span class="p">${</span><span class="nx">endTime</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">}</span><span class="s2"> ms`</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">measurePromisePoolWithConcurrency</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="kd">const</span> <span class="p">{</span>
+        <span class="nx">results</span><span class="p">,</span> <span class="nx">errors</span>
+    <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">PromisePool</span>
+        <span class="p">.</span><span class="k">for</span><span class="p">(</span><span class="nx">paramList</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">withConcurrency</span><span class="p">(</span><span class="nx">chunkSize</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">process</span><span class="p">(</span><span class="nx">getUserByIdWithDelayTime</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">endTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromisePoolWihConcurrency time: </span><span class="p">${</span><span class="nx">endTime</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">}</span><span class="s2"> ms`</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">results</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">measurePromiseAllWithChunk()</code>: <code class="language-plaintext highlighter-rouge">{id: ?, time: ?}</code>의 리스트로 주어지게될 파라미터를 직접 chunk 단위로 나누어 chunk set을 반복해서 <code class="language-plaintext highlighter-rouge">Promise.all()</code>작업을 수행합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">measurePromisePoolWithConcurrency()</code>: 위 함수와 같은 역할을 하지만, 직접 chunk를 나누지 않고 내장된 <code class="language-plaintext highlighter-rouge">withConcurrency()</code> 메서드를 사용합니다.</li>
+</ul>
+
+<h3 id="테스트-결과-분석">테스트 결과 분석</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.test.js</span>
+
+<span class="kd">const</span> <span class="p">{</span>
+    <span class="nx">measurePromiseAllWithChunk</span><span class="p">,</span>
+    <span class="nx">measurePromisePoolWithConcurrency</span><span class="p">,</span>
+<span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./promise_pool</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">measurePromiseAllWithChunk</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">paramList</span> <span class="o">=</span> <span class="p">[{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="p">}]</span>
+
+    <span class="k">await</span> <span class="nf">measurePromiseAllWithChunk</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">measurePromisePoolWithConcurrency</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// 위와 동일</span>
+    <span class="kd">const</span> <span class="nx">paramList</span> <span class="o">=</span> <span class="p">[{</span>
+        <span class="p">...</span>
+    <span class="p">}]</span>
+
+    <span class="k">await</span> <span class="nf">measurePromisePoolWithConcurrency</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="cm">/** 출력 결과
+measurePromiseAllWihChunk: 0 - elapsed time: 300.7714159488678
+measurePromiseAllWihChunk: 1 - elapsed time: 200.38870894908905
+measurePromiseAllWihChunk: total time: 505.5954999923706 ms
+
+measurePromisePoolWihConcurrency time: 301.0168330669403 ms
+*/</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Promise.all</code>을 사용하면, 100ms와 300ms가 같은 chunk로 묶여있기 때문에, 100ms task를 마치더라도 200ms task를 진행할 수 없었습니다. 따라서 300ms와 200ms의 합인 500ms 이상의 시간이 소요됩니다.</li>
+  <li>하지만, <code class="language-plaintext highlighter-rouge">PromisePool</code>을 사용한 결과 100ms task가 끝나고 다른 chunk에 있는 200ms 바로 사용하였기 때문에, 300ms 정도의 시간만 소요되었습니다.</li>
+</ul>
+
+<h3 id="참고-자료">참고 자료</h3>
+<ul>
+  <li>이동욱님 블로그 자료: https://jojoldu.tistory.com/714</li>
+  <li>promise-pool 모듈: https://github.com/supercharge/promise-pool</li>
+  <li>dalseo님 async jest test: https://www.daleseo.com/jest-async/</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Error Async" /><summary type="html"><![CDATA[오류 내용 상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다. 이 때, Promse.allSettled를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다.]]></summary></entry><entry><title type="html">[Book] [Real MySQL 8.0] 내용 정리</title><link href="http://localhost:4000/book/database-1/" rel="alternate" type="text/html" title="[Book] [Real MySQL 8.0] 내용 정리" /><published>2023-05-14T22:05:07+09:00</published><updated>2023-05-14T22:05:07+09:00</updated><id>http://localhost:4000/book/database-1</id><content type="html" xml:base="http://localhost:4000/book/database-1/"><![CDATA[<p>CH 4.1.4 플러그인 스토리지 엔진 모델</p>
 <ul>
   <li>MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다.</li>
   <li>MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다.
@@ -1227,318 +1395,296 @@ code/
       <li><code class="language-plaintext highlighter-rouge">innodb_lock_wait_timeout</code>: 데드락 상태일 때, 해당 변수에 정해둔 시간이 지나면 자동으로 요청이 실패하고 에러 메시지를 반환합니다.</li>
     </ul>
   </li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="DB" /><summary type="html"><![CDATA[CH 4.1.4 플러그인 스토리지 엔진 모델 MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다. MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다. (데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리) MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 Handler_로 시작되는 상태변수가 많습니다. GROUP BY와 ORDER BY 등의 복잡한 처리는 MySQL 엔진의 처리 영역인 ‘쿼리 실행기’에서 처리됩니다. 앞으로의 여정에서는, 하나의 쿼리 작업에서 나뉘어 지는 여러 하위 작업들이 MySQL 엔진 영역에서 처리되는지, 스토리지 엔진 영역에서 처리되는지 구분하게 될 것입니다. mysqld에서 지원되는 스토리지 엔진을 확인하는 명령어 mysql&gt; SHOW ENGINS; 인증 및 전문 검색용 파서와 같은 플러그인을 확인하는 명령어 mysql&gt; SHOW PLUGINS;]]></summary></entry><entry><title type="html">[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?</title><link href="http://localhost:4000/database/database-dbcp/" rel="alternate" type="text/html" title="[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?" /><published>2023-05-13T18:05:07+07:00</published><updated>2023-05-13T18:05:07+07:00</updated><id>http://localhost:4000/database/database-dbcp</id><content type="html" xml:base="http://localhost:4000/database/database-dbcp/"><![CDATA[<h1 id="dbcp-db-connection-pool">DBCP (DB Connection Pool)</h1>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Book" /><summary type="html"><![CDATA[CH 4.1.4 플러그인 스토리지 엔진 모델 MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다. MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다. (데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리) MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 Handler_로 시작되는 상태변수가 많습니다. GROUP BY와 ORDER BY 등의 복잡한 처리는 MySQL 엔진의 처리 영역인 ‘쿼리 실행기’에서 처리됩니다. 앞으로의 여정에서는, 하나의 쿼리 작업에서 나뉘어 지는 여러 하위 작업들이 MySQL 엔진 영역에서 처리되는지, 스토리지 엔진 영역에서 처리되는지 구분하게 될 것입니다. mysqld에서 지원되는 스토리지 엔진을 확인하는 명령어 mysql&gt; SHOW ENGINS; 인증 및 전문 검색용 파서와 같은 플러그인을 확인하는 명령어 mysql&gt; SHOW PLUGINS;]]></summary></entry><entry><title type="html">[Django] 배포/개발 환경은 어떻게 설정할까?</title><link href="http://localhost:4000/django%20strategy/django-setting/" rel="alternate" type="text/html" title="[Django] 배포/개발 환경은 어떻게 설정할까?" /><published>2023-05-13T20:05:07+09:00</published><updated>2023-05-13T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-setting</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-setting/"><![CDATA[<h3 id="최종-목표">최종 목표</h3>
 <ul>
-  <li>참고: https://youtu.be/zowzVqx3MQ4</li>
-  <li>해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">.env</code> 파일에 설정된 <code class="language-plaintext highlighter-rouge">DJANGO_SETTINGS_MODULE</code>에 따라서 배포환경에 맞는 settings.py 사용</li>
 </ul>
 
-<p>통신방법</p>
-<ul>
-  <li>백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다.</li>
-  <li>DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다.</li>
-</ul>
+<h3 id="django-container-setting">Django Container Setting</h3>
 
-<p><strong>DBCP의 개념과 원리</strong></p>
-<ol>
-  <li>백엔드 서버는 DB 서버와 통신하기 위해 미리 DB connection을 만들어두고, 풀처럼 관리할 수 있도록 합니다. 이를 DBCP라고 합니다.</li>
-  <li>[get connection] API 요청을 받아, DB를 조회하는 상황이 발생하면 connection pool에서 사용 가능한 connection을 가져와서 대여합니다.</li>
-  <li>connection을 통해 쿼리를 DB 서버로 요청하고, 데이터를 받습니다.</li>
-  <li>[close connection] 빌려왔던 connection을 connection pool에 다시 반환합니다.</li>
-  <li>API 응답을 반환합니다.</li>
-</ol>
-
-<ul>
-  <li>위와 같이, connection pool을 사용한다면 connection을 재사용하므로써 DB와의 TCP 연결 시간을 절약할 수 있습니다.</li>
-</ul>
-
-<p><strong>DBCP 설정 방법</strong></p>
-<ul>
-  <li>해당 강의에서는 DB 서버는 MySQL을, 백엔드 서버는 HikariCP를 사용합니다.</li>
-  <li>DB connection은 백엔드 서버와 DB 서버 각각에서의 설정 방법을 잘 알고 있어야합니다.</li>
-</ul>
-
-<h3 id="mysql-db-connection-설정-방법">MySQL DB Connection 설정 방법</h3>
-<p><strong>max_connections</strong></p>
-<ul>
-  <li>client(백엔드 서버)와 맺을 수 있는 최대 connection 수를 결정하는 파라미터입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">max_connections</code>를 여유있게 설정하지 않게 되면, DBCP의 connection 수가 증가해야하는 경우에 DB 서버와 connection할 수 없는 문제가 발생합니다.</li>
-</ul>
-
-<p><strong>wait_timeout</strong></p>
-<ul>
-  <li>DB 서버에서 connection이 inactive 할 때, 다시 요청이 오기까지 얼마의 시간을 기다린 뒤 close 할 것인지를 결정하는 파라미터입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">wait_timeout</code> 이내에 요청이 도착한다면 0으로 시간을 초기화 하고 새로운 요청을 기다립니다.</li>
-  <li>connection pool에 connection들이 있음에도 불구하고, 백엔드 서버에서 어떤 오류가 발생하여 connection을 종료하고 반환하지 못한다면, DB 서버는 하염없이 connection을 맺어두고 resource를 낭비할 수 밖에 없게됩니다.</li>
-  <li>따라서, DB 서버는 <code class="language-plaintext highlighter-rouge">wait_timeout</code>의 시간만큼 기다린 후, 비정상적인 상황임을 감지하면 해당 connection을 끊고 자원을 회수합니다.</li>
-</ul>
-
-<h3 id="백엔드-서버-db-connection-설정-방법-hikaricp">백엔드 서버 DB Connection 설정 방법 (HikariCP)</h3>
-<p><strong>minimumIdle</strong></p>
-<ul>
-  <li>pool에서 유지하는 최소한의 idle(요청이 올 때 까지 대기하고 있는 유휴자원) connection의 수를 결정하는 파라미터입니다.</li>
-  <li>connection들이 계속 사용 되다가 모두 반환되어 여러개의 connection이 생기더라도, <code class="language-plaintext highlighter-rouge">minimumIdle</code>의 개수에 맞도록 나머지 connection은 끊어줍니다.
-<strong>maximumPoolSize</strong></li>
-  <li>pool이 가질 수 있는 최대 connection의 수(idle과 active(in-use) connection을 합친)를 결정하는 파라미터입니다.</li>
-  <li>이는 minimumIdle 보다 우선순위를 가지게 되어 점유중인 connection이 minimumIdle보다 작다면 새로 값을 추가해야하지만, maximumPoolSize 이상으로 추가할 수는 없습니다. (아래 예시)</li>
-  <li>minimumIdle이 2이고, maximumPoolSize가 4인 경우: connection pool에 4개의 connection이 있고, 그 중 세 개의 connection이 점유 중이고, 하나가 idle connection 상태일 때 -&gt; maximumPoolSize가 4이기 때문에 connection을 추가할 수 없게 됩니다.
-<strong>maxLifetime</strong></li>
-  <li>pool에서 connection의 최대 수명을 설정하는 파라미터입니다.</li>
-  <li>pool 내의 connection 상태가 이를 넘기면 idle인 경우 바로 제거하고, active 인 경우는 pool로 반환 후에 제거합니다.</li>
-  <li>주의: <code class="language-plaintext highlighter-rouge">maxLifetime</code>이 제대로 동작하기 위해서는 connection이 제 때 반환되어야 합니다. 따라서, API 처리가 길어져 connection을 오래 점유하고 DB 서버에서 <code class="language-plaintext highlighter-rouge">wait_timeout</code>에 의해 연결도 끊긴 상태라면 <code class="language-plaintext highlighter-rouge">maxLifetime</code>이 캐치할 수 없는 메모리 connection 누수 현상이 발생하게 될 수 있습니다.</li>
-  <li>권유: DB 서버의 connection time limit(MySQL의 경우, <code class="language-plaintext highlighter-rouge">wait_timeout</code>)보다 2~3초 정도 더 짧게 설정해두는 것이 좋습니다. connection을 통한 처리 요청이 DB 서버까지 다다르기 전에 DB 서버의 connection time이 만료될 수 있기 때문입니다.
-<strong>connectionTimeout</strong></li>
-  <li>pool에서 connection을 받기 위한 대기 시간으로, 백엔드 서버에 트래픽이 밀려올 때 해당 시간 내에 pool에서 connection을 받아오지 못하는 경우 exception이 발생합니다.</li>
-  <li>해당 시간을 설정할 때, 서비스 이용자가 요청 후 얼마나 대기할 수 있는지까지 판단하여 설정해야합니다. timeout 시간을 30초로 잡더라도 서비스 이용자가 백엔드 서버와의 연결을 끊는다면 의미가 없기 떄문입니다.</li>
-</ul>
-
-<h2 id="적절한-connection-수를-찾기-위한-과정">적절한 connection 수를 찾기 위한 과정</h2>
-<ul>
-  <li>기본적으로 DB 서버를 구성할 때, 고가용성을 보장하기 위해 replication으로 구성합니다. Primary 서버는 read-write를 담당하고, Secondary 서버는 read-only를 담당합니다.</li>
-  <li>적절한 connection 수를 찾기 위해 모니터링 환경(서버 리소스, 서버 스레드 수, DBCP 등등)을 구축합니다.</li>
-  <li>백엔드 시스템에 대한 부하 테스트(tool: nGrinder)를 수행하면서 traffic에 따른 서버의 동작을 모니터링합니다.</li>
-  <li>관찰해야할 사항: 백엔드 서버, DB 서버의 CPU, MEM 등의 리소스 사용률을 확인
-    <ul>
-      <li>request per second: <strong>백엔드 시스템의 전체적인 처리량</strong>을 보기 위한 지표입니다.</li>
-      <li>average response time: 요청을 처리할 때 평균적인 응답처리를 보며, <strong>api 성능을 확인하는 지표</strong>를 확인해야합니다.</li>
-    </ul>
-  </li>
-  <li>만약 트래픽이 많아짐에 따라서 백엔드 서버는 문제가 없지만 DB 서버에 문제가 있는 경우
-    <ul>
-      <li>select 쿼리를 많이 처리하게 되면서 발생하는 문제라면, Secondary 서버를 추가합니다.</li>
-      <li>백엔드 서버와 DB 서버 사이에 Cache layer를 두어 DB 서버가 직접적으로 받는 부하를 낮출 수 있습니다.</li>
-      <li>Sharding을 이용하는 방법이 있습니다.</li>
-    </ul>
-  </li>
-  <li>thread per request 모델인 경우, active thread 수를 확인합니다.</li>
-</ul>
-
-<p>추가 공부</p>
-<ul>
-  <li>Naver D2: https://d2.naver.com/helloworld/5102792</li>
-  <li>hikariCP github: https://github.com/brettwooldridge/HikariCP</li>
-  <li>MySQL 설정 페이지: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html</li>
-</ul>
-
-<hr />
-<p>참고:</p>
-<ul>
-  <li>https://jojoldu.tistory.com/634</li>
-  <li>https://d2.naver.com/helloworld/5102792</li>
-</ul>
-
-<h3 id="sequelize에서-테스트-해보기">Sequelize에서 테스트 해보기</h3>
-<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// app.js</span>
-<span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">dotenv</span><span class="dl">'</span><span class="p">).</span><span class="nf">config</span><span class="p">();</span>
-
-<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">)</span>
-<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nf">express</span><span class="p">()</span>
-<span class="kd">const</span> <span class="nx">port</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORT</span> <span class="o">||</span> <span class="mi">3000</span>
-
-<span class="kd">const</span> <span class="nx">Sequelize</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">sequelize</span><span class="dl">"</span><span class="p">);</span>
-<span class="kd">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Sequelize</span><span class="p">(</span>
-    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_NAME</span><span class="p">,</span>
-    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_USER</span><span class="p">,</span>
-    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_PASSWORD</span><span class="p">,</span>
-    <span class="p">{</span>
-        <span class="na">host</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_HOST</span><span class="p">,</span>
-        <span class="na">dialect</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_DIALECT</span><span class="p">,</span>
-        <span class="na">operatorsAliases</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-
-        <span class="na">pool</span><span class="p">:</span> <span class="p">{</span>
-            <span class="na">max</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="na">min</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="c1">// acquire: procee.env.pool.acquire,</span>
-            <span class="c1">// idle: procee.env.pool.idle</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">);</span>
-<span class="nx">sequelize</span>
-    <span class="p">.</span><span class="nf">sync</span><span class="p">()</span>
-    <span class="p">.</span><span class="nf">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Connected database</span><span class="dl">'</span><span class="p">))</span>
-    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Failed to connect db </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">))</span>
-
-<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/test-timeout</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">();</span>
-    <span class="k">try</span> <span class="p">{</span>
-        <span class="k">await</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nf">query</span><span class="p">(</span><span class="dl">"</span><span class="s2">SELECT SLEEP(3);</span><span class="dl">"</span><span class="p">);</span>
-        <span class="kd">const</span> <span class="nx">lag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">()</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">;</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Lag: </span><span class="p">${</span><span class="nx">lag</span><span class="p">}</span><span class="s2">ms`</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">lag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">()</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">;</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Lag: </span><span class="p">${</span><span class="nx">lag</span><span class="p">}</span><span class="s2">ms`</span><span class="p">);</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">db error</span><span class="dl">'</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">200</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span><span class="dl">'</span><span class="s1">msg</span><span class="dl">'</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ok</span><span class="dl">'</span><span class="p">});</span>
-<span class="p">});</span>
-
-<span class="nx">app</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Example app listening on port </span><span class="p">${</span><span class="nx">port</span><span class="p">}</span><span class="s2">`</span><span class="p">)</span>
-<span class="p">});</span>
+<p><strong>Django 폴더 구조</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web
+- Dockerfile
+- apps/
+  - config/
+    - settings/
+      - base.py
+      - development.py
+      - production.py
+    - wsgi/
+      - development.py
+      - production.py
+    ...
+  - entrypoint.sh
+  - manage.py
+  - requirements.txt
+- .env
 </code></pre></div></div>
+
+<p><strong>Django 배포 환경 설정</strong></p>
 <ul>
-  <li>DB의 커넥션 풀을 5로 제한하였고, 각 쿼리당 DB 수행 시간을 3초라고 가정하였습니다.</li>
-  <li>아래와 같이 <a href="https://httpd.apache.org/docs/2.4/ko/programs/ab.html">Apache Bench</a>를 사용하여 부하테스트를 수행하면 다음과 같은 결과를 얻을 수 있습니다.</li>
-  <li>부하 테스트를 위해, 20명의 유저가 동시에 저희 서버에 100회 요청을 보내는 상황을 가정하였습니다.</li>
-</ul>
-
-<pre><code class="language-plain">&gt; ab -n 100 -c 20 https://localhost:4000/test-timeout
-This is ApacheBench, Version 2.3 &lt;$Revision: 1879490 $&gt;
-Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Licensed to The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking localhost (be patient).....done
-
-
-Server Software:        nginx/1.21.6
-Server Hostname:        localhost
-Server Port:            4000
-SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-CHACHA20-POLY1305,4096,256
-Server Temp Key:        ECDH X25519 253 bits
-TLS Server Name:        localhost
-
-Document Path:          /km/test-timeout
-Document Length:        12 bytes
-
-Concurrency Level:      20
-Time taken for tests:   64.159 seconds
-Complete requests:      100
-Failed requests:        0
-Total transferred:      27200 bytes
-HTML transferred:       1200 bytes
-Requests per second:    1.56 [#/sec] (mean)
-Time per request:       12831.748 [ms] (mean)
-Time per request:       641.587 [ms] (mean, across all concurrent requests)
-Transfer rate:          0.41 [Kbytes/sec] received
-
-Connection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:       14   77  59.8     48     243
-Processing:  3039 11087 2476.8  12026   12342
-Waiting:     3039 11086 2476.8  12026   12342
-Total:       3101 11164 2459.8  12095   12370
-
-Percentage of the requests served within a certain time (ms)
-  50%  12095
-  66%  12171
-  75%  12199
-  80%  12222
-  90%  12303
-  95%  12315
-  98%  12332
-  99%  12370
- 100%  12370 (longest request)
-
-# console의 결과 ========================================
-Lag: 3093.0100421905518ms
-Lag: 3056.129874944687ms
-Lag: 3071.250333070755ms
-Lag: 3063.7896671295166ms
-Lag: 3065.905833005905ms
-Lag: 3056.715542078018ms
-
-Lag: 6105.021874904633ms
-Lag: 6107.211666107178ms
-Lag: 6109.895124912262ms
-Lag: 6116.28054189682ms
-Lag: 6118.377749919891ms
-
-Lag: 9111.812832832336ms
-Lag: 9110.667292118073ms
-Lag: 9115.994791030884ms
-Lag: 9120.64020895958ms
-Lag: 9124.2014169693ms
-
-Lag: 12140.2624168396ms
-Lag: 12141.329499959946ms
-Lag: 12143.3755838871ms
-Lag: 12145.10533285141ms
-Lag: 12145.73112487793ms
-
-Lag: 12126.067250013351ms
-Lag: 12110.478208065033ms
-Lag: 12111.195416927338ms
-Lag: 12106.155959129333ms
-Lag: 12108.08195900917ms
-...
-</code></pre>
-<ul>
-  <li>20명이 5개의 커넥션 풀로 모든 작업을 완료해야합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기중인 요청 10개)</li>
-  <li>이 때, 처리된 요청이 다시 요청을 보내므로 6,7,8,9,10이 DB 동작을 처리하기 시작할 때, 이미 1,2,3,4,5번의 두 번째 요청이 대기 중입니다.</li>
-  <li>따라서 1,2,3,4,5번의 두 번째 요청부터는 응답을 받으려면 12000ms 정도가 걸리게 되는 것입니다. 이와 같이 모든 유저의 두 번째 요청부터는 12000ms 정도가 걸리게 되어 Lag가 일정 시점부터는 12000ms로 고정됩니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Database" /><summary type="html"><![CDATA[DBCP (DB Connection Pool) 참고: https://youtu.be/zowzVqx3MQ4 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.]]></summary></entry><entry><title type="html">[Django] Form 클래스는 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-form/" rel="alternate" type="text/html" title="[Django] Form 클래스는 어떻게 사용할까?" /><published>2023-05-13T18:05:07+07:00</published><updated>2023-05-13T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-form</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-form/"><![CDATA[<h1 id="form">FORM</h1>
-<ul>
-  <li>HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다.
-(CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.)</li>
-</ul>
-
-<h3 id="djnago-폼-처리-과정">Djnago 폼 처리 과정</h3>
-<ol>
-  <li>브라우저에서 form을 포함한 페이지를 요청합니다.</li>
-  <li>Django는 “unbound” default form을 서빙합니다.<br />
-(이 시점에서 폼은 초기값이 있지만, Client가 입력한 값에 연관되지 않습니다.)</li>
-  <li>Client는 데이터를 입력하고 서버에 submit합니다.</li>
-  <li>데이터 유효성을 검사합니다.<br />
-(실패한다면, error message와 함께 bound form을 다시 유저에게 서빙합니다.)</li>
-  <li>유효한 데이터를 통해 알맞은 동작을 수행한 후, 성공 URL로 리다이렉트합니다.</li>
-</ol>
-
-<h3 id="form-클래스-viewset-작성">Form 클래스, ViewSet 작성</h3>
-<ul>
-  <li>Form 클래스는 Django 어드민 시스템의 핵심으로, field들과 배치, widget, 라벨, 초기값, 유효성 확인, 에러 메시지를 결정합니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># forms.py
+  <li>공통 설정은 다음과 같은 방식으로 공통적으로 사용하는 부분을 명시합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.base
 </span>
-<span class="kn">from</span> <span class="n">django</span> <span class="kn">import</span> <span class="n">forms</span>
-<span class="kn">from</span> <span class="n">mytest.models</span> <span class="kn">import</span> <span class="n">Category</span>
+  <span class="kn">from</span> <span class="n">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+  <span class="kn">import</span> <span class="n">os</span>
 
-<span class="k">class</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">forms</span><span class="p">.</span><span class="n">Form</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">상품명을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
-    <span class="n">price</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">IntegerField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">상품 가격을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
-    <span class="n">brand</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">브랜드명을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
-    <span class="n">cate_id</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Category</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">())</span>
-</code></pre></div></div>
-<ul>
-  <li>상품 폼 생성시 상품명과 브랜드명 입력부는 text 타입의 input 태그로, 가격 입력부는 number 타입의 input 태그로, category 모델 선정부(FK)는 select 태그로 렌더링됩니다.</li>
+
+  <span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)))</span>
+  <span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DJANGO_SECRET_KEY</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="sh">'</span><span class="s">templates</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">ROOT_URLCONF</span> <span class="o">=</span> <span class="sh">'</span><span class="s">config.urls</span><span class="sh">'</span>
+
+  <span class="n">STATIC_URL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">static/</span><span class="sh">'</span>
+  <span class="n">STATIC_ROOT</span> <span class="o">=</span> <span class="sh">'</span><span class="s">staticfiles</span><span class="sh">'</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+
+  <span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+  <span class="bp">...</span>
+
+</code></pre></div>    </div>
+  </li>
+  <li>개발환경에서는 아래와 같은 방식으로 작성합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.dev
+</span>  <span class="kn">import</span> <span class="n">os</span>
+  <span class="kn">from</span> <span class="n">.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+  <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+  <span class="n">WSGI_APPLICATION</span> <span class="o">=</span> <span class="sh">"</span><span class="s">config.wsgi.application</span><span class="sh">"</span>
+
+  <span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sh">'</span><span class="s">127.0.0.1</span><span class="sh">'</span><span class="p">,</span>
+      <span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span>
+  <span class="p">]</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+  <span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">'</span><span class="s">default</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+          <span class="sh">'</span><span class="s">ENGINE</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">django.db.backends.sqlite3</span><span class="sh">'</span><span class="p">,</span>
+          <span class="sh">'</span><span class="s">NAME</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="sh">'</span><span class="s">db.sqlite3</span><span class="sh">'</span><span class="p">),</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+</code></pre></div>    </div>
+  </li>
+  <li>live 서버의 배포환경에서는 아래와 같은 방식으로 작성합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.production
+</span>  <span class="kn">import</span> <span class="n">os</span>
+  <span class="kn">from</span> <span class="n">.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+  <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">False</span>
+  <span class="n">WSGI_APPLICATION</span> <span class="o">=</span> <span class="sh">"</span><span class="s">config.wsgi.application</span><span class="sh">"</span>
+
+  <span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sh">'</span><span class="s">*</span><span class="sh">'</span><span class="p">,</span>
+  <span class="p">]</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+  <span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">'</span><span class="s">default</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+          <span class="sh">'</span><span class="s">ENGINE</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_ENGINE</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">NAME</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_NAME</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">USER</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_USER</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">PASSWORD</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_PASSWORD</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">HOST</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_HOST</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">PORT</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_PORT</span><span class="sh">'</span><span class="p">),</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+</code></pre></div>    </div>
+  </li>
+  <li>API 설정: <code class="language-plaintext highlighter-rouge">base_url/profile</code>로 요청을 보낼 때, 어떤 설정값을 적용하였는지 불러오는 API 입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">rest_framework.views</span> <span class="kn">import</span> <span class="n">APIView</span>
+  <span class="kn">from</span> <span class="n">rest_framework.response</span> <span class="kn">import</span> <span class="n">Response</span>
+  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">status</span>
+
+  <span class="kn">import</span> <span class="n">os</span>
+
+  <span class="k">class</span> <span class="nc">ProfileController</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span> 
+      <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+          <span class="n">settingProfile</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DJANGO_SETTINGS_MODULE</span><span class="sh">'</span><span class="p">).</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">.</span><span class="sh">'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+          <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">settingProfile</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>위의 설정 항목을 모두 작성했으면, 아래와 같이 .env 파일을 생성합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c">#.env.sample</span>
+  <span class="nv">DJANGO_SECRET_KEY</span><span class="o">=</span>
+
+  <span class="nv">DB_ENGINE</span><span class="o">=</span>
+  <span class="nv">DB_NAME</span><span class="o">=</span>
+  <span class="nv">DB_USER</span><span class="o">=</span>
+  <span class="nv">DB_PASSWORD</span><span class="o">=</span>
+  <span class="nv">DB_HOST</span><span class="o">=</span>
+  <span class="nv">DB_PORT</span><span class="o">=</span>
+    
+  <span class="nv">TEST_DB_NAME</span><span class="o">=</span>
+
+
+  <span class="c"># DJANGO START SETTING</span>
+  <span class="nv">DJANGO_SETTINGS_MODULE</span><span class="o">=</span>
+</code></pre></div>    </div>
+  </li>
 </ul>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># urls.py
-</span><span class="kn">from</span> <span class="n">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
-<span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+<h3 id="django-서버-배포">Django 서버 배포</h3>
+<p><strong>Django 서버 Dockerize</strong></p>
+<ul>
+  <li>설정이 완료된 후, gunicorn 통해 실행하기 위해 아래 명령어를 사용합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>gunicorn <span class="nt">--bind</span> 0.0.0.0:8000 config.wsgi.development:application
+</code></pre></div>    </div>
+  </li>
+  <li>이 때, 정적 파일은 서빙되지 않기 때문에, Nginx 설정과 함께 배포해주어야 합니다.</li>
+  <li>먼저 Django를 컨테이너로 세팅하기 위해 Dockerfile을 다음과 같이 작성합니다.
+    <pre><code class="language-Docker"># Dockerfile
+# syntax=docker/dockerfile:1
 
-<span class="kn">from</span> <span class="n">mytest.views</span> <span class="kn">import</span> <span class="n">ItemPageViewSet</span>
+FROM python:3
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+WORKDIR /apps
+COPY apps /apps/
 
-<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nf">path</span><span class="p">(</span><span class="sh">'</span><span class="s">view/items/</span><span class="sh">'</span><span class="p">,</span> <span class="n">ItemPageViewSet</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
-<span class="p">]</span>
+EXPOSE 8000/tcp
+
+RUN chmod +x /apps/entrypoint.sh
+CMD /apps/entrypoint.sh
+</code></pre>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># entrypoint.sh
+
+#!/bin/sh
+
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py collectstatic
+
+gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">python manage.py collectstatic</code> 명령어를 사용하면 Django app들에서 사용하는 static file을 추출합니다.
+(정확한 경로를 안다면, 직접 모아도 무방합니다.)</li>
+      <li><code class="language-plaintext highlighter-rouge">settings.base.py</code>에서 <code class="language-plaintext highlighter-rouge">STATIC_ROOT</code>에 지정한 폴더명에 정적 파일들이 모입니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="nginx-container-setting">Nginx Container Setting</h3>
+
+<p><strong>Nginx 폴더 경로</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nginx
+- Dockerfile
+- code/
+  - templates/
+    - default.conf.template
+- staticfiles/
+- entrypoint.sh
 </code></pre></div></div>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
-</span><span class="k">class</span> <span class="nc">ItemPageViewSet</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
-    <span class="n">itemRepository</span> <span class="o">=</span> <span class="nc">ItemRepository</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">itemForm</span> <span class="o">=</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">새로운 상품</span><span class="sh">"</span><span class="p">})</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sh">'</span><span class="s">form</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="nf">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sh">'</span><span class="s">items.html</span><span class="sh">'</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="p">):</span>
-        <span class="n">itemForm</span> <span class="o">=</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">itemForm</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">():</span>
-            <span class="n">self</span><span class="p">.</span><span class="n">itemRepository</span><span class="p">.</span><span class="nf">createItem</span><span class="p">({</span>
-                <span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">],</span>
-                <span class="sh">'</span><span class="s">price</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sh">'</span><span class="s">price</span><span class="sh">'</span><span class="p">],</span>
-            <span class="p">})</span>
-            <span class="k">return</span> <span class="nf">redirect</span><span class="p">(</span><span class="sh">"</span><span class="s">/view/items/</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sh">'</span><span class="s">form</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="nf">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sh">'</span><span class="s">items.html</span><span class="sh">'</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+<p><strong>Nginx 서버 Dockerize</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">default.conf.template</code>는 환경변수를 사용하기 위한 configuration template 입니다.
+    <div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span>       <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">listen</span>  <span class="s">[::]:80</span><span class="p">;</span>
+    <span class="kn">server_name</span>  $<span class="p">{</span><span class="kn">NGINX_SERVER_NAME</span><span class="err">}</span><span class="p">;</span>
+
+    <span class="kn">access_log</span>  <span class="n">/var/log/nginx/logs/host.access.log</span>  <span class="s">main</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">proxy_redirect</span>     <span class="no">off</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        <span class="kn">proxy_read_timeout</span> <span class="mi">1200</span><span class="p">;</span>
+
+        <span class="kn">proxy_pass</span>         <span class="s">http://web:8000/</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="n">/static</span> <span class="p">{</span>
+        <span class="kn">alias</span> <span class="n">/staticfiles</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">...</span>
+<span class="err">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">NGINX_SERVER_NAME</code>을 환경변수로 불러와서 치환되도록 설정할 수 있습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">/static</code> 경로로 오는 요청들을 HOST로부터 옮겨온 /staticfiles에서 처리합니다.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">Dockefile</code> 및 <code class="language-plaintext highlighter-rouge">entrypoint.sh</code>는 다음과 같이 작성합니다.
+    <div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Dockefile</span>
+<span class="k">FROM</span><span class="s"> nginx:1.21.6</span>
+
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get <span class="nb">install</span> <span class="nt">-y</span> openssl
+  
+<span class="k">COPY</span><span class="s"> ./entrypoint.sh /entrypoint.sh</span>
+<span class="k">COPY</span><span class="s"> ./code/templates /etc/nginx/templates</span>
+  
+<span class="k">COPY</span><span class="s"> ./staticfiles /static</span>
+  
+<span class="k">ENV</span><span class="s"> NGINX_HOST localhost</span>
+<span class="k">ENV</span><span class="s"> INITIAL_START 1</span>
+  
+<span class="k">CMD</span><span class="s"> ["/bin/bash", "/entrypoint.sh"]</span>
+</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># entrypoint.sh</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> /var/log/nginx/logs/
+
+<span class="c"># nginx 실행 전 템플릿 파일의 변수를 환경 변수 값으로 변경해주는 구문입니다.</span>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$INITIAL_START</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s1">'1'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span>bash /docker-entrypoint.d/20-envsubst-on-templates.sh
+    <span class="nv">INITIAL_START</span><span class="o">=</span><span class="s2">"0"</span>
+<span class="k">fi
+</span>nginx <span class="nt">-g</span> <span class="s2">"daemon off;"</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>nginx 컨테이너 내부 /etc/nginx/conf.d/default.conf는 <code class="language-plaintext highlighter-rouge">/docker-entrypoint.d/20-envsubst-on-templates.sh</code>에 의해 <code class="language-plaintext highlighter-rouge">code/templates/default.conf.template</code>가 생성됩니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">IINITIAL_START</code>를 설정하지 않으면, default.conf를 변경하여 설정값을 유지하고 싶어도 계속해서 템플릿이 변형되기 때문에 해당 구문을 넣었습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Service Dockerize</strong></p>
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: "3"
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+  web:
+    build: ./web
+    container_name: web
+    env_file:
+      - ./web/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.production
 </code></pre></div></div>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">view/item/</code> 경로로 GET 요청을 받으면, unbound form을 우선적으로 렌더링합니다.</li>
-  <li>이 후, 데이터를 입력하고 POST 요청을 통해 새로운 item을 생성할 수 있습니다.</li>
-  <li>이 때, 이 전에 포스팅한 serializer를 수행하는 <code class="language-plaintext highlighter-rouge">itemRepository</code>를 활용하여 아이템을 생성합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[FORM HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다. (CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.)]]></summary></entry></feed>
+  <li>대부분에 설정은 Dockerfile에서 마치고, container 실행부분만 docker-compose에 위임합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[최종 목표 .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용]]></summary></entry></feed>

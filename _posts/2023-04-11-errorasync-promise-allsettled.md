@@ -1,11 +1,11 @@
 ---
 layout: archive
-title:  "[Error Handle] Promise.allSettled: 비동기처리 문제 발생상황 대처"
+title:  "[Error Async] Promise.allSettled"
 date:   2023-04-11 23:00:07 +0900
-categories: [Error Handle]
+categories: 
+  - Error Async
 ---
 
-# Promise All로 인한 문제 발생
 ### 문제 발생 상황
 - 외부 발주사에서 상품을 등록하는 API를 호출하던 중에, Sequelize가 Too many connections를 반환하며 서버가 비정상적으로 동작하였습니다.
 - 코드를 살펴보니, 다른 개발자가 Promise all 코드를 통해 API 호출 및 Database에 값을 반영하는 작업을 모두 비동기적으로 진행하고 있었습니다.

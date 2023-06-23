@@ -2,7 +2,9 @@
 layout: archive
 title:  "[Django] 배치서버는 어떻게 구성할까?"
 date:   2023-04-25 20:05:07 +0900
-categories: [Django Strategy]
+categories: 
+    - Django Strategy
+last_modified_at: 2023-04-25
 ---
 
 ## 글을 작성하게 된 계기

@@ -120,7 +120,9 @@
           Yam's Dev Logs
           
         </a>
-        <ul class="visible-links"></ul>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
         
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">Toggle menu</span>
@@ -140,7 +142,7 @@
 
 <div id="main" role="main">
   
-  <div class="sidebar sticky">
+<div class="sidebar sticky">
   
 
 
@@ -249,8 +251,110 @@
 </div>
 
   
-  </div>
 
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 24</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
 
 
   <div class="archive">
@@ -287,7 +391,7 @@
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-05-26T00:00:00+07:00">May 26, 2023</time>
+        <time datetime="2023-05-26T00:00:00+09:00">May 26, 2023</time>
       </span>
     
 
@@ -337,7 +441,7 @@ RDB의 단점은 무엇일까?
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-05-25T18:05:07+07:00">May 25, 2023</time>
+        <time datetime="2023-05-25T20:05:07+09:00">May 25, 2023</time>
       </span>
     
 
@@ -372,7 +476,7 @@ RDB의 단점은 무엇일까?
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/db/database-1/" rel="permalink">[DB] [Real MySQL 8.0] 내용 정리
+        <a href="/error%20async/errorasync-promise-pool/" rel="permalink">[Error Async] connection pool 제한에 따른 비동기 처리
 </a>
       
     </h2>
@@ -384,7 +488,56 @@ RDB의 단점은 무엇일까?
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-05-14T20:05:07+07:00">May 14, 2023</time>
+        <time datetime="2023-05-18T23:00:07+09:00">May 18, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">오류 내용
+
+  상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다.
+  이 때, Promse.allSettled를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, t...</p>
+  </article>
+</div>
+
+  
+    
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/book/database-1/" rel="permalink">[Book] [Real MySQL 8.0] 내용 정리
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-05-14T22:05:07+09:00">May 14, 2023</time>
       </span>
     
 
@@ -422,7 +575,7 @@ RDB의 단점은 무엇일까?
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/database/database-dbcp/" rel="permalink">[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?
+        <a href="/database/database-dbcp/" rel="permalink">[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?
 </a>
       
     </h2>
@@ -434,7 +587,7 @@ RDB의 단점은 무엇일까?
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-05-13T18:05:07+07:00">May 13, 2023</time>
+        <time datetime="2023-05-13T20:05:07+09:00">May 13, 2023</time>
       </span>
     
 
@@ -458,57 +611,6 @@ RDB의 단점은 무엇일까?
 
   참고: https://youtu.be/zowzVqx3MQ4
   해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.
-
-</p>
-  </article>
-</div>
-
-  
-    
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/django%20strategy/django-form/" rel="permalink">[Django] Form 클래스는 어떻게 사용할까?
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-      
-      <span class="page__meta-date">
-        <i class="far fa-calendar-alt" aria-hidden="true"></i>
-        
-        <time datetime="2023-05-13T18:05:07+07:00">May 13, 2023</time>
-      </span>
-    
-
-    <span class="page__meta-sep"></span>
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">FORM
-
-  HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다.
-(CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.)
 
 </p>
   </article>

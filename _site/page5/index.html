@@ -118,7 +118,9 @@
           Yam's Dev Logs
           
         </a>
-        <ul class="visible-links"></ul>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
         
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">Toggle menu</span>
@@ -138,7 +140,7 @@
 
 <div id="main" role="main">
   
-  <div class="sidebar sticky">
+<div class="sidebar sticky">
   
 
 
@@ -247,8 +249,110 @@
 </div>
 
   
-  </div>
 
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 24</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
 
 
   <div class="archive">
@@ -273,6 +377,63 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
+        <a href="/study/study-1/" rel="permalink">[Study] 백엔드 로드맵 따라가며 공부하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-04-17T23:05:07+09:00">April 17, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Python
+
+  pip
+
+
+테스트
+
+  unittest/pyUnit
+  pytest
+  doctest
+
+</p>
+  </article>
+</div>
+
+  
+    
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
         <a href="/django%20deep/django-orm-deep2/" rel="permalink">[Django] ORM 사용시 주의사항
 </a>
       
@@ -285,7 +446,7 @@
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-04-11T21:05:07+07:00">April 11, 2023</time>
+        <time datetime="2023-04-11T23:05:07+09:00">April 11, 2023</time>
       </span>
     
 
@@ -336,7 +497,7 @@
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-04-11T21:05:07+07:00">April 11, 2023</time>
+        <time datetime="2023-04-11T23:05:07+09:00">April 11, 2023</time>
       </span>
     
 
@@ -374,7 +535,7 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/error%20handle/errorhandle-promise-pool/" rel="permalink">[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리
+        <a href="/error%20async/errorasync-promise-allsettled/" rel="permalink">[Error Async] Promise.allSettled
 </a>
       
     </h2>
@@ -386,7 +547,7 @@
       <span class="page__meta-date">
         <i class="far fa-calendar-alt" aria-hidden="true"></i>
         
-        <time datetime="2023-04-11T21:00:07+07:00">April 11, 2023</time>
+        <time datetime="2023-04-11T23:00:07+09:00">April 11, 2023</time>
       </span>
     
 
@@ -406,62 +567,10 @@
   </p>
 
 
-    <p class="archive__item-excerpt" itemprop="description">오류발생 보고
-참고 자료
-
-  이동욱님 블로그 자료: https://jojoldu.tistory.com/714
-  promise-pool 모듈: https://github.com/supercharge/promise-pool
-  dalseo님 async jest test: https...</p>
-  </article>
-</div>
-
-  
-    
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/error%20handle/errorhandle-promise-allsettled/" rel="permalink">[Error Handle] Promise.allSettled: 비동기처리 문제 발생상황 대처
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-      
-      <span class="page__meta-date">
-        <i class="far fa-calendar-alt" aria-hidden="true"></i>
-        
-        <time datetime="2023-04-11T21:00:07+07:00">April 11, 2023</time>
-      </span>
-    
-
-    <span class="page__meta-sep"></span>
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">Promise All로 인한 문제 발생
-문제 발생 상황
+    <p class="archive__item-excerpt" itemprop="description">문제 발생 상황
 
   외부 발주사에서 상품을 등록하는 API를 호출하던 중에, Sequelize가 Too many connections를 반환하며 서버가 비정상적으로 동작하였습니다.
-  코드를 살펴보니, 다른 개발자가 Promise all 코...</p>
+  코드를 살펴보니, 다른 개발자가 Promise all 코드를 통해 API 호출 및 Databas...</p>
   </article>
 </div>
 

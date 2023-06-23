@@ -1,21 +1,17 @@
 ---
 layout: archive
-title:  "[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리"
-date:   2023-04-11 23:00:07 +0900
-categories: [Error Handle]
+title:  "[Error Async] connection pool 제한에 따른 비동기 처리"
+date:   2023-05-18 23:00:07 +0900
+categories: 
+    - Error Async
 ---
 
-## 오류발생 보고
-참고 자료
-- 이동욱님 블로그 자료: https://jojoldu.tistory.com/714
-- promise-pool 모듈: https://github.com/supercharge/promise-pool
-- dalseo님 async jest test: https://www.daleseo.com/jest-async/
+### 오류 내용
+- 상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다.
+- 이 때, `Promse.allSettled`를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다. 
 
-오류 내용
-- 주기적으로 배치서버를 통해 국민클럽의 상품을 업데이트하는 함수를 실행시킵니다.
-- 이 때, `Promse.allSettled`를 사용하여 시간효율적으로 처리하도록 설계했습니다.
-- 하지만, DB의 스펙을 낮추었을 때 too many connections 오류와 함께 서버가 중단되었습니다. 
-- chunk 단위로 해결하는 방법을 검색합니다.
+### 해결 내용
+- promise-pool 모듈을 사용하여, 배치서버를 위해 사용할 connection pool을 제한하여 chunk 단위로 
 
 ```javascript
 // promise_pool.js
@@ -166,3 +162,8 @@ measurePromisePoolWihConcurrency time: 301.0168330669403 ms
 ```
 - `Promise.all`을 사용하면, 100ms와 300ms가 같은 chunk로 묶여있기 때문에, 100ms task를 마치더라도 200ms task를 진행할 수 없었습니다. 따라서 300ms와 200ms의 합인 500ms 이상의 시간이 소요됩니다.
 - 하지만, `PromisePool`을 사용한 결과 100ms task가 끝나고 다른 chunk에 있는 200ms 바로 사용하였기 때문에, 300ms 정도의 시간만 소요되었습니다.
+
+### 참고 자료
+- 이동욱님 블로그 자료: https://jojoldu.tistory.com/714
+- promise-pool 모듈: https://github.com/supercharge/promise-pool
+- dalseo님 async jest test: https://www.daleseo.com/jest-async/

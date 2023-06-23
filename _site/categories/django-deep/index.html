@@ -9,7 +9,7 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Posts by Tag - Yam’s Dev Logs</title>
+<!-- begin _includes/seo.html --><title>Django Deep - Yam’s Dev Logs</title>
 <meta name="description" content="An amazing website.">
 
 
@@ -20,8 +20,8 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="Posts by Tag">
-<meta property="og:url" content="http://localhost:4000/tags/">
+<meta property="og:title" content="Django Deep">
+<meta property="og:url" content="http://localhost:4000/categories/django-deep/">
 
 
   <meta property="og:description" content="An amazing website.">
@@ -41,7 +41,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/tags/">
+<link rel="canonical" href="http://localhost:4000/categories/django-deep/">
 
 
 
@@ -249,36 +249,142 @@
   
 
   
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 24</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
 
 </div>
 
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">Posts by Tag</h1>
+      <h1 id="page-title" class="page__title">Django Deep</h1>
     
-    <!--
-# Jekyll Group-By-Array 0.1.0
-# https://github.com/mushishi78/jekyll-group-by-array
-# © 2015 Max White <mushishi78@gmail.com>
-# MIT License
--->
+    
+<div class=" list__item">
+    <article class="archive-item">
+        <div>
+            <span>
+                <a href="/django%20deep/django-orm-deep2/">[Django] ORM 사용시 주의사항</a>
+            </span>
+            <small>
+                <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i> 2023.04.11
+                
+            </small>
+        </div>
+    </article>
+</div>
 
-<!-- Initialize -->
-
-<!-- Map -->
-
-<!-- Flatten -->
-
-<!-- Uniq -->
-
-<!-- group_items -->
-
-<ul>
-  
-</ul>
-<p><br />
-<br /></p>
+<div class=" list__item">
+    <article class="archive-item">
+        <div>
+            <span>
+                <a href="/django%20deep/django-orm-deep1/">[Django] ORM 사용 방법을 위한 기록</a>
+            </span>
+            <small>
+                <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i> 2023.04.11
+                
+            </small>
+        </div>
+    </article>
+</div>
 
   </div>
 </div>

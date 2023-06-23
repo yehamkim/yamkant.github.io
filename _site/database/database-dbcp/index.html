@@ -9,7 +9,7 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까? - Yam’s Dev Logs</title>
+<!-- begin _includes/seo.html --><title>[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까? - Yam’s Dev Logs</title>
 <meta name="description" content="DBCP (DB Connection Pool)    참고: https://youtu.be/zowzVqx3MQ4   해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.">
 
 
@@ -22,7 +22,7 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?">
+<meta property="og:title" content="[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?">
 <meta property="og:url" content="http://localhost:4000/database/database-dbcp/">
 
 
@@ -34,7 +34,7 @@
 
 
 
-  <meta property="article:published_time" content="2023-05-13T18:05:07+07:00">
+  <meta property="article:published_time" content="2023-05-13T20:05:07+09:00">
 
 
 
@@ -120,7 +120,9 @@
           Yam's Dev Logs
           
         </a>
-        <ul class="visible-links"></ul>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
         
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">Toggle menu</span>
@@ -140,7 +142,7 @@
 
 <div id="main" role="main">
   
-  <div class="sidebar sticky">
+<div class="sidebar sticky">
   
 
 
@@ -249,13 +251,115 @@
 </div>
 
   
-  </div>
 
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 24</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
 
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?</h1>
+      <h1 id="page-title" class="page__title">[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?</h1>
     
     <h1 id="dbcp-db-connection-pool">DBCP (DB Connection Pool)</h1>
 <ul>
@@ -263,7 +367,7 @@
   <li>해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.</li>
 </ul>
 
-<p>통신방법</p>
+<p><strong>통신방법</strong></p>
 <ul>
   <li>백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다.</li>
   <li>DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다.</li>
@@ -343,7 +447,7 @@
   <li>thread per request 모델인 경우, active thread 수를 확인합니다.</li>
 </ul>
 
-<p>추가 공부</p>
+<p><strong>추가 공부</strong></p>
 <ul>
   <li>Naver D2: https://d2.naver.com/helloworld/5102792</li>
   <li>hikariCP github: https://github.com/brettwooldridge/HikariCP</li>
@@ -351,7 +455,7 @@
 </ul>
 
 <hr />
-<p>참고:</p>
+<p><strong>참고</strong></p>
 <ul>
   <li>https://jojoldu.tistory.com/634</li>
   <li>https://d2.naver.com/helloworld/5102792</li>
@@ -412,12 +516,12 @@
   <li>부하 테스트를 위해, 20명의 유저가 동시에 저희 서버에 100회 요청을 보내는 상황을 가정하였습니다.</li>
 </ul>
 
-<pre><code class="language-plain">&gt; ab -n 100 -c 20 https://localhost:4000/test-timeout
-This is ApacheBench, Version 2.3 &lt;$Revision: 1879490 $&gt;
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> ab <span class="nt">-n</span> 100 <span class="nt">-c</span> 20 https://localhost:4000/test-timeout
+This is ApacheBench, Version 2.3 &lt;<span class="nv">$Revision</span>: 1879490 <span class="nv">$&gt;</span>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
 
-Benchmarking localhost (be patient).....done
+Benchmarking localhost <span class="o">(</span>be patient<span class="o">)</span>.....done
 
 
 Server Software:        nginx/1.21.6
@@ -431,24 +535,24 @@ Document Path:          /km/test-timeout
 Document Length:        12 bytes
 
 Concurrency Level:      20
-Time taken for tests:   64.159 seconds
+Time taken <span class="k">for </span>tests:   64.159 seconds
 Complete requests:      100
 Failed requests:        0
 Total transferred:      27200 bytes
 HTML transferred:       1200 bytes
-Requests per second:    1.56 [#/sec] (mean)
-Time per request:       12831.748 [ms] (mean)
-Time per request:       641.587 [ms] (mean, across all concurrent requests)
-Transfer rate:          0.41 [Kbytes/sec] received
+Requests per second:    1.56 <span class="o">[</span><span class="c">#/sec] (mean)</span>
+Time per request:       12831.748 <span class="o">[</span>ms] <span class="o">(</span>mean<span class="o">)</span>
+Time per request:       641.587 <span class="o">[</span>ms] <span class="o">(</span>mean, across all concurrent requests<span class="o">)</span>
+Transfer rate:          0.41 <span class="o">[</span>Kbytes/sec] received
 
-Connection Times (ms)
+Connection Times <span class="o">(</span>ms<span class="o">)</span>
               min  mean[+/-sd] median   max
 Connect:       14   77  59.8     48     243
 Processing:  3039 11087 2476.8  12026   12342
 Waiting:     3039 11086 2476.8  12026   12342
 Total:       3101 11164 2459.8  12095   12370
 
-Percentage of the requests served within a certain time (ms)
+Percentage of the requests served within a certain <span class="nb">time</span> <span class="o">(</span>ms<span class="o">)</span>
   50%  12095
   66%  12171
   75%  12199
@@ -457,9 +561,9 @@ Percentage of the requests served within a certain time (ms)
   95%  12315
   98%  12332
   99%  12370
- 100%  12370 (longest request)
+ 100%  12370 <span class="o">(</span>longest request<span class="o">)</span>
 
-# console의 결과 ========================================
+<span class="c"># console의 결과 ========================================</span>
 Lag: 3093.0100421905518ms
 Lag: 3056.129874944687ms
 Lag: 3071.250333070755ms
@@ -491,7 +595,8 @@ Lag: 12111.195416927338ms
 Lag: 12106.155959129333ms
 Lag: 12108.08195900917ms
 ...
-</code></pre>
+</code></pre></div></div>
+
 <ul>
   <li>20명이 5개의 커넥션 풀로 모든 작업을 완료해야합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기중인 요청 10개)</li>
   <li>이 때, 처리된 요청이 다시 요청을 보내므로 6,7,8,9,10이 DB 동작을 처리하기 시작할 때, 이미 1,2,3,4,5번의 두 번째 요청이 대기 중입니다.</li>

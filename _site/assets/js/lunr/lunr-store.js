@@ -1,14 +1,8 @@
 var store = [{
-        "title": "[Error Handle] Promise.allSettled: 비동기처리 문제 발생상황 대처",
-        "excerpt":"Promise All로 인한 문제 발생 문제 발생 상황 외부 발주사에서 상품을 등록하는 API를 호출하던 중에, Sequelize가 Too many connections를 반환하며 서버가 비정상적으로 동작하였습니다. 코드를 살펴보니, 다른 개발자가 Promise all 코드를 통해 API 호출 및 Database에 값을 반영하는 작업을 모두 비동기적으로 진행하고 있었습니다. 비동기 작업과 Sequelizer Database 점유에 대한 학습의 필요성을...","categories": ["Error Handle"],
+        "title": "[Error Async] Promise.allSettled",
+        "excerpt":"문제 발생 상황 외부 발주사에서 상품을 등록하는 API를 호출하던 중에, Sequelize가 Too many connections를 반환하며 서버가 비정상적으로 동작하였습니다. 코드를 살펴보니, 다른 개발자가 Promise all 코드를 통해 API 호출 및 Database에 값을 반영하는 작업을 모두 비동기적으로 진행하고 있었습니다. 비동기 작업과 Sequelizer Database 점유에 대한 학습의 필요성을 느끼게 되었습니다. 참고링크 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled#try_it...","categories": ["Error Async"],
         "tags": [],
-        "url": "/error%20handle/errorhandle-promise-allsettled/",
-        "teaser": null
-      },{
-        "title": "[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리",
-        "excerpt":"오류발생 보고 참고 자료 이동욱님 블로그 자료: https://jojoldu.tistory.com/714 promise-pool 모듈: https://github.com/supercharge/promise-pool dalseo님 async jest test: https://www.daleseo.com/jest-async/ 오류 내용 주기적으로 배치서버를 통해 국민클럽의 상품을 업데이트하는 함수를 실행시킵니다. 이 때, Promse.allSettled를 사용하여 시간효율적으로 처리하도록 설계했습니다. 하지만, DB의 스펙을 낮추었을 때 too many connections 오류와 함께 서버가 중단되었습니다. chunk 단위로 해결하는 방법을 검색합니다....","categories": ["Error Handle"],
-        "tags": [],
-        "url": "/error%20handle/errorhandle-promise-pool/",
+        "url": "/error%20async/errorasync-promise-allsettled/",
         "teaser": null
       },{
         "title": "[Django] ORM 사용 방법을 위한 기록",
@@ -89,16 +83,22 @@ var store = [{
         "url": "/django%20strategy/django-form/",
         "teaser": null
       },{
-        "title": "[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?",
+        "title": "[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?",
         "excerpt":"DBCP (DB Connection Pool) 참고: https://youtu.be/zowzVqx3MQ4 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다. 통신방법 백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다. DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다. DBCP의 개념과 원리 백엔드...","categories": ["Database"],
         "tags": [],
         "url": "/database/database-dbcp/",
         "teaser": null
       },{
-        "title": "[DB] [Real MySQL 8.0] 내용 정리 ",
-        "excerpt":"CH 4.1.4 플러그인 스토리지 엔진 모델 MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다. MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다. (데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리) MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 Handler_로 시작되는 상태변수가 많습니다....","categories": ["DB"],
+        "title": "[Book] [Real MySQL 8.0] 내용 정리 ",
+        "excerpt":"CH 4.1.4 플러그인 스토리지 엔진 모델 MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다. MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다. (데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리) MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 Handler_로 시작되는 상태변수가 많습니다....","categories": ["Book"],
         "tags": [],
-        "url": "/db/database-1/",
+        "url": "/book/database-1/",
+        "teaser": null
+      },{
+        "title": "[Error Async] connection pool 제한에 따른 비동기 처리",
+        "excerpt":"오류 내용 상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다. 이 때, Promse.allSettled를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다. 해결 내용 promise-pool 모듈을 사용하여, 배치서버를 위해 사용할 connection pool을 제한하여 chunk 단위로 // promise_pool.js const...","categories": ["Error Async"],
+        "tags": [],
+        "url": "/error%20async/errorasync-promise-pool/",
         "teaser": null
       },{
         "title": "[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?",

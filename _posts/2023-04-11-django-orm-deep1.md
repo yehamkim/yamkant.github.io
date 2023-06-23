@@ -2,7 +2,8 @@
 layout: archive
 title:  "[Django] ORM 사용 방법을 위한 기록"
 date:   2023-04-11 23:05:07 +0900
-categories: [Django Deep]
+categories: 
+    - Django Deep
 ---
 ## 글을 작성하게 된 계기
 - ['우아한테크세미나'에서 이동욱(향로)](https://www.youtube.com/live/DJCmvzhFVOI?feature=share)님께서 제어할 수 없는 것들에 의존하지 않기라는 주제로 발표하셨습니다.
