@@ -1,0 +1,1544 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-06-21T17:13:18+07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">Aws</title><link href="http://localhost:4000/aws/" rel="alternate" type="text/html" title="Aws" /><published>2023-06-13T00:00:00+07:00</published><updated>2023-06-13T00:00:00+07:00</updated><id>http://localhost:4000/aws</id><content type="html" xml:base="http://localhost:4000/aws/"><![CDATA[<h3 id="61-amazon-vpc">6.1 Amazon VPC</h3>
+<ul>
+  <li>AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다.</li>
+  <li>EC2나 RDS의 경우, VPC를 먼저 선택해야합니다.</li>
+  <li>VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다.</li>
+  <li>외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다.</li>
+</ul>
+
+<p><strong>기능</strong></p>
+<ul>
+  <li>네트워킹 환경을 설정합니다.</li>
+  <li>IPv4, IPv6 둘 다 사용가능합니다.</li>
+  <li>CIDR 블록, 서브넷 마스크를 설정할 수 있습니다.</li>
+  <li>물리적인 라우터가 아닌 소프트웨어가 라우터의 역할을 수행하는 방식입니다.</li>
+  <li>라우팅 테이블을 통해 여러 개의 서브넷과 연결합니다.</li>
+  <li>서브넷 내에서의 통신은 라우터 없이 직접 가능합니다.</li>
+</ul>
+
+<p><strong>VPC 설정</strong></p>
+<ul>
+  <li>인터넷에 연결해야 한다면 인터넷 게이트웨이를 설정하고, 라우팅 테이블과 맵핑하여 라우팅을 설정합니다.</li>
+  <li>오토 스케일링을 설정해야 한다면 IP 주소를 많이 확보해 두어야합니다.
+    <ol>
+      <li>VPC 생성: VPC 이름 설정 / CIDR 블록 설정 / 테넌시(하드웨어의 점유 여부) 선택</li>
+      <li>서브넷 설정: 서브넷 이름 설정 / 대상 VPC 선택 / 가용 영역 선택 / CIDR 블록(서브넷) 설정</li>
+      <li>인터넷 연결: 인터넷 게이트웨이 생성 / IGW와 VPC 연결 / 라우팅 설정</li>
+    </ol>
+  </li>
+</ul>
+
+<p><strong>서브넷과 DHCP: 사용 범위 선택</strong></p>
+<ul>
+  <li>서브넷: 커다란 네트워크를 작게 나눈 네트워크를 의미합니다.</li>
+  <li>네트워크를 분할하여 직접 통신할 수 있는 범위 좁히며, 방화벽 설정을 통해 보안을 강화합니다.</li>
+  <li>일반적인 네트워크의 경우, 서브넷끼리 통신하기 위해서는 라우팅이 필요하지만, VPC는 라우팅 없이도 통신 가능합니다.</li>
+  <li>CIDR(class Inter-Domain Routing): 네트워크와 서브넷의 범위를 나누는 표기법입니다.</li>
+  <li>/24이면 IP 주소의 수가 2의 (32-24)제곱개 입니다.</li>
+  <li>기본 VPC는 /16인 B클래스로 설정되어 있습니다. /20 서브넷은 IP 주소 4096개를 가지므로, 오토 스케일링을 설정해도 될 만큼 충분히 많은 수의 IP 주소를 가집니다.</li>
+  <li>DHCP (Dynamic Host Configuration Protocol): 각 호스트인 인스턴스에 IP 주소를 자동으로 할당합니다. 인스턴스가 추가될 때, 서브넷 범위의 IP 주소 중 하나가 할당됩니다.</li>
+</ul>
+
+<p><strong>라우팅과 NAT</strong></p>
+<ul>
+  <li>NAT(network Address Translation): 네트워크 주소 변환 방식으로,</li>
+  <li>라우팅은 타겟 호스트에 바로 데이터를 전달하는 것이 아닌, 호스트에서 호스트로 데이터를 전달하는 방식을 의미합니다.</li>
+  <li>라우터에는 타겟 호스트에 가장 빠르게 정보를 전달할 수 있는 정보가 포함되어있습니다.</li>
+  <li>게이트웨이는 LAN에서 인터넷으로 데이터를 전송할 때, LAN 내부의 출입구가 됩니다.</li>
+  <li>사설 IP 주소를 공인 IP 주소로 변환하고, 회사 내에서는 공인 IP 주소 하나를 공동으로 사용합니다.</li>
+  <li>NAPT: Network Address Port Translation으로, IP 마스커레이드라고도 합니다. 주소 변환을 담당합니다.</li>
+  <li>IP 마스커레이드를 사용하면, 내부에서 외부로 나가는 것은 가능하지만 외부에서 내부로 들어오는 것은 불가능합니다.</li>
+  <li>NAT(Network Address Translation): NAT를 통해 사설 IP 주소가 공인 IP 주소로 변환됩니다.</li>
+  <li>IP 마스커레이드는 일대다이며, NAT은 다대다입니다. IP 마스커레이드는 공인 IP 하나만 설정할 수 있습니다. 서버가 여러 대라면 공인 IP 주소를 여러개 설정할 수 있는 NAT을 사용해야합니다.</li>
+</ul>
+
+<p><strong>인터넷 게이트웨이, NAT 게이트웨이</strong></p>
+<ul>
+  <li>인터넷 게이트웨이: 인터넷 연결을 담당합니다. EC2 인스턴스와 인터넷을 연결합니다.</li>
+  <li>NAT 게이트웨이: 서브넷에서 인터넷으로 접속할 수 있지만, 인터넷에서는 서브넷으로 접속하지 못하도록 합니다. (소프트웨어 업데이트시 이용)<br />
+(단일 방향으로 EC2 인스턴스와 인터넷을 연결합니다.)</li>
+  <li>EC2 인스턴스는 사설 IP 주소밖에 설정할 수 없기 때문에, 공인 IP 주소를 사설 IP 주소로 변환하는 인터넷 게이트웨이가 필수적입니다.</li>
+</ul>
+
+<p><strong>보안 그룹과 네트워크 ACL</strong></p>
+<ul>
+  <li>VPC의 가상 방화벽으로 보안 그룹과 네트워크 ACL 두 종류의 방화벽을 사용합니다.</li>
+  <li>보안 그룹과 네트워크 ACL은 인바운드 트래픽과 아웃바운드 트래픽을 제어합니다.</li>
+  <li>보안 그룹은 인스턴스에 대해 설정하며, 네트워크 ACL은 서브넷에 설정하기 때문에 개별 인스턴스에 설정하지 않아도 됩니다.</li>
+  <li>참고: 데몬은 서버의 전원이 켜져있는 동안 계속해서 동작하고 있는 소프트웨어를 말합니다.</li>
+</ul>
+
+<p><strong>VPC 엔드포인트</strong></p>
+<ul>
+  <li>VPC 내부에서 VPC 외부로 접속하기 위한 연결점을 제공하는 서비스입니다.</li>
+  <li>S3와 DynamoDB는 VPC를 사용하지 않는 서비스입니다. 따라서, 이와 같이 VPC 외부 서비스를 연결해주는 것이 엔드포인트 서비스입니다.</li>
+  <li>VPC 엔드포인트는 가상 서비스로, 확장성과 고가용성을 지원합니다.</li>
+  <li>네트워크 트래픽에 따라 자동으로 스케일링 됩니다.</li>
+  <li>엔드포인트는 두 종류로, 인터페이스 엔드포인트와 게이트웨이 엔드포인트가 있습니다.</li>
+  <li>인터페이스 엔드포인트는 네트워크 인터페이스로 구축하는 유형이며, 게이트웨이 엔드포인트는 라우팅 테이블에 설정된 내용을 라우팅하는 유형입니다.</li>
+  <li>인터페이스 엔드포인트는 사설 IP 주소를 가진 ENI가 존재하며 각 서비스와 연결하는 출입구 역할을 합니다.</li>
+  <li>AWS PrivateLink라는 방식을 사용하기 때문에, 타사 서비스가 PrivateLink를 지원한다면 사용 가능합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[6.1 Amazon VPC AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다. EC2나 RDS의 경우, VPC를 먼저 선택해야합니다. VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다. 외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까?</title><link href="http://localhost:4000/django%20strategy/django-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까?" /><published>2023-06-09T08:05:07+07:00</published><updated>2023-06-09T08:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-test</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-test/"><![CDATA[<h3 id="작성이유-및-목표">작성이유 및 목표</h3>
+<ul>
+  <li>흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.</li>
+  <li>알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다.</li>
+  <li>해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다.</li>
+  <li>커스텀 유저를 위한 members 도메인을 예시로 설명합니다.</li>
+</ul>
+
+<h3 id="폴더-경로">폴더 경로</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web/
+<span class="p">-</span> apps/
+<span class="p">  -</span> config/
+<span class="p">  -</span> core/
+<span class="p">    -</span> tests.py
+<span class="p">  -</span> members/
+<span class="p">    -</span> tests/
+<span class="p">      -</span> integration.py
+<span class="p">      -</span> e2e.py
+</code></pre></div></div>
+
+<h2 id="integration-test">Integration test</h2>
+<p>외부 라이브러리와 같이 의존적인 부분을 함께 테스트합니다. Django에서는 test DB를 수월하게 만들고 수정하게 할 수 있습니다.</p>
+
+<h3 id="기본-테스트-클래스-설명">기본 테스트 클래스 설명</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps/core/tests.py
+</span>
+<span class="kn">from</span> <span class="n">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="n">django.core.serializers.base</span> <span class="kn">import</span> <span class="n">Serializer</span>
+
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
+<span class="kn">from</span> <span class="n">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span><span class="p">,</span> <span class="n">override_settings</span>
+
+<span class="k">class</span> <span class="nc">TestSerializerHelper</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">Serializer</span><span class="p">,</span> <span class="n">queryCnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span> <span class="o">=</span> <span class="n">queryCnt</span>
+
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">():</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">instance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">createData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_create</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span><span class="p">:</span>
+            <span class="n">createData</span> <span class="o">=</span> <span class="nf">wrapFunctionForQueryCount</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span><span class="p">)(</span><span class="n">self</span><span class="p">.</span><span class="n">_create</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">createData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">serializer_type</span> <span class="o">==</span> <span class="sh">"</span><span class="s">create</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">IntegrationSerializerTestCase</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">serializer_test</span><span class="p">(</span>
+        <span class="n">self</span><span class="p">,</span>
+        <span class="n">expectedQueryCount</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">expectedResult</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">data</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">testSerializerHelper</span> <span class="o">=</span> <span class="nc">TestSerializerHelper</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">serializer</span><span class="p">,</span> <span class="n">expectedQueryCount</span><span class="p">)</span>
+
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">testSerializerHelper</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">expectedResult</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">expectedResult</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>는 serializer의 integration 테스트를 위해 구성한 <code class="language-plaintext highlighter-rouge">TestCase</code> 클래스입니다.</li>
+  <li>테스트를 수행하기 위해 이를 상속한 클래스에서 테스트를 위한 <code class="language-plaintext highlighter-rouge">serializer</code>를 클래스 변수로 지정하면 해당 <code class="language-plaintext highlighter-rouge">TestCase</code>에서 이를 활용하는 방식입니다.
+(상속하여 사용하는 방식 이 후 설명)</li>
+  <li>얼마나 많은 sql query를 호출했는지 평가하기 위해 DB 호출 부분을 <code class="language-plaintext highlighter-rouge">wrapFunctionForQueryCount</code>로 감싸서 사용합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="bp">...</span>
+  <span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
+  <span class="bp">...</span>
+
+  <span class="k">def</span> <span class="nf">wrapFunctionForQueryCount</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+      <span class="nd">@override_settings</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="nf">reset_queries</span><span class="p">()</span>
+          <span class="n">ret</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">queries</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">queries</span>
+          <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+              <span class="c1"># TODO: Logger 사용하여 출력결과 저장
+</span>              <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">QUERY: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">sql</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="s">, TIME: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">time</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+          <span class="k">assert</span> <span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="n">count</span><span class="p">,</span> <span class="sh">"</span><span class="s">QUERY COUNT:%d != %d</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">ret</span>
+      <span class="k">return</span> <span class="n">wrapper</span>
+  <span class="k">return</span> <span class="n">decorator</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>Serializer 구성</strong></p>
+<ul>
+  <li>저는 생성을 위해 사용하는 <code class="language-plaintext highlighter-rouge">ExampleCreateSerializer</code>는 <code class="language-plaintext highlighter-rouge">core.serializers.CreateSerializer</code>를 상속받도록 생성합니다.</li>
+  <li>따라서, 내부에 어떤 타입의 serializer인지 명시하기 때문에, <code class="language-plaintext highlighter-rouge">TestSerialize.run()</code>과 같이 사용할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># core.sesrializers.CreateSerializer
+</span>  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+
+  <span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="n">serializer_type</span> <span class="o">=</span> <span class="sh">"</span><span class="s">create</span><span class="sh">"</span>
+
+      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="기본-테스트-클래스를-상속받는-테스트-예시">기본 테스트 클래스를 상속받는 테스트 예시</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps/members/tests.integration.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="n">core.tests</span> <span class="kn">import</span> <span class="n">IntegrationSerializerTestCase</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateSerializerTest</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># 1st query: unique phone number check
+</span>    <span class="c1"># 2nd query: insert new member
+</span>    
+    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">instance</span><span class="p">.</span><span class="n">phone</span><span class="p">,</span> <span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_mismatch_password</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59332</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_empty_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">""</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59333</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_register_repeated_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>위와 같이, member 생성 테스트를 위한 테스트 클래스는 앞서 설명한 기본 테스트 클래스를 상속받습니다.</li>
+  <li>기대하는 결과(생성이므로 생성되었는지)가 잘 반환되었는지, 테스트 중 오류는 없는지 확인할 수 있습니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[작성이유 및 목표 흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다. 알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다. 해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다. 커스텀 유저를 위한 members 도메인을 예시로 설명합니다.]]></summary></entry><entry><title type="html">Django Custom User</title><link href="http://localhost:4000/django-custom-user/" rel="alternate" type="text/html" title="Django Custom User" /><published>2023-06-04T00:00:00+07:00</published><updated>2023-06-04T00:00:00+07:00</updated><id>http://localhost:4000/django-custom-user</id><content type="html" xml:base="http://localhost:4000/django-custom-user/"><![CDATA[<p>Django custom user 생성을 위한 설정 추가</p>
+
+<p><strong>작업을 위한 Directory Level</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web
+- apps/
+  - config/
+    - settings/
+      - base.py
+      - development.py
+      - production.py
+    ...
+  - core/
+    - serializers.py
+    - models.py
+    ...
+  - members/
+    - urls/
+      - members.py
+    - models.py
+    - serializers.py
+    - views.py
+    ...
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.settings.base.py
+</span><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="sh">'</span><span class="s">members</span><span class="sh">'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">AUTH_USER_MODEL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members.Member</span><span class="sh">'</span>
+
+</code></pre></div></div>
+<ul>
+  <li>config 앱의 base setting 파일에서 members 앱을 추가하고, AUTH_USER를 Member 모델로 대체하기 위한 작업을 수행합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.models.py
+</span>
+<span class="kn">from</span> <span class="n">core.models</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">AbstractUser</span><span class="p">,</span> <span class="n">BaseUserManager</span>
+<span class="kn">from</span> <span class="n">django.core.validators</span> <span class="kn">import</span> <span class="n">RegexValidator</span>
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">MemberManager</span><span class="p">(</span><span class="n">BaseUserManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">createMember</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="n">member</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">model</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="n">phone</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">set_password</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">member</span>
+
+<span class="k">class</span> <span class="nc">Member</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">AbstractUser</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span>
+        <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span>
+            <span class="nc">RegexValidator</span><span class="p">(</span>
+                <span class="sa">r</span><span class="sh">"</span><span class="s">^01[016789][0-9]{7,8}$</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sh">"</span><span class="s">This phone number format is invalid.</span><span class="sh">"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nc">MemberManager</span><span class="p">()</span>
+
+    <span class="n">USERNAME_FIELD</span> <span class="o">=</span> <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members</span><span class="sh">'</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Member</code> 모델은 <code class="language-plaintext highlighter-rouge">USERNAME_FIELD</code>를 핸드폰 번호로 대체합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">Member.objects</code>의 메서드를 추가하기 위해 MemberManager(Django 기본 유저를 제어하기 위해 사용하는 BaseUserManager 상속)를 생성합니다.</li>
+  <li>따라서, <code class="language-plaintext highlighter-rouge">Member.objects.createMember</code> phone와 password 필드를 각각 설정합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># core.serailizers.py
+</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.serializers.py
+</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="n">core.serializers</span> <span class="kn">import</span> <span class="n">CreateSerializer</span>
+
+<span class="kn">from</span> <span class="n">members.models</span> <span class="kn">import</span> <span class="n">Member</span>
+
+<span class="k">class</span> <span class="nc">MemberSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateSerializer</span><span class="p">(</span><span class="n">CreateSerializer</span><span class="p">):</span>
+    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">MemberSerializer</span>
+    <span class="n">password2</span> <span class="o">=</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">password</span><span class="sh">'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">ValidationError</span><span class="p">({</span><span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">This is different with password.</span><span class="sh">"</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">validated_data</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Member</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">createMember</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">core.serializers.CreateSerializer</code>를 상속하여 <code class="language-plaintext highlighter-rouge">to_representation</code>을 통해 내부에서 <code class="language-plaintext highlighter-rouge">ModelSerializer</code>를 직렬화하여 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">view</code>에서 <code class="language-plaintext highlighter-rouge">member</code>를 생성하기 위해 호출할 <code class="language-plaintext highlighter-rouge">serializer</code>를 추가합니다.</li>
+  <li>일반적으로 <code class="language-plaintext highlighter-rouge">MemberSerializer</code>를 통해서 <code class="language-plaintext highlighter-rouge">Member</code> 모델의 <code class="language-plaintext highlighter-rouge">id</code> 값과 <code class="language-plaintext highlighter-rouge">phone(로그인 아이디)</code> 값을 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">MemberCreateSerializer</code>는 <code class="language-plaintext highlighter-rouge">password2</code>를 추가적으로 정의하고, 그 외의 필드는 <code class="language-plaintext highlighter-rouge">MemberSerializer</code>에서 serialize하여 사용합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.views.py
+</span>
+<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
+
+<span class="c1"># Create your views here.
+</span><span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">CreateAPIView</span>
+<span class="kn">from</span> <span class="n">rest_framework.permissions</span> <span class="kn">import</span> <span class="n">AllowAny</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="kn">from</span> <span class="n">drf_spectacular.types</span> <span class="kn">import</span> <span class="n">OpenApiTypes</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">extend_schema</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="nd">@extend_schema</span><span class="p">(</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
+    <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">새로운 사용자를 추가합니다.</span><span class="sh">"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">MemberCreateAPIView</span><span class="p">(</span><span class="n">CreateAPIView</span><span class="p">):</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
+</code></pre></div></div>
+<ul>
+  <li>간단히 generic view를 사용하여 새로운 유저를 생성하는 방식을 추가합니다.</li>
+</ul>
+
+<hr />
+
+<h2 id="jwt-인증-방식-추가-설정하는-방법">JWT 인증 방식 추가 설정하는 방법</h2>
+
+<p>jwt access token 및 refresh token을 관리하는 모듈을 설치합니다.</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip <span class="nb">install </span>djangorestframework-simplejwt
+</code></pre></div></div>
+
+<p>settings.py에서 <code class="language-plaintext highlighter-rouge">DEFALT_AUTHENTICATION_CLASSES</code>와 <code class="language-plaintext highlighter-rouge">DEFAULT_PERMISSIONS_CLASSES</code>를 정의합니다.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.settings.base.py
+</span>
+<span class="bp">...</span>
+
+<span class="c1"># 기본 스키마는 drf-spectacular를 사용하고 있습니다.
+</span><span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">'</span><span class="s">DEFAULT_SCHEMA_CLASS</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">drf_spectacular.openapi.AutoSchema</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="bp">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>기존 simlejwt 모듈의 제너릭뷰를 그대로 사용합니다. (필요에 따라서 auth 앱을 추가적으로 만들어 사용합니다.)</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.views.py
+</span>
+<span class="bp">...</span>
+<span class="kn">from</span> <span class="n">rest_framework_simplejwt</span> <span class="kn">import</span> <span class="n">views</span> <span class="k">as</span> <span class="n">jwt_views</span>
+
+<span class="bp">...</span>
+<span class="k">class</span> <span class="nc">TokenCreateAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenObtainPairView</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">TokenRefreshAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenRefreshView</span><span class="p">):</span>
+    <span class="k">pass</span>
+    
+<span class="k">class</span> <span class="nc">TokenBlackListAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenBlacklistView</span><span class="p">):</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+
+<p>jwt 관련 라우팅을 위해 url을 설정합니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.urls.auth.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">TokenBlackListAPIView</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span>
+
+<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">auth</span><span class="sh">"</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/refresh/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/blacklist/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenBlackListAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
+</span>
+<span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">include</span>
+
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularJSONAPIView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularRedocView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularSwaggerView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularYAMLAPIView</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">'</span><span class="s">auth/</span><span class="sh">'</span><span class="p">,</span> <span class="nf">include</span><span class="p">(</span><span class="sh">'</span><span class="s">members.urls.auth</span><span class="sh">'</span><span class="p">)),</span>
+<span class="p">]</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/json/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularJSONAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/yaml/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularYAMLAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-yaml</span><span class="sh">"</span><span class="p">),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/swagger/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularSwaggerView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-ui</span><span class="sh">"</span><span class="p">,),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/redoc/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularRedocView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">redoc</span><span class="sh">"</span><span class="p">,),</span>
+<span class="p">]</span>
+</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[Django custom user 생성을 위한 설정 추가]]></summary></entry><entry><title type="html">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?" /><published>2023-05-27T18:05:07+07:00</published><updated>2023-05-27T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-view</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-view/"><![CDATA[<p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
+<h3 id="generic-view의-동작방식">Generic view의 동작방식</h3>
+<ul>
+  <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
+  <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
+  <li>generic view는 네가지 속성을 통해 API 동작을 결정합니다.
+  ```
+    <ul>
+      <li>authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
+        <ul>
+          <li>.get_authenticators(self)</li>
+        </ul>
+      </li>
+      <li>permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
+        <ul>
+          <li>.get_permissions(self)</li>
+        </ul>
+      </li>
+      <li>queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
+        <ul>
+          <li>.get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.</li>
+          <li>.filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.</li>
+        </ul>
+      </li>
+      <li>serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
+        <ul>
+          <li>.get_serializer_class(self)</li>
+          <li>.get_serializer_context(self)</li>
+          <li>.get_serializer(self, …)
+  ```</li>
+        </ul>
+      </li>
+      <li><code class="language-plaintext highlighter-rouge">queryset</code>에서, soft-deleted 요소를 조회하면, <code class="language-plaintext highlighter-rouge">queryset = Item.objects.filter(is_deleted='N')</code>과 같이 처리합니다. (정적 필터 적용)</li>
+      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># items/views/ItemView.py
+</span>  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+  <span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+  <span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+
+  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+  <span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+      <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+      <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+      <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+      <span class="bp">...</span>
+</code></pre></div>    </div>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># settings.py
+</span>  <span class="bp">...</span>
+
+  <span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">),</span>
+      <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
+          <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="sh">"</span><span class="s">DEFAULT_FILTER_BACKENDS</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">'</span><span class="s">django_filters.rest_framework.DjangoFilterBackend</span><span class="sh">'</span><span class="p">,</span>
+      <span class="p">),</span>
+  <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해두고, 전역적으로 이를 사용할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
+</span>
+<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+<span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+<span class="kn">from</span> <span class="n">items.models</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Category</span>
+<span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+<span class="sh">'''</span><span class="s">
+# 요구사항
+아이템 생성
+- 아이템 이름, 가격, 브랜드가 모두 같은 경우 생성을 막습니다.
+- 상품의 금액이 10000원 이하인 경우 생성을 막습니다. 
+
+아이템 조회
+- soft deleted 되지 않은 상품들을 가져옵니다.
+</span><span class="sh">'''</span>
+
+<span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+    <span class="n">allowed_method</span> <span class="o">=</span> <span class="p">[</span><span class="sh">"</span><span class="s">get</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">post</span><span class="sh">"</span><span class="p">]</span>
+    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+    <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_queryset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemSerializer</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemCreateSerializer</span>
+    
+    <span class="k">def</span> <span class="nf">filter_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="sh">'</span><span class="s">name</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nc">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">queryset</span>
+    
+    <span class="k">def</span> <span class="nf">get_serializer_context</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_serializer_context</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">category</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">reqData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reqData</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">categoryObject</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">reqData</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">])</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">check_object_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">,</span> <span class="n">categoryObject</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">categoryObject</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다. .get_permissions(self) queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다. .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다. .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다. serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다. .get_serializer_class(self) .get_serializer_context(self) .get_serializer(self, …) ``` queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted='N')과 같이 처리합니다. (정적 필터 적용) filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.]]></summary></entry><entry><title type="html">[Django] API를 어떻게 명세하여 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-spectacular/" rel="alternate" type="text/html" title="[Django] API를 어떻게 명세하여 사용할까?" /><published>2023-05-27T18:05:07+07:00</published><updated>2023-05-27T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-spectacular</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-spectacular/"><![CDATA[<h3 id="open-api와-oas-swagger">Open API와 OAS, Swagger</h3>
+<p><strong>Open API란?</strong></p>
+<ul>
+  <li>Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다.</li>
+  <li>OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다.</li>
+  <li>직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.</li>
+</ul>
+
+<p><strong>Swagger란?</strong></p>
+<ul>
+  <li>2010년대 초 Tam Wordnik이 개발하기 시작하여, 그의 회사 자체 API용 UI로 개발되었다가 SmartBear에서 인수했습니다.</li>
+  <li>2015년대 말 Linux Foundation의 후원으로 OpenAPI Initiative에 Swagger를 기부하며 OpenAPI Specification으로 이름을 변경합니다.</li>
+  <li>현재, OpenAPI를 실행하기위한 도구로써의 의미로 사용됩니다.</li>
+  <li>Swagger Editor: 브라우저 기반의 편집기로, OpenAPI 스펙을 쉽게 작성할 수 있도록 돕습니다.</li>
+  <li>Swagger UI: API test가 가능한 OpenAPI 스펙 문서</li>
+  <li>Swagger Codegen: 서버나 클라이언트가 stub code를 OpenAPI 스펙에 맞게 생성</li>
+</ul>
+
+<p><strong>OpenAPI 2.0과 OpenAPI 3.0의 차이</strong></p>
+<ul>
+  <li>2.0에서는 endpoint url을 host, basePath, schemes로 정의했지만, 3.0에서는 멀티 URL을 지원하고, 각 url마다 username, port, basepath 필드를 가집니다.</li>
+  <li>2.0에서는 특정 Path에서 중복되는 값이 있더라도 일일이 서술해줘야하는 반면, 3.0에서는 Component로 처리하여 중복부분을 변수화 할 수 있습니다.</li>
+</ul>
+
+<p><strong>OAS의 궁극적인 목표</strong></p>
+<ul>
+  <li>API 문서와 API UI는 서로 다른 프로젝트입니다. 예를 들어, Swagger-UI는 Swagger 프로젝트 중 일부일 뿐이고, API 문서는 json/yaml로 나타낼 수 있는 데이터 덩어리에 불과합니다.</li>
+  <li>Swagger-UI와 Redoc은 보기 편하게 만들어진 API 문서 User Interface입니다.</li>
+  <li>OAS는 UI를 만드는 것만을 목표로 하지는 않습니다. Client Side와 Server Side 간 API Client SDK와 관련된 모든 것들을 자동화하는 것입니다.</li>
+  <li>API 문서를 명확하게 명세해야하는 이유는, 명세를 하는 것만으로도 Client Side에 필요한 소스코드를 역생성하기 위한 것입니다. 이를 위한 프로젝트가 <code class="language-plaintext highlighter-rouge">Swagger Codegen</code>입니다.</li>
+</ul>
+
+<p><strong>drf-spectacular를 사용하는 이유</strong></p>
+<ul>
+  <li>많이 사용되는 drf-yasg의 경우, OpenAPI3.0을 지원하지 않습니다.</li>
+  <li>swagger UI의 버전과 설정값들이 drf-spectacular의 버전에 의존하지 않습니다.</li>
+  <li>swagger UI 자체에서 제공하는 UI 커스터마이징 옵션들을 자유롭게 조절할 수 있습니다.</li>
+  <li>example object를 다양하게 선언할 수 있습니다.</li>
+</ul>
+
+<hr />
+
+<h3 id="drf-spectacular-사용방법">drf-spectacular 사용방법</h3>
+
+<p>공식문서: https://drf-spectacular.readthedocs.io/en/latest/</p>
+
+<p><code class="language-plaintext highlighter-rouge">@extend_schema_view</code></p>
+<ul>
+  <li>클래스 단위의 데코레이터로, 하나의 ViewSet에 속한 method들의 문서화를 커스터마이징 할 때 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@extend_schema</code>보다 우선순위를 가집니다.</li>
+  <li>지정할 수 있는 <code class="language-plaintext highlighter-rouge">view_name</code>은 기본적으로 <code class="language-plaintext highlighter-rouge">list, retrieve, create, update, delete</code>가 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@action</code>을 통해 생성한 커스텀 메서드의 메서드 또한 <code class="language-plaintext highlighter-rouge">view_name</code>에 등록 가능합니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">@extend_schema</code></p>
+<ul>
+  <li>메서드 단위의 데코레이터로 가장 핵심이 되는 데코레이터입니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">@extend_schema_serializer</code></p>
+<ul>
+  <li>serializer 자체의 커스텀 스키마를 원하는 경우에 사용할 수 있습니다.</li>
+  <li>적용 우선순위는 method -&gt; viewset -&gt; serializer 순서입니다.</li>
+</ul>
+
+<p><strong>사용 예시</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">views.py</code>에서 <code class="language-plaintext highlighter-rouge">@extend_schema_view</code>를 설정하여 공통적으로 적용할 수 있는 설정 항목들을 적용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@extend_schema</code>를 통해 특정 메서드(예시에서는 create)에 대한 설정항목만 따로 적용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@extend_schema_serializer</code> 항목을 통해 노출하지 않고자 하는 필드를 기입합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
+</span><span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="n">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.types</span> <span class="kn">import</span> <span class="n">OpenApiTypes</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">extend_schema</span>
+<span class="kn">from</span> <span class="n">rest_framework.decorators</span> <span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span> <span class="n">rest_framework.request</span> <span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="n">rest_framework.response</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="n">rest_framework.viewsets</span> <span class="kn">import</span> <span class="n">ModelViewSet</span>
+<span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span> <span class="n">test_app.serializers</span> <span class="kn">import</span> <span class="n">CustomUserSerializer</span><span class="p">,</span> <span class="n">UserSerializer</span>
+<span class="kn">from</span> <span class="n">test_app.schemas</span> <span class="kn">import</span> <span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span><span class="p">,</span> <span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span><span class="p">,</span> <span class="n">USER_CREATE_EXAMPLES</span>
+
+<span class="nd">@extend_schema_view</span><span class="p">(</span>
+    <span class="nb">list</span><span class="o">=</span><span class="nf">extend_schema</span><span class="p">(</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">사용자들 리스트를 조회합니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
+            <span class="nc">OpenApiParameter</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">Filter by username</span><span class="sh">"</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">OpenApiTypes</span><span class="p">.</span><span class="n">STR</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">OpenApiParameter</span><span class="p">.</span><span class="n">QUERY</span><span class="p">,</span>
+                <span class="n">examples</span><span class="o">=</span> <span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span>
+            <span class="p">),</span>
+            <span class="nc">OpenApiParameter</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">date_joined</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">Filter by release date</span><span class="sh">"</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">OpenApiTypes</span><span class="p">.</span><span class="n">DATE</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">OpenApiParameter</span><span class="p">.</span><span class="n">QUERY</span><span class="p">,</span>
+                <span class="n">examples</span><span class="o">=</span> <span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">custom_api</span><span class="o">=</span><span class="nf">extend_schema</span><span class="p">(</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">@action 데코레이터로 생성한 커스텀 API</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
+        <span class="n">request</span><span class="o">=</span><span class="n">UserSerializer</span><span class="p">,</span>
+        <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">:</span> <span class="n">UserSerializer</span><span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">UserViewSet</span><span class="p">(</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">UserSerializer</span>
+
+    <span class="nd">@extend_schema</span><span class="p">(</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">새로운 사용자를 추가합니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">examples</span> <span class="o">=</span> <span class="n">USER_CREATE_EXAMPLES</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+        <span class="n">response</span><span class="p">:</span> <span class="n">HttpResponse</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="sh">"</span><span class="s">action-api</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">custom_api</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">result</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">ok</span><span class="sh">"</span><span class="p">})</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># serializers.py
+</span><span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">extend_schema_serializer</span>
+<span class="kn">from</span> <span class="n">rest_framework.serializers</span> <span class="kn">import</span> <span class="n">ModelSerializer</span>
+
+<span class="nd">@extend_schema_serializer</span><span class="p">(</span>
+    <span class="n">exclude_fields</span><span class="o">=</span><span class="p">(</span><span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,),</span>  
+    <span class="n">examples</span><span class="o">=</span><span class="p">[</span>
+        <span class="nc">OpenApiExample</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">Valid example 1</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">short summary</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">longer description</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="p">{</span>
+                <span class="sh">"</span><span class="s">is_superuser</span><span class="sh">"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">is_staff</span><span class="sh">"</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">is_active</span><span class="sh">"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">date_joined</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">2021-04-18 04:14:30</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">user_type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">customer</span><span class="sh">"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">response_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">UserSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="sh">"</span><span class="s">__all__</span><span class="sh">"</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># schemas.py
+</span><span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
+
+<span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="sh">"</span><span class="s">username 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example username 1</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">첫 번째 유저명입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">김예함</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="sh">"</span><span class="s">username 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example username 2</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">두 번째 유저명입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">김예함</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="sh">"</span><span class="s">date_joined 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example date_joined 1</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">첫 번째 가입일입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1995-07-08</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="sh">"</span><span class="s">date_joined 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example date_joined 2</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">두 번째 가입일입니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1995-07-09</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">USER_CREATE_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">성공적으로 생성하는 경우</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">success_example</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
+            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">yamkim</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test123!</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">YEHAM</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="c1"># 요청시에만 사용가능한 예제로 명시한다.
+</span>        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">비밀번호 너무 쉬움</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">invalid_example_too_easy_password</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
+            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">yamkim</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">1234</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">YEHAM</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="nc">OpenApiExample</span><span class="p">(</span>
+        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">이름 필수 입력</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">invalid_example_empty_name</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
+            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">root434</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test123!</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">""</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<h3 id="참고">참고</h3>
+<ul>
+  <li><a href="https://gruuuuu.github.io/programming/openapi/">gruuuuu님 블로그</a></li>
+  <li><a href="https://techblog.yogiyo.co.kr/django-rest-framework-api-document-generator-feat-drf-spectacular-585fcabec404">요기요 테크 블로그</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.]]></summary></entry><entry><title type="html">Cs Database</title><link href="http://localhost:4000/cs-database/" rel="alternate" type="text/html" title="Cs Database" /><published>2023-05-26T00:00:00+07:00</published><updated>2023-05-26T00:00:00+07:00</updated><id>http://localhost:4000/cs-database</id><content type="html" xml:base="http://localhost:4000/cs-database/"><![CDATA[<h3 id="nosql">NoSQL</h3>
+<p><strong>RDB의 단점은 무엇일까?</strong></p>
+<ul>
+  <li>스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다.</li>
+  <li>스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다.</li>
+  <li>결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다.</li>
+  <li>RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 <code class="language-plaintext highlighter-rouge">JOIN</code>을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다.</li>
+  <li>RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다.</li>
+  <li>transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.</li>
+</ul>
+
+<p><strong>NoSQL의 배경과 특징</strong>
+<strong>배경</strong></p>
+<ul>
+  <li>인터넷 사용량이 늘어나고 글로벌 사용자가 늘어남에 따라, high-throughput이 요구되었습니다.</li>
+  <li>기존과 다른 비정형 데이터가 증가하게 됨에 따라, 새로운 형태의 데이터가 발생합니다.</li>
+  <li>Not only SQL: 기존의 SQL을 커버할 뿐만 아니라 그 외의 기능들도 커버합니다.
+<strong>특징</strong></li>
+  <li>flexible schema: 기존의 sql에서 지정된 스키마의 형식으로 데이터를 넣는 것이 아닌, JSON 객체 형식으로 데이터를 삽입합니다.</li>
+  <li>이 때, schema에 대한 관리는 SQL처럼 RDBMS에서 해주는 것이 아닌 application 레벨에서 해주어야합니다.</li>
+  <li>중복을 허용하므로써 <code class="language-plaintext highlighter-rouge">JOIN</code>을 회피합니다. 하지만, 중복된 데이터들이 모두 최신 데이터를 유지할 수 있도록 application 레벨에서 관리해야합니다.</li>
+  <li>scale-out이 쉽기 때문에, 여러대의 서버(각각의 서버에 데이터를 나누어 저장합니다.)를 사용하여 하나의 클러스터를 구성합니다.</li>
+  <li>RDB의 경우에는 서버가 나뉘게 되면 데이터도 분리되고, 각 데이터를 <code class="language-plaintext highlighter-rouge">JOIN</code>하기 위해 또한 추가적인 트래픽이 발생하게 될 것입니다.</li>
+  <li>ACID의 일부를 포기하고 high-throughput, low-latency를 추구합니다. 따라서 안정성을 확보하기에는 불리하므로 금융 시스템 처리와 같이 Consistency가 중요한 환경에서 사용하기 조심스럽습니다.</li>
+</ul>
+
+<p><strong>Redis의 특징</strong></p>
+<ul>
+  <li>in-memory key-value database: 메모리를 사용하여 key-value 형태로 값을 저장하는 DB입니다. 보통 DB보다 메모리나 캐시로 많이 사용합니다.</li>
+  <li>value의 data type: strings, lists, sets hashes, sorted sets 등 다양한 형태를 지원합니다.</li>
+  <li>hash-based sharded cluster</li>
+  <li>High Availability (replication, automatic failover)</li>
+  <li>보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.</li>
+  <li>memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 JOIN을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다. RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다. transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.]]></summary></entry><entry><title type="html">[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?</title><link href="http://localhost:4000/django%20strategy/django-auth/" rel="alternate" type="text/html" title="[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?" /><published>2023-05-25T18:05:07+07:00</published><updated>2023-05-25T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-auth</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-auth/"><![CDATA[<h1 id="custom-user-registration">Custom User Registration</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># requirements.txt
+</span><span class="n">asgiref</span><span class="o">==</span><span class="mf">3.6</span><span class="p">.</span><span class="mi">0</span>
+<span class="n">Django</span><span class="o">==</span><span class="mf">4.2</span><span class="p">.</span><span class="mi">1</span>
+<span class="n">djangorestframework</span><span class="o">==</span><span class="mf">3.14</span><span class="p">.</span><span class="mi">0</span>
+<span class="n">djangorestframework</span><span class="o">-</span><span class="n">simplejwt</span><span class="o">==</span><span class="mf">5.2</span><span class="p">.</span><span class="mi">2</span>
+<span class="n">PyJWT</span><span class="o">==</span><span class="mf">2.7</span><span class="p">.</span><span class="mi">0</span>
+<span class="n">pytz</span><span class="o">==</span><span class="mf">2023.3</span>
+<span class="n">rest</span><span class="o">-</span><span class="n">framework</span><span class="o">-</span><span class="n">simplejwt</span><span class="o">==</span><span class="mf">0.0</span><span class="p">.</span><span class="mi">2</span>
+<span class="n">sqlparse</span><span class="o">==</span><span class="mf">0.4</span><span class="p">.</span><span class="mi">4</span>
+</code></pre></div></div>
+<ul>
+  <li>djangorestframework-simplejwt를 사용하여 개발합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># settings.py
+</span>
+<span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sh">'</span><span class="s">django.contrib.admin</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">django.contrib.auth</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">django.contrib.contenttypes</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">django.contrib.sessions</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">django.contrib.messages</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">django.contrib.staticfiles</span><span class="sh">'</span><span class="p">,</span>
+
+    <span class="c1"># restframework
+</span>    <span class="sh">"</span><span class="s">rest_framework</span><span class="sh">"</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">rest_framework_simplejwt</span><span class="sh">"</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">rest_framework_simplejwt.token_blacklist</span><span class="sh">"</span><span class="p">,</span>
+
+    <span class="c1"># custom apps
+</span>    <span class="sh">"</span><span class="s">members</span><span class="sh">"</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">core</span><span class="sh">"</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">mytest</span><span class="sh">"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="bp">...</span>
+
+<span class="c1"># Settings for JWT Authentication
+</span><span class="n">SIMPLE_JWT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">"</span><span class="s">ACCESS_TOKEN_LIFETIME</span><span class="sh">"</span><span class="p">:</span> <span class="nf">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="sh">"</span><span class="s">REFRESH_TOKEN_LIFETIME</span><span class="sh">"</span><span class="p">:</span> <span class="nf">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">AUTH_USER_MODEL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members.Member</span><span class="sh">'</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">AUTH_USER_MODEL</code>을 <code class="language-plaintext highlighter-rouge">members.Member</code>로 설정하여, 해당 모델이 Django 기본 user 모델인 <code class="language-plaintext highlighter-rouge">auth_user</code> 테이블을 대체하도록 합니다.</li>
+  <li>아래와 같이 django app을 구성하여 진행합니다.
+```
+code/
+    <ul>
+      <li>cores/
+        <ul>
+          <li>models.py</li>
+          <li>serializers.py
+…</li>
+        </ul>
+      </li>
+      <li>members/
+        <ul>
+          <li>models.py</li>
+          <li>urls/
+            <ul>
+              <li>auth.py</li>
+              <li>members.py</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>myproject/
+        <ul>
+          <li>urls/
+```</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">cores</code> 앱은 다른 앱들이 상속 받아서 사용할 만한 핵심 기능을 담당합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">members</code> 앱은 클라이언트의 회원가입/인증 관련 작업을 위한 도메인입니다.</li>
+</ul>
+
+<p><strong>Custom user model setting</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/models.py
+</span><span class="kn">from</span> <span class="n">core.models</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">AbstractUser</span><span class="p">,</span> <span class="n">BaseUserManager</span>
+<span class="kn">from</span> <span class="n">django.core.validators</span> <span class="kn">import</span> <span class="n">RegexValidator</span>
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">MemberManager</span><span class="p">(</span><span class="n">BaseUserManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">createMember</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="n">member</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">model</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="n">phone</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">set_password</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">member</span>
+
+<span class="k">class</span> <span class="nc">Member</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">AbstractUser</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span>
+        <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span>
+            <span class="nc">RegexValidator</span><span class="p">(</span>
+                <span class="sa">r</span><span class="sh">"</span><span class="s">^01[016789][0-9]{7,8}$</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sh">"</span><span class="s">This phone number format is invalid.</span><span class="sh">"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nc">MemberManager</span><span class="p">()</span>
+
+    <span class="n">USERNAME_FIELD</span> <span class="o">=</span> <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members</span><span class="sh">'</span>
+</code></pre></div></div>
+<ul>
+  <li>Django의 기본 user 모델은 <code class="language-plaintext highlighter-rouge">username</code> 필드가 아이디를 의미합니다. 구현할 간단한 커스텀 유저 모델에서는 핸드폰 번호가 아이디를 대체합니다.</li>
+</ul>
+
+<p><strong>Custom user serializer setting</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/serializers.py
+</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="n">core.serializers</span> <span class="kn">import</span> <span class="n">CreateSerializer</span>
+
+<span class="kn">from</span> <span class="n">members.models</span> <span class="kn">import</span> <span class="n">Member</span>
+
+<span class="k">class</span> <span class="nc">MemberSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateSerializer</span><span class="p">(</span><span class="n">CreateSerializer</span><span class="p">):</span>
+    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">MemberSerializer</span>
+    <span class="n">password2</span> <span class="o">=</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">password</span><span class="sh">'</span><span class="p">)</span>
+        <span class="n">password2</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">password</span> <span class="o">!=</span> <span class="n">password2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">ValidationError</span><span class="p">({</span><span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">This is different with password.</span><span class="sh">"</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">validated_data</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Member</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">createMember</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">MemberCreateSerializer</code>은 회원가입을 위해 사용하는 serializer로, 비밀번호 확인 기능을 포함합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">MemberSerializer</code>에서 재사용 가능한 field를 가져오기 위해</li>
+  <li><code class="language-plaintext highlighter-rouge">core.serializer.CreateSerializer</code>의 역할은 다음과 같습니다.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">to_representation</code> 메서드를 이용해, 데이터를 직렬화 하거나, customize하여 필드 값을 원하는 형태로 변환할 수 있습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">represntation_serializer_class</code>를 오버라이드 하여 <code class="language-plaintext highlighter-rouge">to_representation</code> 메서드에서 사용할 serializer를 선정할 수 있게 합니다.</li>
+      <li>MemberCreateSerializer.create() 작업을 마치고, 생성된 instance의 data 부분만 추출하여 serialize 후 반환합니다. 생성 후 추가 작업이 필요하다면,
+```python
+        <h1 id="coreserializerspy">core/serializers.py</h1>
+        <p>from rest_framework import serializers</p>
+      </li>
+    </ul>
+
+    <p>class CreateSerializer(serializers.ModelSerializer):
+    representation_serializer_class = None</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def to_representation(self, instance):
+    return self.representation_serializer_class(instance=instance).data ```
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>Custom user controller and router setting</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/views.py
+</span><span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
+
+<span class="c1"># Create your views here.
+</span><span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">CreateAPIView</span>
+<span class="kn">from</span> <span class="n">rest_framework.permissions</span> <span class="kn">import</span> <span class="n">AllowAny</span>
+<span class="kn">from</span> <span class="n">rest_framework_simplejwt</span> <span class="kn">import</span> <span class="n">views</span> <span class="k">as</span> <span class="n">jwt_views</span>
+
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateAPIView</span><span class="p">(</span><span class="n">CreateAPIView</span><span class="p">):</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="k">class</span> <span class="nc">TokenCreateAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenObtainPairView</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="k">class</span> <span class="nc">TokenRefreshAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenRefreshView</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="k">class</span> <span class="nc">TokenBlackListAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenBlacklistView</span><span class="p">):</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/urls/members.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">MemberCreateAPIView</span>
+
+<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">members</span><span class="sh">"</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">""</span><span class="p">,</span> <span class="n">MemberCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">create</span><span class="sh">"</span><span class="p">),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/urls/auth.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">TokenBlackListAPIView</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span>
+
+<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">auth</span><span class="sh">"</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/refresh/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/blacklist/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenBlackListAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<ul>
+  <li>앞서 구축한 members.model과 members.serializer를 활용하여 새로운 멤버를 생성할 수 있도록 합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">rest_framework_simplejwt</code>에서 기본적으로 사용하는 controller를 통해 토큰 관련 API를 처리합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Custom User Registration]]></summary></entry><entry><title type="html">[DB] [Real MySQL 8.0] 내용 정리</title><link href="http://localhost:4000/db/database-1/" rel="alternate" type="text/html" title="[DB] [Real MySQL 8.0] 내용 정리" /><published>2023-05-14T20:05:07+07:00</published><updated>2023-05-14T20:05:07+07:00</updated><id>http://localhost:4000/db/database-1</id><content type="html" xml:base="http://localhost:4000/db/database-1/"><![CDATA[<p>CH 4.1.4 플러그인 스토리지 엔진 모델</p>
+<ul>
+  <li>MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다.</li>
+  <li>MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다.
+(데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리)</li>
+  <li>MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 <code class="language-plaintext highlighter-rouge">Handler_</code>로 시작되는 상태변수가 많습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">GROUP BY</code>와 <code class="language-plaintext highlighter-rouge">ORDER BY</code> 등의 복잡한 처리는 MySQL 엔진의 처리 영역인 ‘쿼리 실행기’에서 처리됩니다.</li>
+  <li>앞으로의 여정에서는, 하나의 쿼리 작업에서 나뉘어 지는 여러 하위 작업들이 MySQL 엔진 영역에서 처리되는지, 스토리지 엔진 영역에서 처리되는지 구분하게 될 것입니다.</li>
+  <li>mysqld에서 지원되는 스토리지 엔진을 확인하는 명령어
+<code class="language-plaintext highlighter-rouge">mysql&gt; SHOW ENGINS;</code></li>
+  <li>인증 및 전문 검색용 파서와 같은 플러그인을 확인하는 명령어
+<code class="language-plaintext highlighter-rouge">mysql&gt; SHOW PLUGINS;</code></li>
+</ul>
+
+<p>CH 4.1.5 컴포넌트</p>
+<ul>
+  <li>MySQL 8.0부터는 기존의 플러그인 아키텍처를 <strong>대체하기 위해</strong> 컴포넌트 아키텍처가 지원됩니다.</li>
+  <li>기존 플러그인의 단점
+    <ul>
+      <li>MySQL 서버와만 통신 가능하며, 플러그인끼리 통신 불가</li>
+      <li>MYSQL 서버의 변수나 함수를 직접 호출 -&gt; 캡슐화 안 됨</li>
+      <li>상호 의존관계를 설정할 수 없어 초기화 어려움</li>
+    </ul>
+  </li>
+</ul>
+
+<p>CH 4.1.6 쿼리 실행 구조</p>
+<ul>
+  <li>쿼리파서 -&gt; 전처리기 -&gt; 옵티마이저 -&gt; 실행엔진 -&gt; 핸들러 -&gt; 복제 -&gt; 쿼리 캐시(deprecated) -&gt; 스레드 풀</li>
+  <li>쿼리파서: 쿼리 문장을 토큰으로 분리해 트리 형태의 구조로 만듭니다. (기본 문법 오류 탐지)</li>
+  <li>전처리기: 쿼리 문장의 구조적 문제점을 확인합니다. 테이블 이름, 컬럼 이름, 내장함수 및 객체 존재 여부, 접근 권한을 확인합니다.</li>
+  <li>옵티마이저: DBMS의 두뇌에 해당하는 부분으로, 쿼리를 최적화합니다.</li>
+  <li>실행엔진: 핸들러에게 실행 계획 요청 하고, 요청에 대한 응답을 다른 핸들러에게 전달하는 역할을 수행합니다.</li>
+  <li>핸들러(스토리지 엔진): 실행 엔진의 요청에 따라 데이터를 디스크로 저장하거나 읽어옵니다. 따라서 스토리지 엔진을 의미합니다.</li>
+  <li>복제: Replication 기능을 답당합니다.</li>
+  <li>스레드풀
+    <ul>
+      <li>내부적으로 사용자 요청을 처리하는 스레드 개수를 줄여서, 제한된 개수의 스레드 처리에만 집중하도록 하여 서버의 자원 소모를 줄이는 것이 목적입니다.</li>
+      <li>일반적으로 CPU코어의 개수와 맞추는 것이  CPU 프로세서 친화도를 높이는 데 좋습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">thread_pool_stall_limit</code>: 주기적으로 그룹의 상태를 체크하여 정해진 시간 내(ms 단위)에 작업을 끝내지 못하는 경우, 새로운 스레드에 추가합니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">thread_pool_max_threads</code>: 해당 개수보다 스레드가 많아질 수 없도록 제한합니다.</li>
+      <li>트랜잭션 내에 속한 SQL을 빨리 처리하면, 해당 트랜잭션이 가지고 있던 잠금이 빨리 해제되고,잠금 경합을 낮춰 전체적인 쿼리 성능이 향상됩니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="42-innodb-스토리지-엔진-아키텍처">4.2 InnoDB 스토리지 엔진 아키텍처</h3>
+<p>CH 4.2.1 프라이머리 키에 의한 클러스터링</p>
+<ul>
+  <li>모든 테이블은 기본적으로 PK를 기준으로 클러스터링되어 저장됩니다.</li>
+  <li>모든 세컨더리 인덱스는 레코드의 주소 대신 PK의 값을 논리적인 주소로 사용합니다.</li>
+</ul>
+
+<p>CH 4.2.2 외래 키 지원</p>
+<ul>
+  <li>InnoDB 스토리지 엔진 레벨에서 지원하는 기능으로, MyISAM이나 MEMORY 테이블에서는 사용할 수 없습니다.</li>
+  <li>부모 테이블과 자식 테이블 모두 해당 컬럼에 인덱스 생성이 필요하며, 변경 시 두 테이블에 데이터가 있는지 확인하는 작업이 필요합니다.</li>
+  <li>따라서, 여러 테이블에 전파되는 잠금으로 인해 데드락이 발생하는 경우가 많습니다.</li>
+  <li>시스템 변수  <code class="language-plaintext highlighter-rouge">foreign_key_checks</code>를 OFF로 설정하면 외래 키 관계에 대한 확인 작업을 일시적으로 멈출 수 있습니다.</li>
+</ul>
+
+<p>CH 4.2.3 MVCC(Multi Version Concurrency Control)</p>
+<ul>
+  <li>잠금을 사용하지 않는 일관된 읽기를 제공합니다.</li>
+  <li>MySQL의 격리 수준(solation level)은 <code class="language-plaintext highlighter-rouge">READ_COMMITTED</code></li>
+  <li><code class="language-plaintext highlighter-rouge">UPDATE</code> 문장이 실행되면 커밋 실행 여부와 관계없이 InnoDB의 버퍼 풀은 새로운 값으로 업데이트 됩니다.</li>
+  <li>InnoDB 버퍼 풀의 변경 내용은 InnoDB 스토리지 엔진의 백그라운드 스레드에 의해서 기록되므로, 버퍼 풀의 변경 내용이 디스크의 데이터 파일에 기록됐는지 여부는 시점에 따라 다를 수 있습니다. 
+(InnoDB는 ACID를 보장하기 때문에 일반적으로 버퍼 풀과 데이터 파일은 동일한 상태로 가정해도 됩니다.)</li>
+  <li>MVCC: Undo log 혹은 버퍼풀, 데이터 파일 두 버전으로 부터 필요에 따른 데이터를 불러오는 구조를 의미합니다.
+    <ul>
+      <li>격리 수준이 <code class="language-plaintext highlighter-rouge">READ_UNCOMMITTED</code>인 경우, 커밋 여부와 상관없이 변경된 상태의 데이터를 반환합니다.(버퍼 풀과 데이터 파일로부터 값 조회)</li>
+      <li><code class="language-plaintext highlighter-rouge">READ_COMMITTED</code> 이상의 격리 수준에서는 아직 커밋이 되지 않았기 때문에, Undo log에서 값을 가져옵니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>CH 4.2.4 잠금 없는 일관된 읽기(Non-Locking Consistent Read)</p>
+<ul>
+  <li>InnoDB 스토리지 엔진은 MVCC를 이용해 잠금을 걸지 않고 읽기 작업을 수행합니다.</li>
+  <li>SERIALIZABLE 외의 격리 수준에서는 순수한 읽기 작업을 사용할 때 다른 트랜잭션의 변경 작업과 관계없이 항상 잠금을 대기하지 않고 바로 실행됩니다.</li>
+  <li>사용자가 UPDATE 후에 커밋하지 않더라도, 다른 사용자의 SELECT 요청을 방해하지 않는 것을 ‘잠금 없는 일관된 읽기’라고 말하며, 언두 로그에서 값을 읽습니다.</li>
+  <li>일관된 읽기를 위해 언두 로그를 계속 유지하려기 보다는 속도 문제가 발생할 수 있으므로, 트랜잭션이 시작됐다면 가능한 빨리 롤백이나 커밋을하여 완료해야합니다.</li>
+</ul>
+
+<p>CH 4.2.5 자동 데드락 감지</p>
+<ul>
+  <li>InnoDB 엔진은 교착 상태에 빠지지 않았는지 확인하기 위해 잠금 대기 목록을 그래프(Wait-for List) 형태로 관리합니다.</li>
+  <li>데드락 감지 스레드는 주기적으로 이 리스트를 검사하여 교착상태에 있는 트랜잭션을 강제 종료합니다.(언두 로그 레코드를 적게 가진 트랜잭션이 우선순위가 높음)</li>
+  <li>시스템 변수 <code class="language-plaintext highlighter-rouge">innodb_table_locks</code> 를 활성화하면, InnoDB 엔진 내부 레코드를 잠금할 뿐 아니라 테이블 잠그까지 감지합니다.</li>
+  <li>동시에 처리할 스레드가 매우 많은 경우, CPU 자원의 소모로 인해 데드락 감지 스레드가 느려지게 될 수 있습니다.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">innodb_deadlock_detect</code>: 더 이상 데드락 감지 스레드가 동작하지 않습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">innodb_lock_wait_timeout</code>: 데드락 상태일 때, 해당 변수에 정해둔 시간이 지나면 자동으로 요청이 실패하고 에러 메시지를 반환합니다.</li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="DB" /><summary type="html"><![CDATA[CH 4.1.4 플러그인 스토리지 엔진 모델 MySQL의 독특한 구조 중 대표적인 것이 플러그인 모델입니다. MySQL에서 쿼리가 실행되는 과정 대부분은 MySQL엔진에서 처리되고, 마지막 ‘데이터 읽기/쓰기’ 자업만 스토리지 엔진에 의해 처리됩니다. (데이터 읽기/쓰기 작업은 대부분 1건의 레코드 단위로 처리) MySQL 엔진은 스토리지 엔진을 조정하기 위해 핸들러를 사용합니다. 따라서 Handler_로 시작되는 상태변수가 많습니다. GROUP BY와 ORDER BY 등의 복잡한 처리는 MySQL 엔진의 처리 영역인 ‘쿼리 실행기’에서 처리됩니다. 앞으로의 여정에서는, 하나의 쿼리 작업에서 나뉘어 지는 여러 하위 작업들이 MySQL 엔진 영역에서 처리되는지, 스토리지 엔진 영역에서 처리되는지 구분하게 될 것입니다. mysqld에서 지원되는 스토리지 엔진을 확인하는 명령어 mysql&gt; SHOW ENGINS; 인증 및 전문 검색용 파서와 같은 플러그인을 확인하는 명령어 mysql&gt; SHOW PLUGINS;]]></summary></entry><entry><title type="html">[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?</title><link href="http://localhost:4000/database/database-dbcp/" rel="alternate" type="text/html" title="[Database] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?" /><published>2023-05-13T18:05:07+07:00</published><updated>2023-05-13T18:05:07+07:00</updated><id>http://localhost:4000/database/database-dbcp</id><content type="html" xml:base="http://localhost:4000/database/database-dbcp/"><![CDATA[<h1 id="dbcp-db-connection-pool">DBCP (DB Connection Pool)</h1>
+<ul>
+  <li>참고: https://youtu.be/zowzVqx3MQ4</li>
+  <li>해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.</li>
+</ul>
+
+<p>통신방법</p>
+<ul>
+  <li>백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다.</li>
+  <li>DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다.</li>
+</ul>
+
+<p><strong>DBCP의 개념과 원리</strong></p>
+<ol>
+  <li>백엔드 서버는 DB 서버와 통신하기 위해 미리 DB connection을 만들어두고, 풀처럼 관리할 수 있도록 합니다. 이를 DBCP라고 합니다.</li>
+  <li>[get connection] API 요청을 받아, DB를 조회하는 상황이 발생하면 connection pool에서 사용 가능한 connection을 가져와서 대여합니다.</li>
+  <li>connection을 통해 쿼리를 DB 서버로 요청하고, 데이터를 받습니다.</li>
+  <li>[close connection] 빌려왔던 connection을 connection pool에 다시 반환합니다.</li>
+  <li>API 응답을 반환합니다.</li>
+</ol>
+
+<ul>
+  <li>위와 같이, connection pool을 사용한다면 connection을 재사용하므로써 DB와의 TCP 연결 시간을 절약할 수 있습니다.</li>
+</ul>
+
+<p><strong>DBCP 설정 방법</strong></p>
+<ul>
+  <li>해당 강의에서는 DB 서버는 MySQL을, 백엔드 서버는 HikariCP를 사용합니다.</li>
+  <li>DB connection은 백엔드 서버와 DB 서버 각각에서의 설정 방법을 잘 알고 있어야합니다.</li>
+</ul>
+
+<h3 id="mysql-db-connection-설정-방법">MySQL DB Connection 설정 방법</h3>
+<p><strong>max_connections</strong></p>
+<ul>
+  <li>client(백엔드 서버)와 맺을 수 있는 최대 connection 수를 결정하는 파라미터입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">max_connections</code>를 여유있게 설정하지 않게 되면, DBCP의 connection 수가 증가해야하는 경우에 DB 서버와 connection할 수 없는 문제가 발생합니다.</li>
+</ul>
+
+<p><strong>wait_timeout</strong></p>
+<ul>
+  <li>DB 서버에서 connection이 inactive 할 때, 다시 요청이 오기까지 얼마의 시간을 기다린 뒤 close 할 것인지를 결정하는 파라미터입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">wait_timeout</code> 이내에 요청이 도착한다면 0으로 시간을 초기화 하고 새로운 요청을 기다립니다.</li>
+  <li>connection pool에 connection들이 있음에도 불구하고, 백엔드 서버에서 어떤 오류가 발생하여 connection을 종료하고 반환하지 못한다면, DB 서버는 하염없이 connection을 맺어두고 resource를 낭비할 수 밖에 없게됩니다.</li>
+  <li>따라서, DB 서버는 <code class="language-plaintext highlighter-rouge">wait_timeout</code>의 시간만큼 기다린 후, 비정상적인 상황임을 감지하면 해당 connection을 끊고 자원을 회수합니다.</li>
+</ul>
+
+<h3 id="백엔드-서버-db-connection-설정-방법-hikaricp">백엔드 서버 DB Connection 설정 방법 (HikariCP)</h3>
+<p><strong>minimumIdle</strong></p>
+<ul>
+  <li>pool에서 유지하는 최소한의 idle(요청이 올 때 까지 대기하고 있는 유휴자원) connection의 수를 결정하는 파라미터입니다.</li>
+  <li>connection들이 계속 사용 되다가 모두 반환되어 여러개의 connection이 생기더라도, <code class="language-plaintext highlighter-rouge">minimumIdle</code>의 개수에 맞도록 나머지 connection은 끊어줍니다.
+<strong>maximumPoolSize</strong></li>
+  <li>pool이 가질 수 있는 최대 connection의 수(idle과 active(in-use) connection을 합친)를 결정하는 파라미터입니다.</li>
+  <li>이는 minimumIdle 보다 우선순위를 가지게 되어 점유중인 connection이 minimumIdle보다 작다면 새로 값을 추가해야하지만, maximumPoolSize 이상으로 추가할 수는 없습니다. (아래 예시)</li>
+  <li>minimumIdle이 2이고, maximumPoolSize가 4인 경우: connection pool에 4개의 connection이 있고, 그 중 세 개의 connection이 점유 중이고, 하나가 idle connection 상태일 때 -&gt; maximumPoolSize가 4이기 때문에 connection을 추가할 수 없게 됩니다.
+<strong>maxLifetime</strong></li>
+  <li>pool에서 connection의 최대 수명을 설정하는 파라미터입니다.</li>
+  <li>pool 내의 connection 상태가 이를 넘기면 idle인 경우 바로 제거하고, active 인 경우는 pool로 반환 후에 제거합니다.</li>
+  <li>주의: <code class="language-plaintext highlighter-rouge">maxLifetime</code>이 제대로 동작하기 위해서는 connection이 제 때 반환되어야 합니다. 따라서, API 처리가 길어져 connection을 오래 점유하고 DB 서버에서 <code class="language-plaintext highlighter-rouge">wait_timeout</code>에 의해 연결도 끊긴 상태라면 <code class="language-plaintext highlighter-rouge">maxLifetime</code>이 캐치할 수 없는 메모리 connection 누수 현상이 발생하게 될 수 있습니다.</li>
+  <li>권유: DB 서버의 connection time limit(MySQL의 경우, <code class="language-plaintext highlighter-rouge">wait_timeout</code>)보다 2~3초 정도 더 짧게 설정해두는 것이 좋습니다. connection을 통한 처리 요청이 DB 서버까지 다다르기 전에 DB 서버의 connection time이 만료될 수 있기 때문입니다.
+<strong>connectionTimeout</strong></li>
+  <li>pool에서 connection을 받기 위한 대기 시간으로, 백엔드 서버에 트래픽이 밀려올 때 해당 시간 내에 pool에서 connection을 받아오지 못하는 경우 exception이 발생합니다.</li>
+  <li>해당 시간을 설정할 때, 서비스 이용자가 요청 후 얼마나 대기할 수 있는지까지 판단하여 설정해야합니다. timeout 시간을 30초로 잡더라도 서비스 이용자가 백엔드 서버와의 연결을 끊는다면 의미가 없기 떄문입니다.</li>
+</ul>
+
+<h2 id="적절한-connection-수를-찾기-위한-과정">적절한 connection 수를 찾기 위한 과정</h2>
+<ul>
+  <li>기본적으로 DB 서버를 구성할 때, 고가용성을 보장하기 위해 replication으로 구성합니다. Primary 서버는 read-write를 담당하고, Secondary 서버는 read-only를 담당합니다.</li>
+  <li>적절한 connection 수를 찾기 위해 모니터링 환경(서버 리소스, 서버 스레드 수, DBCP 등등)을 구축합니다.</li>
+  <li>백엔드 시스템에 대한 부하 테스트(tool: nGrinder)를 수행하면서 traffic에 따른 서버의 동작을 모니터링합니다.</li>
+  <li>관찰해야할 사항: 백엔드 서버, DB 서버의 CPU, MEM 등의 리소스 사용률을 확인
+    <ul>
+      <li>request per second: <strong>백엔드 시스템의 전체적인 처리량</strong>을 보기 위한 지표입니다.</li>
+      <li>average response time: 요청을 처리할 때 평균적인 응답처리를 보며, <strong>api 성능을 확인하는 지표</strong>를 확인해야합니다.</li>
+    </ul>
+  </li>
+  <li>만약 트래픽이 많아짐에 따라서 백엔드 서버는 문제가 없지만 DB 서버에 문제가 있는 경우
+    <ul>
+      <li>select 쿼리를 많이 처리하게 되면서 발생하는 문제라면, Secondary 서버를 추가합니다.</li>
+      <li>백엔드 서버와 DB 서버 사이에 Cache layer를 두어 DB 서버가 직접적으로 받는 부하를 낮출 수 있습니다.</li>
+      <li>Sharding을 이용하는 방법이 있습니다.</li>
+    </ul>
+  </li>
+  <li>thread per request 모델인 경우, active thread 수를 확인합니다.</li>
+</ul>
+
+<p>추가 공부</p>
+<ul>
+  <li>Naver D2: https://d2.naver.com/helloworld/5102792</li>
+  <li>hikariCP github: https://github.com/brettwooldridge/HikariCP</li>
+  <li>MySQL 설정 페이지: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html</li>
+</ul>
+
+<hr />
+<p>참고:</p>
+<ul>
+  <li>https://jojoldu.tistory.com/634</li>
+  <li>https://d2.naver.com/helloworld/5102792</li>
+</ul>
+
+<h3 id="sequelize에서-테스트-해보기">Sequelize에서 테스트 해보기</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">dotenv</span><span class="dl">'</span><span class="p">).</span><span class="nf">config</span><span class="p">();</span>
+
+<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nf">express</span><span class="p">()</span>
+<span class="kd">const</span> <span class="nx">port</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORT</span> <span class="o">||</span> <span class="mi">3000</span>
+
+<span class="kd">const</span> <span class="nx">Sequelize</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">sequelize</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Sequelize</span><span class="p">(</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_NAME</span><span class="p">,</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_USER</span><span class="p">,</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_PASSWORD</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="na">host</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_HOST</span><span class="p">,</span>
+        <span class="na">dialect</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_DIALECT</span><span class="p">,</span>
+        <span class="na">operatorsAliases</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+
+        <span class="na">pool</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">max</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="na">min</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="c1">// acquire: procee.env.pool.acquire,</span>
+            <span class="c1">// idle: procee.env.pool.idle</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">);</span>
+<span class="nx">sequelize</span>
+    <span class="p">.</span><span class="nf">sync</span><span class="p">()</span>
+    <span class="p">.</span><span class="nf">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Connected database</span><span class="dl">'</span><span class="p">))</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Failed to connect db </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">))</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/test-timeout</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">();</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nf">query</span><span class="p">(</span><span class="dl">"</span><span class="s2">SELECT SLEEP(3);</span><span class="dl">"</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">lag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">()</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Lag: </span><span class="p">${</span><span class="nx">lag</span><span class="p">}</span><span class="s2">ms`</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">lag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">()</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Lag: </span><span class="p">${</span><span class="nx">lag</span><span class="p">}</span><span class="s2">ms`</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">db error</span><span class="dl">'</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">200</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span><span class="dl">'</span><span class="s1">msg</span><span class="dl">'</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ok</span><span class="dl">'</span><span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Example app listening on port </span><span class="p">${</span><span class="nx">port</span><span class="p">}</span><span class="s2">`</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<ul>
+  <li>DB의 커넥션 풀을 5로 제한하였고, 각 쿼리당 DB 수행 시간을 3초라고 가정하였습니다.</li>
+  <li>아래와 같이 <a href="https://httpd.apache.org/docs/2.4/ko/programs/ab.html">Apache Bench</a>를 사용하여 부하테스트를 수행하면 다음과 같은 결과를 얻을 수 있습니다.</li>
+  <li>부하 테스트를 위해, 20명의 유저가 동시에 저희 서버에 100회 요청을 보내는 상황을 가정하였습니다.</li>
+</ul>
+
+<pre><code class="language-plain">&gt; ab -n 100 -c 20 https://localhost:4000/test-timeout
+This is ApacheBench, Version 2.3 &lt;$Revision: 1879490 $&gt;
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient).....done
+
+
+Server Software:        nginx/1.21.6
+Server Hostname:        localhost
+Server Port:            4000
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-CHACHA20-POLY1305,4096,256
+Server Temp Key:        ECDH X25519 253 bits
+TLS Server Name:        localhost
+
+Document Path:          /km/test-timeout
+Document Length:        12 bytes
+
+Concurrency Level:      20
+Time taken for tests:   64.159 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      27200 bytes
+HTML transferred:       1200 bytes
+Requests per second:    1.56 [#/sec] (mean)
+Time per request:       12831.748 [ms] (mean)
+Time per request:       641.587 [ms] (mean, across all concurrent requests)
+Transfer rate:          0.41 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:       14   77  59.8     48     243
+Processing:  3039 11087 2476.8  12026   12342
+Waiting:     3039 11086 2476.8  12026   12342
+Total:       3101 11164 2459.8  12095   12370
+
+Percentage of the requests served within a certain time (ms)
+  50%  12095
+  66%  12171
+  75%  12199
+  80%  12222
+  90%  12303
+  95%  12315
+  98%  12332
+  99%  12370
+ 100%  12370 (longest request)
+
+# console의 결과 ========================================
+Lag: 3093.0100421905518ms
+Lag: 3056.129874944687ms
+Lag: 3071.250333070755ms
+Lag: 3063.7896671295166ms
+Lag: 3065.905833005905ms
+Lag: 3056.715542078018ms
+
+Lag: 6105.021874904633ms
+Lag: 6107.211666107178ms
+Lag: 6109.895124912262ms
+Lag: 6116.28054189682ms
+Lag: 6118.377749919891ms
+
+Lag: 9111.812832832336ms
+Lag: 9110.667292118073ms
+Lag: 9115.994791030884ms
+Lag: 9120.64020895958ms
+Lag: 9124.2014169693ms
+
+Lag: 12140.2624168396ms
+Lag: 12141.329499959946ms
+Lag: 12143.3755838871ms
+Lag: 12145.10533285141ms
+Lag: 12145.73112487793ms
+
+Lag: 12126.067250013351ms
+Lag: 12110.478208065033ms
+Lag: 12111.195416927338ms
+Lag: 12106.155959129333ms
+Lag: 12108.08195900917ms
+...
+</code></pre>
+<ul>
+  <li>20명이 5개의 커넥션 풀로 모든 작업을 완료해야합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기중인 요청 10개)</li>
+  <li>이 때, 처리된 요청이 다시 요청을 보내므로 6,7,8,9,10이 DB 동작을 처리하기 시작할 때, 이미 1,2,3,4,5번의 두 번째 요청이 대기 중입니다.</li>
+  <li>따라서 1,2,3,4,5번의 두 번째 요청부터는 응답을 받으려면 12000ms 정도가 걸리게 되는 것입니다. 이와 같이 모든 유저의 두 번째 요청부터는 12000ms 정도가 걸리게 되어 Lag가 일정 시점부터는 12000ms로 고정됩니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Database" /><summary type="html"><![CDATA[DBCP (DB Connection Pool) 참고: https://youtu.be/zowzVqx3MQ4 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.]]></summary></entry><entry><title type="html">[Django] Form 클래스는 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-form/" rel="alternate" type="text/html" title="[Django] Form 클래스는 어떻게 사용할까?" /><published>2023-05-13T18:05:07+07:00</published><updated>2023-05-13T18:05:07+07:00</updated><id>http://localhost:4000/django%20strategy/django-form</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-form/"><![CDATA[<h1 id="form">FORM</h1>
+<ul>
+  <li>HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다.
+(CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.)</li>
+</ul>
+
+<h3 id="djnago-폼-처리-과정">Djnago 폼 처리 과정</h3>
+<ol>
+  <li>브라우저에서 form을 포함한 페이지를 요청합니다.</li>
+  <li>Django는 “unbound” default form을 서빙합니다.<br />
+(이 시점에서 폼은 초기값이 있지만, Client가 입력한 값에 연관되지 않습니다.)</li>
+  <li>Client는 데이터를 입력하고 서버에 submit합니다.</li>
+  <li>데이터 유효성을 검사합니다.<br />
+(실패한다면, error message와 함께 bound form을 다시 유저에게 서빙합니다.)</li>
+  <li>유효한 데이터를 통해 알맞은 동작을 수행한 후, 성공 URL로 리다이렉트합니다.</li>
+</ol>
+
+<h3 id="form-클래스-viewset-작성">Form 클래스, ViewSet 작성</h3>
+<ul>
+  <li>Form 클래스는 Django 어드민 시스템의 핵심으로, field들과 배치, widget, 라벨, 초기값, 유효성 확인, 에러 메시지를 결정합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># forms.py
+</span>
+<span class="kn">from</span> <span class="n">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="n">mytest.models</span> <span class="kn">import</span> <span class="n">Category</span>
+
+<span class="k">class</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">forms</span><span class="p">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">상품명을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">price</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">IntegerField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">상품 가격을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">brand</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="sh">"</span><span class="s">브랜드명을 입력하세요</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">cate_id</span> <span class="o">=</span> <span class="n">forms</span><span class="p">.</span><span class="nc">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Category</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">())</span>
+</code></pre></div></div>
+<ul>
+  <li>상품 폼 생성시 상품명과 브랜드명 입력부는 text 타입의 input 태그로, 가격 입력부는 number 타입의 input 태그로, category 모델 선정부(FK)는 select 태그로 렌더링됩니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># urls.py
+</span><span class="kn">from</span> <span class="n">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">from</span> <span class="n">mytest.views</span> <span class="kn">import</span> <span class="n">ItemPageViewSet</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">'</span><span class="s">view/items/</span><span class="sh">'</span><span class="p">,</span> <span class="n">ItemPageViewSet</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
+</span><span class="k">class</span> <span class="nc">ItemPageViewSet</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+    <span class="n">itemRepository</span> <span class="o">=</span> <span class="nc">ItemRepository</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">itemForm</span> <span class="o">=</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">새로운 상품</span><span class="sh">"</span><span class="p">})</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">'</span><span class="s">form</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nf">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sh">'</span><span class="s">items.html</span><span class="sh">'</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="p">):</span>
+        <span class="n">itemForm</span> <span class="o">=</span> <span class="nc">ItemForm</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">itemForm</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">():</span>
+            <span class="n">self</span><span class="p">.</span><span class="n">itemRepository</span><span class="p">.</span><span class="nf">createItem</span><span class="p">({</span>
+                <span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">],</span>
+                <span class="sh">'</span><span class="s">price</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sh">'</span><span class="s">price</span><span class="sh">'</span><span class="p">],</span>
+            <span class="p">})</span>
+            <span class="k">return</span> <span class="nf">redirect</span><span class="p">(</span><span class="sh">"</span><span class="s">/view/items/</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">'</span><span class="s">form</span><span class="sh">'</span><span class="p">:</span> <span class="n">itemForm</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nf">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sh">'</span><span class="s">items.html</span><span class="sh">'</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">view/item/</code> 경로로 GET 요청을 받으면, unbound form을 우선적으로 렌더링합니다.</li>
+  <li>이 후, 데이터를 입력하고 POST 요청을 통해 새로운 item을 생성할 수 있습니다.</li>
+  <li>이 때, 이 전에 포스팅한 serializer를 수행하는 <code class="language-plaintext highlighter-rouge">itemRepository</code>를 활용하여 아이템을 생성합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[FORM HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다. (CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.)]]></summary></entry></feed>

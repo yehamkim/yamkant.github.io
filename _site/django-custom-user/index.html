@@ -1,0 +1,849 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Django Custom User - Yam&#8217;s Dev Logs</title>
+<meta name="description" content="Django custom user 생성을 위한 설정 추가">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="Django Custom User">
+<meta property="og:url" content="http://localhost:4000/django-custom-user/">
+
+
+  <meta property="og:description" content="Django custom user 생성을 위한 설정 추가">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-06-04T00:00:00+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django-custom-user/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Django Custom User">
+    <meta itemprop="description" content="Django custom user 생성을 위한 설정 추가">
+    <meta itemprop="datePublished" content="2023-06-04T00:00:00+07:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Django Custom User
+</h1>
+          
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-06-04T00:00:00+07:00">June 4, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p>Django custom user 생성을 위한 설정 추가</p>
+
+<p><strong>작업을 위한 Directory Level</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web
+- apps/
+  - config/
+    - settings/
+      - base.py
+      - development.py
+      - production.py
+    ...
+  - core/
+    - serializers.py
+    - models.py
+    ...
+  - members/
+    - urls/
+      - members.py
+    - models.py
+    - serializers.py
+    - views.py
+    ...
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.settings.base.py
+</span><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="sh">'</span><span class="s">members</span><span class="sh">'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">AUTH_USER_MODEL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members.Member</span><span class="sh">'</span>
+
+</code></pre></div></div>
+<ul>
+  <li>config 앱의 base setting 파일에서 members 앱을 추가하고, AUTH_USER를 Member 모델로 대체하기 위한 작업을 수행합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.models.py
+</span>
+<span class="kn">from</span> <span class="n">core.models</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">AbstractUser</span><span class="p">,</span> <span class="n">BaseUserManager</span>
+<span class="kn">from</span> <span class="n">django.core.validators</span> <span class="kn">import</span> <span class="n">RegexValidator</span>
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">MemberManager</span><span class="p">(</span><span class="n">BaseUserManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">createMember</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="n">member</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">model</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="n">phone</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">set_password</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+        <span class="n">member</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">member</span>
+
+<span class="k">class</span> <span class="nc">Member</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">AbstractUser</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span>
+        <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span>
+            <span class="nc">RegexValidator</span><span class="p">(</span>
+                <span class="sa">r</span><span class="sh">"</span><span class="s">^01[016789][0-9]{7,8}$</span><span class="sh">"</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sh">"</span><span class="s">This phone number format is invalid.</span><span class="sh">"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nc">MemberManager</span><span class="p">()</span>
+
+    <span class="n">USERNAME_FIELD</span> <span class="o">=</span> <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members</span><span class="sh">'</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Member</code> 모델은 <code class="language-plaintext highlighter-rouge">USERNAME_FIELD</code>를 핸드폰 번호로 대체합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">Member.objects</code>의 메서드를 추가하기 위해 MemberManager(Django 기본 유저를 제어하기 위해 사용하는 BaseUserManager 상속)를 생성합니다.</li>
+  <li>따라서, <code class="language-plaintext highlighter-rouge">Member.objects.createMember</code> phone와 password 필드를 각각 설정합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># core.serailizers.py
+</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.serializers.py
+</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="n">core.serializers</span> <span class="kn">import</span> <span class="n">CreateSerializer</span>
+
+<span class="kn">from</span> <span class="n">members.models</span> <span class="kn">import</span> <span class="n">Member</span>
+
+<span class="k">class</span> <span class="nc">MemberSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateSerializer</span><span class="p">(</span><span class="n">CreateSerializer</span><span class="p">):</span>
+    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">MemberSerializer</span>
+    <span class="n">password2</span> <span class="o">=</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">password</span><span class="sh">'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">ValidationError</span><span class="p">({</span><span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">This is different with password.</span><span class="sh">"</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">validated_data</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Member</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">createMember</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">core.serializers.CreateSerializer</code>를 상속하여 <code class="language-plaintext highlighter-rouge">to_representation</code>을 통해 내부에서 <code class="language-plaintext highlighter-rouge">ModelSerializer</code>를 직렬화하여 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">view</code>에서 <code class="language-plaintext highlighter-rouge">member</code>를 생성하기 위해 호출할 <code class="language-plaintext highlighter-rouge">serializer</code>를 추가합니다.</li>
+  <li>일반적으로 <code class="language-plaintext highlighter-rouge">MemberSerializer</code>를 통해서 <code class="language-plaintext highlighter-rouge">Member</code> 모델의 <code class="language-plaintext highlighter-rouge">id</code> 값과 <code class="language-plaintext highlighter-rouge">phone(로그인 아이디)</code> 값을 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">MemberCreateSerializer</code>는 <code class="language-plaintext highlighter-rouge">password2</code>를 추가적으로 정의하고, 그 외의 필드는 <code class="language-plaintext highlighter-rouge">MemberSerializer</code>에서 serialize하여 사용합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.views.py
+</span>
+<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
+
+<span class="c1"># Create your views here.
+</span><span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">CreateAPIView</span>
+<span class="kn">from</span> <span class="n">rest_framework.permissions</span> <span class="kn">import</span> <span class="n">AllowAny</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="kn">from</span> <span class="n">drf_spectacular.types</span> <span class="kn">import</span> <span class="n">OpenApiTypes</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">extend_schema</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="nd">@extend_schema</span><span class="p">(</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
+    <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">새로운 사용자를 추가합니다.</span><span class="sh">"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">MemberCreateAPIView</span><span class="p">(</span><span class="n">CreateAPIView</span><span class="p">):</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
+</code></pre></div></div>
+<ul>
+  <li>간단히 generic view를 사용하여 새로운 유저를 생성하는 방식을 추가합니다.</li>
+</ul>
+
+<hr />
+
+<h2 id="jwt-인증-방식-추가-설정하는-방법">JWT 인증 방식 추가 설정하는 방법</h2>
+
+<p>jwt access token 및 refresh token을 관리하는 모듈을 설치합니다.</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip <span class="nb">install </span>djangorestframework-simplejwt
+</code></pre></div></div>
+
+<p>settings.py에서 <code class="language-plaintext highlighter-rouge">DEFALT_AUTHENTICATION_CLASSES</code>와 <code class="language-plaintext highlighter-rouge">DEFAULT_PERMISSIONS_CLASSES</code>를 정의합니다.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.settings.base.py
+</span>
+<span class="bp">...</span>
+
+<span class="c1"># 기본 스키마는 drf-spectacular를 사용하고 있습니다.
+</span><span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">'</span><span class="s">DEFAULT_SCHEMA_CLASS</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">drf_spectacular.openapi.AutoSchema</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="bp">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>기존 simlejwt 모듈의 제너릭뷰를 그대로 사용합니다. (필요에 따라서 auth 앱을 추가적으로 만들어 사용합니다.)</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.views.py
+</span>
+<span class="bp">...</span>
+<span class="kn">from</span> <span class="n">rest_framework_simplejwt</span> <span class="kn">import</span> <span class="n">views</span> <span class="k">as</span> <span class="n">jwt_views</span>
+
+<span class="bp">...</span>
+<span class="k">class</span> <span class="nc">TokenCreateAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenObtainPairView</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">TokenRefreshAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenRefreshView</span><span class="p">):</span>
+    <span class="k">pass</span>
+    
+<span class="k">class</span> <span class="nc">TokenBlackListAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenBlacklistView</span><span class="p">):</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+
+<p>jwt 관련 라우팅을 위해 url을 설정합니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members.urls.auth.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">TokenBlackListAPIView</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span>
+
+<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">auth</span><span class="sh">"</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/refresh/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/blacklist/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenBlackListAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
+</span>
+<span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">include</span>
+
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularJSONAPIView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularRedocView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularSwaggerView</span>
+<span class="kn">from</span> <span class="n">drf_spectacular.views</span> <span class="kn">import</span> <span class="n">SpectacularYAMLAPIView</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">'</span><span class="s">auth/</span><span class="sh">'</span><span class="p">,</span> <span class="nf">include</span><span class="p">(</span><span class="sh">'</span><span class="s">members.urls.auth</span><span class="sh">'</span><span class="p">)),</span>
+<span class="p">]</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="p">[</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/json/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularJSONAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/yaml/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularYAMLAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-yaml</span><span class="sh">"</span><span class="p">),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/swagger/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularSwaggerView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-ui</span><span class="sh">"</span><span class="p">,),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/redoc/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularRedocView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">redoc</span><span class="sh">"</span><span class="p">,),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-06-04T00:00:00+07:00">June 4, 2023</time></p>
+
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=Django+Custom+User%20http%3A%2F%2Flocalhost%3A4000%2Fdjango-custom-user%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fdjango-custom-user%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fdjango-custom-user%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/django%20strategy/django-spectacular/" class="pagination--pager" title="[Django] API를 어떻게 명세하여 사용할까?
+">Previous</a>
+    
+    
+      <a href="/django%20strategy/django-test/" class="pagination--pager" title="[Django] 테스트는 어떻게 수행할까?
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/aws/" rel="permalink">Aws
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-06-13T00:00:00+07:00">June 13, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+6.1 Amazon VPC
+
+  AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다.
+  EC2나 RDS의 경우, VPC를 먼저 선택해야합니다.
+  VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/django%20strategy/django-test/" rel="permalink">[Django] 테스트는 어떻게 수행할까?
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-06-09T08:05:07+07:00">June 9, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">작성이유 및 목표
+
+  흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.
+  알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/django%20strategy/django-spectacular/" rel="permalink">[Django] API를 어떻게 명세하여 사용할까?
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-05-27T18:05:07+07:00">May 27, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Open API와 OAS, Swagger
+Open API란?
+
+  Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다.
+  OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 ...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/django%20strategy/django-view/" rel="permalink">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        
+        <time datetime="2023-05-27T18:05:07+07:00">May 27, 2023</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">참고: mynghn님 블로그
+Generic view의 동작방식
+
+  DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.
+  Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.
+  generic view는 네가지...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,613 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] 배포/개발 환경은 어떻게 설정할까? - Yam’s Dev Logs</title>
+<meta name="description" content="최종 목표    .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] 배포/개발 환경은 어떻게 설정할까?">
+<meta property="og:url" content="http://localhost:4000/django%20strategy/django-setting/">
+
+
+  <meta property="og:description" content="최종 목표    .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-05-13T18:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django%20strategy/django-setting/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] 배포/개발 환경은 어떻게 설정할까?</h1>
+    
+    <h3 id="최종-목표">최종 목표</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.env</code> 파일에 설정된 <code class="language-plaintext highlighter-rouge">DJANGO_SETTINGS_MODULE</code>에 따라서 배포환경에 맞는 settings.py 사용</li>
+</ul>
+
+<h3 id="django-container-setting">Django Container Setting</h3>
+
+<p><strong>Django 폴더 구조</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web
+- Dockerfile
+- apps/
+  - config/
+    - settings/
+      - base.py
+      - development.py
+      - production.py
+    - wsgi/
+      - development.py
+      - production.py
+    ...
+  - entrypoint.sh
+  - manage.py
+  - requirements.txt
+- .env
+</code></pre></div></div>
+
+<p><strong>Django 배포 환경 설정</strong></p>
+<ul>
+  <li>공통 설정은 다음과 같은 방식으로 공통적으로 사용하는 부분을 명시합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.base
+</span>
+  <span class="kn">from</span> <span class="n">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+  <span class="kn">import</span> <span class="n">os</span>
+
+
+  <span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)))</span>
+  <span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DJANGO_SECRET_KEY</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="sh">'</span><span class="s">templates</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">ROOT_URLCONF</span> <span class="o">=</span> <span class="sh">'</span><span class="s">config.urls</span><span class="sh">'</span>
+
+  <span class="n">STATIC_URL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">static/</span><span class="sh">'</span>
+  <span class="n">STATIC_ROOT</span> <span class="o">=</span> <span class="sh">'</span><span class="s">staticfiles</span><span class="sh">'</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+
+  <span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="bp">...</span>
+  <span class="p">]</span>
+  <span class="bp">...</span>
+
+</code></pre></div>    </div>
+  </li>
+  <li>개발환경에서는 아래와 같은 방식으로 작성합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.dev
+</span>  <span class="kn">import</span> <span class="n">os</span>
+  <span class="kn">from</span> <span class="n">.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+  <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+  <span class="n">WSGI_APPLICATION</span> <span class="o">=</span> <span class="sh">"</span><span class="s">config.wsgi.application</span><span class="sh">"</span>
+
+  <span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sh">'</span><span class="s">127.0.0.1</span><span class="sh">'</span><span class="p">,</span>
+      <span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span>
+  <span class="p">]</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+  <span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">'</span><span class="s">default</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+          <span class="sh">'</span><span class="s">ENGINE</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">django.db.backends.sqlite3</span><span class="sh">'</span><span class="p">,</span>
+          <span class="sh">'</span><span class="s">NAME</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="sh">'</span><span class="s">db.sqlite3</span><span class="sh">'</span><span class="p">),</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+</code></pre></div>    </div>
+  </li>
+  <li>live 서버의 배포환경에서는 아래와 같은 방식으로 작성합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.production
+</span>  <span class="kn">import</span> <span class="n">os</span>
+  <span class="kn">from</span> <span class="n">.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+  <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">False</span>
+  <span class="n">WSGI_APPLICATION</span> <span class="o">=</span> <span class="sh">"</span><span class="s">config.wsgi.application</span><span class="sh">"</span>
+
+  <span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sh">'</span><span class="s">*</span><span class="sh">'</span><span class="p">,</span>
+  <span class="p">]</span>
+
+  <span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+
+  <span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">'</span><span class="s">default</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+          <span class="sh">'</span><span class="s">ENGINE</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_ENGINE</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">NAME</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_NAME</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">USER</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_USER</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">PASSWORD</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_PASSWORD</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">HOST</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_HOST</span><span class="sh">'</span><span class="p">),</span>
+          <span class="sh">'</span><span class="s">PORT</span><span class="sh">'</span><span class="p">:</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DB_PORT</span><span class="sh">'</span><span class="p">),</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">MIDDLEWARE</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="p">]</span>
+</code></pre></div>    </div>
+  </li>
+  <li>API 설정: <code class="language-plaintext highlighter-rouge">base_url/profile</code>로 요청을 보낼 때, 어떤 설정값을 적용하였는지 불러오는 API 입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">rest_framework.views</span> <span class="kn">import</span> <span class="n">APIView</span>
+  <span class="kn">from</span> <span class="n">rest_framework.response</span> <span class="kn">import</span> <span class="n">Response</span>
+  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">status</span>
+
+  <span class="kn">import</span> <span class="n">os</span>
+
+  <span class="k">class</span> <span class="nc">ProfileController</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span> 
+      <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+          <span class="n">settingProfile</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">DJANGO_SETTINGS_MODULE</span><span class="sh">'</span><span class="p">).</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">.</span><span class="sh">'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+          <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">settingProfile</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>위의 설정 항목을 모두 작성했으면, 아래와 같이 .env 파일을 생성합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c">#.env.sample</span>
+  <span class="nv">DJANGO_SECRET_KEY</span><span class="o">=</span>
+
+  <span class="nv">DB_ENGINE</span><span class="o">=</span>
+  <span class="nv">DB_NAME</span><span class="o">=</span>
+  <span class="nv">DB_USER</span><span class="o">=</span>
+  <span class="nv">DB_PASSWORD</span><span class="o">=</span>
+  <span class="nv">DB_HOST</span><span class="o">=</span>
+  <span class="nv">DB_PORT</span><span class="o">=</span>
+    
+  <span class="nv">TEST_DB_NAME</span><span class="o">=</span>
+
+
+  <span class="c"># DJANGO START SETTING</span>
+  <span class="nv">DJANGO_SETTINGS_MODULE</span><span class="o">=</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="django-서버-배포">Django 서버 배포</h3>
+<p><strong>Django 서버 Dockerize</strong></p>
+<ul>
+  <li>설정이 완료된 후, gunicorn 통해 실행하기 위해 아래 명령어를 사용합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>gunicorn <span class="nt">--bind</span> 0.0.0.0:8000 config.wsgi.development:application
+</code></pre></div>    </div>
+  </li>
+  <li>이 때, 정적 파일은 서빙되지 않기 때문에, Nginx 설정과 함께 배포해주어야 합니다.</li>
+  <li>먼저 Django를 컨테이너로 세팅하기 위해 Dockerfile을 다음과 같이 작성합니다.
+    <pre><code class="language-Docker"># Dockerfile
+# syntax=docker/dockerfile:1
+
+FROM python:3
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+WORKDIR /apps
+COPY apps /apps/
+
+EXPOSE 8000/tcp
+
+RUN chmod +x /apps/entrypoint.sh
+CMD /apps/entrypoint.sh
+</code></pre>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># entrypoint.sh
+
+#!/bin/sh
+
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py collectstatic
+
+gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">python manage.py collectstatic</code> 명령어를 사용하면 Django app들에서 사용하는 static file을 추출합니다.
+(정확한 경로를 안다면, 직접 모아도 무방합니다.)</li>
+      <li><code class="language-plaintext highlighter-rouge">settings.base.py</code>에서 <code class="language-plaintext highlighter-rouge">STATIC_ROOT</code>에 지정한 폴더명에 정적 파일들이 모입니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="nginx-container-setting">Nginx Container Setting</h3>
+
+<p><strong>Nginx 폴더 경로</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nginx
+- Dockerfile
+- code/
+  - templates/
+    - default.conf.template
+- staticfiles/
+- entrypoint.sh
+</code></pre></div></div>
+
+<p><strong>Nginx 서버 Dockerize</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">default.conf.template</code>는 환경변수를 사용하기 위한 configuration template 입니다.
+    <div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span>       <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">listen</span>  <span class="s">[::]:80</span><span class="p">;</span>
+    <span class="kn">server_name</span>  $<span class="p">{</span><span class="kn">NGINX_SERVER_NAME</span><span class="err">}</span><span class="p">;</span>
+
+    <span class="kn">access_log</span>  <span class="n">/var/log/nginx/logs/host.access.log</span>  <span class="s">main</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">proxy_redirect</span>     <span class="no">off</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span>   <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        <span class="kn">proxy_read_timeout</span> <span class="mi">1200</span><span class="p">;</span>
+
+        <span class="kn">proxy_pass</span>         <span class="s">http://web:8000/</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="n">/static</span> <span class="p">{</span>
+        <span class="kn">alias</span> <span class="n">/staticfiles</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">...</span>
+<span class="err">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">NGINX_SERVER_NAME</code>을 환경변수로 불러와서 치환되도록 설정할 수 있습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">/static</code> 경로로 오는 요청들을 HOST로부터 옮겨온 /staticfiles에서 처리합니다.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">Dockefile</code> 및 <code class="language-plaintext highlighter-rouge">entrypoint.sh</code>는 다음과 같이 작성합니다.
+    <div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Dockefile</span>
+<span class="k">FROM</span><span class="s"> nginx:1.21.6</span>
+
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get <span class="nb">install</span> <span class="nt">-y</span> openssl
+  
+<span class="k">COPY</span><span class="s"> ./entrypoint.sh /entrypoint.sh</span>
+<span class="k">COPY</span><span class="s"> ./code/templates /etc/nginx/templates</span>
+  
+<span class="k">COPY</span><span class="s"> ./staticfiles /static</span>
+  
+<span class="k">ENV</span><span class="s"> NGINX_HOST localhost</span>
+<span class="k">ENV</span><span class="s"> INITIAL_START 1</span>
+  
+<span class="k">CMD</span><span class="s"> ["/bin/bash", "/entrypoint.sh"]</span>
+</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># entrypoint.sh</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> /var/log/nginx/logs/
+
+<span class="c"># nginx 실행 전 템플릿 파일의 변수를 환경 변수 값으로 변경해주는 구문입니다.</span>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$INITIAL_START</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s1">'1'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span>bash /docker-entrypoint.d/20-envsubst-on-templates.sh
+    <span class="nv">INITIAL_START</span><span class="o">=</span><span class="s2">"0"</span>
+<span class="k">fi
+</span>nginx <span class="nt">-g</span> <span class="s2">"daemon off;"</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>nginx 컨테이너 내부 /etc/nginx/conf.d/default.conf는 <code class="language-plaintext highlighter-rouge">/docker-entrypoint.d/20-envsubst-on-templates.sh</code>에 의해 <code class="language-plaintext highlighter-rouge">code/templates/default.conf.template</code>가 생성됩니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">IINITIAL_START</code>를 설정하지 않으면, default.conf를 변경하여 설정값을 유지하고 싶어도 계속해서 템플릿이 변형되기 때문에 해당 구문을 넣었습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Service Dockerize</strong></p>
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: "3"
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+  web:
+    build: ./web
+    container_name: web
+    env_file:
+      - ./web/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+</code></pre></div></div>
+<ul>
+  <li>대부분에 설정은 Dockerfile에서 마치고, container 실행부분만 docker-compose에 위임합니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

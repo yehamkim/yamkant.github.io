@@ -1,0 +1,725 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Server] Docker network를 통한 Nginx와 django server 세팅 - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 계기    docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Server] Docker network를 통한 Nginx와 django server 세팅">
+<meta property="og:url" content="http://localhost:4000/server/server-1/">
+
+
+  <meta property="og:description" content="글을 작성하게 된 계기    docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-05-12T14:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/server/server-1/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Server] Docker network를 통한 Nginx와 django server 세팅</h1>
+    
+    <h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<ul>
+  <li>docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.</li>
+  <li>server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.</li>
+</ul>
+
+<h3 id="최종-목표">최종 목표</h3>
+<ul>
+  <li>nginx 단독 컨테이너 구성</li>
+  <li>docker-compose를 사용한 django server 여러대 구성</li>
+  <li>nginx load balancing을 활용한 django server 구동</li>
+  <li>Blue-Green 배포 형식으로 nginx 및 docker-compose 세팅</li>
+</ul>
+
+<p><strong>순서</strong></p>
+<ol>
+  <li>custom network 생성</li>
+  <li>nginx 단독 container 구성</li>
+  <li>django server 구성(docker-compose로 구성 x custom network)</li>
+  <li>custom network 연결 (nginx container 실행 및 custom network)</li>
+  <li>nginx 배포환경 구성 (django server들과 reverse proxy를 통한 load balancing 환경 구성)</li>
+</ol>
+
+<h2 id="1-custom-network-생성">1. Custom network 생성</h2>
+<p>참고: https://itbhome.tistory.com/47</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># custom network를 원하는 대역에 생성</span>
+<span class="nv">$ </span>docker network create <span class="se">\</span>
+    <span class="nt">--driver</span><span class="o">=</span>bridge <span class="se">\</span>
+    <span class="nt">--subnet</span><span class="o">=</span>172.20.0.0/16 <span class="se">\</span>
+    <span class="nt">--gateway</span><span class="o">=</span>172.20.0.1 <span class="se">\</span>
+    my-network
+</code></pre></div></div>
+
+<h2 id="2-nginx-단독-container-구성">2. nginx 단독 container 구성</h2>
+<p><strong>nginx 설정파일</strong></p>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># templates/default.conf.template</span>
+
+<span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span>       <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">server_name</span>  <span class="mi">80</span><span class="p">;</span>
+
+    <span class="kn">access_log</span>  <span class="n">/var/log/nginx/logs/host.access.log</span>  <span class="s">main</span><span class="p">;</span>
+    <span class="kn">error_log</span>   <span class="n">/var/log/nginx/logs/host.error.log</span> <span class="s">crit</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">return</span> <span class="mi">308</span> <span class="s">https://</span><span class="nv">$host$request_uri</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">...</span>
+<span class="err">}</span>
+
+<span class="c1">#// upstream servers {</span>
+<span class="c1">#//     server server1:8000;</span>
+<span class="c1">#//     server server2:8000;</span>
+<span class="c1">#// }</span>
+
+<span class="c1">#HTTPS server</span>
+<span class="s">server</span> <span class="p">{</span>
+    <span class="kn">listen</span>       <span class="mi">443</span> <span class="s">ssl</span> <span class="s">http2</span><span class="p">;</span>
+    <span class="kn">ssl_certificate</span> <span class="n">/etc/letsencrypt/live/</span>$<span class="p">{</span><span class="kn">NGINX_HOST</span><span class="err">}</span><span class="n">/fullchain.pem</span><span class="p">;</span>
+    <span class="kn">ssl_certificate_key</span> <span class="n">/etc/letsencrypt/live/</span>$<span class="p">{</span><span class="kn">NGINX_HOST</span><span class="err">}</span><span class="n">/privkey.pem</span><span class="p">;</span>        
+
+    <span class="kn">access_log</span>  <span class="n">/var/log/nginx/logs/host.access.log</span>  <span class="s">main</span><span class="p">;</span>
+    <span class="kn">error_log</span> <span class="n">/var/log/nginx/logs/host.error.log</span> <span class="s">crit</span><span class="p">;</span>
+
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
+        <span class="c1">#// proxy_pass http://servers;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li>환경변수를 활용하여 conf 파일을 변경하는 경우가 생길 수 있기 때문에, template 파일을 작성 후, nginx container 내부 sh 파일을 통해 이를 치환합니다. (위의 예제에서는 NGINX_HOST 변수처리)</li>
+  <li>해당 파일은 치환이 완료되면 <code class="language-plaintext highlighter-rouge">.template</code> 접미사가 제거되며 docker container 내부에서는 /etc/nginx/conf.d/default.conf로 변환됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">#//</code>로 처리해둔 주석은 이 후에, 서버 배포가 진행될 때 <code class="language-plaintext highlighter-rouge">conf.d/default.conf</code>를 수정하는 과정에서 지우게 될 주석입니다.</li>
+</ul>
+
+<p><strong>Dockerfile 및 run.sh</strong></p>
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Dockerfile</span>
+
+<span class="k">FROM</span><span class="s"> nginx:1.21.6</span>
+
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get <span class="nb">install</span> <span class="nt">-y</span> openssl
+
+<span class="k">COPY</span><span class="s"> ./code/nginx.conf /etc/nginx/nginx.conf</span>
+<span class="k">COPY</span><span class="s"> ./code/run.sh /run.sh</span>
+<span class="k">COPY</span><span class="s"> ./code/set_nginx_conf.sh /set_nginx_conf.sh</span>
+<span class="k">COPY</span><span class="s"> ./code/templates /etc/nginx/templates</span>
+
+<span class="k">ENV</span><span class="s"> NGINX_HOST localhost</span>
+<span class="k">ENV</span><span class="s"> INITIAL_START 1</span>
+
+<span class="k">CMD</span><span class="s"> ["/bin/bash", "/run.sh"]</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># run.sh
+
+#!/bin/bash
+
+DIR_PEM="/etc/letsencrypt/live/$NGINX_HOST"
+if [ -d "$DIR_PEM" ]; then
+  echo "OPEN SSL SETTING DONE"
+else
+  echo "OPEN SSL SETTING DOING"
+  mkdir -p /etc/letsencrypt/live/$NGINX_HOST
+  ### Take action if $DIR exists ###
+  openssl req -x509 -nodes -newkey rsa:4096 -days 1\
+    -keyout "/etc/letsencrypt/live/$NGINX_HOST/privkey.pem" \
+    -out "/etc/letsencrypt/live/$NGINX_HOST/fullchain.pem" \
+    -subj "/CN=localhost"
+fi
+
+echo "환경변수 출력"
+echo $INITIAL_START
+
+# nginx 실행 전 템플릿 파일의 변수를 환경 변수 값으로 변경해주는 구문입니다.
+if [ "$INITIAL_START" -eq '1' ]; then
+  bash /docker-entrypoint.d/20-envsubst-on-templates.sh
+  INITIAL_START="0"
+fi
+nginx -g "daemon off;"
+</code></pre></div></div>
+<ul>
+  <li>run.sh는 openssl 설정 및 환경변수 값으로 치환하기 위한 프로그램 수행, nginx를 실행하는 역할을 합니다.</li>
+</ul>
+
+<p><strong>nginx container 실행 및 네트워크 연결</strong></p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># docker_run.sh</span>
+
+<span class="c">#!/bin/bash</span>
+
+<span class="nv">CUR_PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span> <span class="nb">cd</span> <span class="s2">"</span><span class="si">$(</span> <span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$0</span><span class="s2">"</span> <span class="si">)</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="nb">pwd</span> <span class="nt">-P</span> <span class="si">)</span><span class="s2">"</span>
+<span class="nv">IMAGE_NAME</span><span class="o">=</span>my-nginx:1.0
+<span class="nv">MOUNT_LOG_DIR</span><span class="o">=</span><span class="nv">$CUR_PATH</span>/code/logs
+<span class="nv">MOUNT_CONF_DIR</span><span class="o">=</span><span class="nv">$CUR_PATH</span>/code/conf.d
+
+docker build <span class="nt">-t</span> <span class="nv">$IMAGE_NAME</span> <span class="nv">$CUR_PATH</span>
+docker run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443 <span class="nt">-v</span> <span class="nv">$MOUNT_LOG_DIR</span>:/var/log/nginx/logs <span class="nt">-v</span> <span class="nv">$MOUNT_CONF_DIR</span>:/etc/nginx/conf.d <span class="nt">--name</span> my-nginx <span class="nv">$IMAGE_NAME</span>
+
+<span class="c"># connect custom network for nginx container </span>
+docker network connect my-network my-nginx
+</code></pre></div></div>
+<ul>
+  <li>HOST에서도 nginx의 로그와 설정값을 관리하기 위해 컨테이너와 Volume을 연결하도록 설정합니다.</li>
+</ul>
+
+<h2 id="4-django-server-구성">4. Django server 구성</h2>
+<pre><code class="language-docker-compose"># docker-compose.yaml
+
+version: '3'
+services:
+  server-blue-1:
+    container_name: my-blue-server-1
+    build: ./django_server
+    networks:
+      - my-network
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./django_server/.env
+    environment:
+      - PROFILE=set1-server1
+  server-blue-2:
+    container_name: my-blue-server-2
+    build: ./django_server
+    networks:
+      - my-network
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./django_server/.env
+    environment:
+      - PROFILE=set1-server2
+  # monitor:
+  #   build: ./monitor_server
+  #   command: tail -f /dev/null
+  #   container_name: my-monitor
+
+networks:
+  my-network:
+    name: my-network
+    external: true
+</code></pre>
+<ul>
+  <li>server-blue-1, server-blue-2 등 같은 버전의 여러대의 컨테이너로 docker-compose를 구성합니다.</li>
+  <li>이미 생성된 custom network에 docker-compose를 연결합니다.</li>
+  <li>혹시(?) 사용하게 될지도 모르는 monitor 서버를 추가적으로 구성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker compose up -d</code>를 통해 compose를 빌드할 수 있습니다.</li>
+</ul>
+
+<pre><code class="language-docker-compose">docker-compose.green.yaml
+
+version: '3'
+services:
+  server-green-1:
+    container_name: my-green-server-1
+    build: ./django_server
+    networks:
+      - my-network
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./django_server/.env
+    environment:
+      - PROFILE=set2-server1
+  server-green-2:
+    container_name: my-green-server-2
+    build: ./django_server
+    networks:
+      - my-network
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./django_server/.env
+    environment:
+      - PROFILE=set2-server2
+  # monitor:
+  #   build: ./monitor_server
+  #   command: tail -f /dev/null
+  #   container_name: my-monitor
+
+networks:
+  my-network:
+    name: my-network
+    external: true
+</code></pre>
+<ul>
+  <li>server-green-1, server-green-2 등 새로운 버전을 위한 compose 파일을 구성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker compose -f docker-compose.green.yaml up -d</code>를 통해 compose를 빌드할 수 있습니다.</li>
+</ul>
+
+<h3 id="확인">확인</h3>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker network inspect my-network
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">"Name"</span>: <span class="s2">"my-network"</span>,
+        ...
+        <span class="s2">"Driver"</span>: <span class="s2">"bridge"</span>,
+        <span class="s2">"EnableIPv6"</span>: <span class="nb">false</span>,
+        <span class="s2">"IPAM"</span>: <span class="o">{</span>
+            <span class="s2">"Driver"</span>: <span class="s2">"default"</span>,
+            <span class="s2">"Options"</span>: <span class="o">{}</span>,
+            <span class="s2">"Config"</span>: <span class="o">[</span>
+                <span class="o">{</span>
+                    <span class="s2">"Subnet"</span>: <span class="s2">"172.20.0.0/16"</span>,
+                    <span class="s2">"Gateway"</span>: <span class="s2">"172.20.0.1"</span>
+                <span class="o">}</span>
+            <span class="o">]</span>
+        <span class="o">}</span>,
+        ...
+        <span class="s2">"Containers"</span>: <span class="o">{</span>
+            <span class="s2">"04d6e1ec538cb14cec01a3409fae0a455921e04af484ebb8769903a6fec3d512"</span>: <span class="o">{</span>
+                <span class="s2">"Name"</span>: <span class="s2">"my-blue-server-1"</span>,
+                <span class="s2">"EndpointID"</span>: <span class="s2">"38ccfbc39486e2d93526bb6e783e360cd7d7df70830bdfbab026ee55d8f75bb7"</span>,
+                <span class="s2">"MacAddress"</span>: <span class="s2">"02:42:ac:14:00:04"</span>,
+                <span class="s2">"IPv4Address"</span>: <span class="s2">"172.20.0.4/16"</span>,
+                <span class="s2">"IPv6Address"</span>: <span class="s2">""</span>
+            <span class="o">}</span>,
+            <span class="s2">"8ceb50dbe27da8186713140224f32c47467f37779ead0dea8ecb692ae178446d"</span>: <span class="o">{</span>
+                <span class="s2">"Name"</span>: <span class="s2">"my-blue-server-2"</span>,
+                <span class="s2">"EndpointID"</span>: <span class="s2">"2b5fe995ab6333f4cef560fabc18d83c5e1289239532489c25a46d1d1d03245b"</span>,
+                <span class="s2">"MacAddress"</span>: <span class="s2">"02:42:ac:14:00:03"</span>,
+                <span class="s2">"IPv4Address"</span>: <span class="s2">"172.20.0.3/16"</span>,
+                <span class="s2">"IPv6Address"</span>: <span class="s2">""</span>
+            <span class="o">}</span>,
+            <span class="s2">"07f74941d4bdc431eea721ff82c6e14f920fa3a9940abd12a087147f210e8770"</span>: <span class="o">{</span>
+                <span class="s2">"Name"</span>: <span class="s2">"my-green-server-1"</span>,
+                <span class="s2">"EndpointID"</span>: <span class="s2">"af7765925d505e8c066741e7fc596632c1c91633cc6d2d9b25bca3abe2c7268a"</span>,
+                <span class="s2">"MacAddress"</span>: <span class="s2">"02:42:ac:14:00:05"</span>,
+                <span class="s2">"IPv4Address"</span>: <span class="s2">"172.20.0.5/16"</span>,
+                <span class="s2">"IPv6Address"</span>: <span class="s2">""</span>
+            <span class="o">}</span>,
+            <span class="s2">"d8c439c7373e516b3135916cbc018e1e4f8126517257eb1c252b169a94ec5688"</span>: <span class="o">{</span>
+                <span class="s2">"Name"</span>: <span class="s2">"my-green-server-2"</span>,
+                <span class="s2">"EndpointID"</span>: <span class="s2">"250870e9bd90e0335663134d373eac140dbf1268ac95be1ee333df21bd555f63"</span>,
+                <span class="s2">"MacAddress"</span>: <span class="s2">"02:42:ac:14:00:06"</span>,
+                <span class="s2">"IPv4Address"</span>: <span class="s2">"172.20.0.6/16"</span>,
+                <span class="s2">"IPv6Address"</span>: <span class="s2">""</span>
+            <span class="o">}</span>
+            <span class="s2">"bd8ed048dc19c8fd438453793e63642ee631a935fa3487a46a6408a1ea4af5e7"</span>: <span class="o">{</span>
+                <span class="s2">"Name"</span>: <span class="s2">"my-nginx"</span>,
+                <span class="s2">"EndpointID"</span>: <span class="s2">"25f3dc806ac591f49595e6fe349562b6d744b46fdd935e67343659d5b8f8ff2e"</span>,
+                <span class="s2">"MacAddress"</span>: <span class="s2">"02:42:ac:14:00:02"</span>,
+                <span class="s2">"IPv4Address"</span>: <span class="s2">"172.20.0.2/16"</span>,
+                <span class="s2">"IPv6Address"</span>: <span class="s2">""</span>
+            <span class="o">}</span>,
+        <span class="o">}</span>,
+        ...
+    <span class="o">}</span>
+<span class="o">]</span>
+</code></pre></div></div>
+<ul>
+  <li>위 과정들을 전부 수행하면 my-nginx, blue server들, green server들이 gateway에 배치되어, 서로 ping, curl 등 network tool을 통해 소통할 수 있게 됩니다.</li>
+</ul>
+
+<h2 id="5-nginx-배포환경-구성">5. Nginx 배포환경 구성</h2>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># set_nginx_conf.sh</span>
+
+<span class="c">#!/bin/bash</span>
+
+<span class="nv">SRC_SERVER1</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">SRC_SERVER2</span><span class="o">=</span><span class="nv">$2</span>
+<span class="nv">TAR_SERVER1</span><span class="o">=</span><span class="nv">$3</span>
+<span class="nv">TAR_SERVER2</span><span class="o">=</span><span class="nv">$4</span>
+
+<span class="c"># Firstly, remove the comment keywords</span>
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'s|#// ||g'</span> /etc/nginx/conf.d/default.conf
+<span class="c"># Secondly, set nginx upstream hostname</span>
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s|</span><span class="k">${</span><span class="nv">SRC_SERVER1</span><span class="k">}</span><span class="s2">|</span><span class="k">${</span><span class="nv">TAR_SERVER1</span><span class="k">}</span><span class="s2">|g"</span> /etc/nginx/conf.d/default.conf
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s|</span><span class="k">${</span><span class="nv">SRC_SERVER2</span><span class="k">}</span><span class="s2">|</span><span class="k">${</span><span class="nv">TAR_SERVER2</span><span class="k">}</span><span class="s2">|g"</span> /etc/nginx/conf.d/default.conf
+</code></pre></div></div>
+<ul>
+  <li>2번 단계에서 설정했던 nginx 설정 파일을 수정하여 배포 환경에 맞게 수정하는 파일로, upstream 부분의 reverse proxy 부분을 수정합니다.</li>
+  <li>기존에 server1, server2로 되어있던 부분을 <code class="language-plaintext highlighter-rouge">my-network</code>(위에서 커스텀으로 설정한)에서 받아와서 설정해야합니다. (아래 <code class="language-plaintext highlighter-rouge">deploy.sh</code> 참고)</li>
+</ul>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># deploy.sh</span>
+
+<span class="nt">---</span>
+
+<span class="c">#!/bin/bash</span>
+<span class="nv">PARAM</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span>:?<span class="s2">"requires an argument. in: init, dp: deploy, rb: rollback"</span><span class="k">}</span>
+
+<span class="nv">BLUE_SERVER_1_HOST</span><span class="o">=</span><span class="sb">`</span>docker inspect <span class="nt">-f</span> <span class="s1">''</span> my-blue-server-1<span class="sb">`</span>
+<span class="nv">BLUE_SERVER_2_HOST</span><span class="o">=</span><span class="sb">`</span>docker inspect <span class="nt">-f</span> <span class="s1">''</span> my-blue-server-2<span class="sb">`</span>
+<span class="nv">GREEN_SERVER_1_HOST</span><span class="o">=</span><span class="sb">`</span>docker inspect <span class="nt">-f</span> <span class="s1">''</span> my-green-server-1<span class="sb">`</span>
+<span class="nv">GREEN_SERVER_2_HOST</span><span class="o">=</span><span class="sb">`</span>docker inspect <span class="nt">-f</span> <span class="s1">''</span> my-green-server-2<span class="sb">`</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$GREEN_SERVER_1_HOST</span><span class="s2">"</span> <span class="nt">-o</span>  <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$GREEN_SERVER_2_HOST</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  if</span> <span class="o">[</span> <span class="nv">$PARAM</span> <span class="o">!=</span> <span class="s1">'in'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"Turn on green servers first."</span>
+    <span class="nb">exit
+  </span><span class="k">fi
+fi
+ 
+if</span> <span class="o">[</span> <span class="nv">$PARAM</span> <span class="o">==</span> <span class="s1">'in'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  </span>docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx /set_nginx_conf.sh server1 server2 <span class="nv">$BLUE_SERVER_1_HOST</span> <span class="nv">$BLUE_SERVER_2_HOST</span>
+<span class="k">elif</span> <span class="o">[</span> <span class="nv">$PARAM</span> <span class="o">==</span> <span class="s1">'rb'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  </span>docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx /set_nginx_conf.sh <span class="nv">$GREEN_SERVER_1_HOST</span> <span class="nv">$GREEN_SERVER_2_HOST</span> <span class="nv">$BLUE_SERVER_1_HOST</span> <span class="nv">$BLUE_SERVER_2_HOST</span>
+<span class="k">else
+  </span>docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx /set_nginx_conf.sh <span class="nv">$BLUE_SERVER_1_HOST</span> <span class="nv">$BLUE_SERVER_2_HOST</span> <span class="nv">$GREEN_SERVER_1_HOST</span> <span class="nv">$GREEN_SERVER_2_HOST</span>
+<span class="k">fi</span>
+
+<span class="c"># nginx reload in docker</span>
+docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx nginx <span class="nt">-s</span> reload
+</code></pre></div></div>
+<ul>
+  <li>in: initial 모드로, nginx.conf의 server1, server2를 my-network에서 컨테이너명에 따라 가져온 IP로 변경합니다. (my-blue-server1, my-blue-server2가 될 것)</li>
+  <li>dp: 새로운 버전을 배포하는 모드로, blue-server1, blue-server2에 연결되어 있던 reverse proxy를 green-server1, green-server2로 연결되도록 수정합니다.</li>
+  <li>rb: 롤백 모드로, green-server1, green-server2로 연결되어 있던 reverse proxy를 blue-server1, blue-server2로 연결되도록 다시 수정합니다.</li>
+  <li>in 모드가 아니고 green server가 배포가 되어있지 않다면, 배포 프로세스를 진행하지 않습니다.</li>
+</ul>
+
+<h2 id="배포-순서">배포 순서</h2>
+<ul>
+  <li>
+    <p>최종 디렉토리 레벨은 다음과 같습니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  - /root
+    - nginx/
+      - templates/
+          - default.conf.template
+      - code/
+          - nginx.conf
+          - run.sh
+          - set_nginx_conf.sh
+          - Dockerfile
+      - docker_run.sh
+
+    - server/
+      - django_server/
+          - Dockerfile
+          - ...
+      - monitor_server/
+          - Dockerfile
+          - ...
+      - docker-compose.yaml
+      - docker-compose.green.yaml
+
+    - create_network.sh
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>초기 컨테이너들 설정</strong></p>
+<ul>
+  <li>아래 명령어들은 root 폴더에서 진행합니다.
+    <ol>
+      <li>새로운 network 생성: <code class="language-plaintext highlighter-rouge">./create_network.sh</code></li>
+      <li>server 실행:  <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.yaml up -d</code></li>
+      <li>nginx 실행 및 새로운 network 연결: <code class="language-plaintext highlighter-rouge">nginx/docker_ruh.sh</code></li>
+      <li>초기 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh in</code></li>
+    </ol>
+  </li>
+</ul>
+
+<p><strong>새로운 배포를 하는 경우</strong></p>
+<ol>
+  <li>server 실행: <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.green.yaml up -d</code></li>
+  <li>새로운 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh dp</code></li>
+</ol>
+
+<p><strong>롤백하는 경우</strong></p>
+<ol>
+  <li>롤백 후 재배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh rb</code></li>
+</ol>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

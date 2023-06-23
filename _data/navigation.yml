@@ -1,0 +1,12 @@
+main:
+  # - title: "Archive"
+  #   url: /year-archive/
+  # - title: "tag"
+  #   url: /tags/
+  # - title: "Category"
+  #   url: /categories/
+categories:
+  - title: "Title1"
+    children:
+      - title: "Categories1"
+        url: /categories/categories1/

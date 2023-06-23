@@ -1,0 +1,491 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] ORM 사용 방법을 위한 기록 - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 계기    ‘우아한테크세미나’에서 이동욱(향로)님께서 제어할 수 없는 것들에 의존하지 않기라는 주제로 발표하셨습니다.   제어하기 쉬운 부분은 Business Logic을 담당하는 애플리케이션이고, UI와 Data 파트는 상대적으로 제어하기가 어려운 영역입니다.   제어할 수 없는 부분인 Database가 SQL이든, NoSQL이든 어떻게 변경 되더라도 대응하기 쉬운 애플리케이션 코드를 작성하는 것이 좋은 코드라는 말씀에 공감되었습니다.   Django ORM의 사용법에 한계가 많다고 생각했던 탓에 무작정 Raw SQL을 사용했지만, 이는 DB에 의존적으로 된다는 단점이 있기 때문에 ORM을 익혀두는 것이 중요하다고 생각되었습니다.   ‘2020 파이콘’에서 김성렬님의 강의를 보고 ORM 공부의 필요성을 느꼈습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] ORM 사용 방법을 위한 기록">
+<meta property="og:url" content="http://localhost:4000/django%20deep/django-orm-deep1/">
+
+
+  <meta property="og:description" content="글을 작성하게 된 계기    ‘우아한테크세미나’에서 이동욱(향로)님께서 제어할 수 없는 것들에 의존하지 않기라는 주제로 발표하셨습니다.   제어하기 쉬운 부분은 Business Logic을 담당하는 애플리케이션이고, UI와 Data 파트는 상대적으로 제어하기가 어려운 영역입니다.   제어할 수 없는 부분인 Database가 SQL이든, NoSQL이든 어떻게 변경 되더라도 대응하기 쉬운 애플리케이션 코드를 작성하는 것이 좋은 코드라는 말씀에 공감되었습니다.   Django ORM의 사용법에 한계가 많다고 생각했던 탓에 무작정 Raw SQL을 사용했지만, 이는 DB에 의존적으로 된다는 단점이 있기 때문에 ORM을 익혀두는 것이 중요하다고 생각되었습니다.   ‘2020 파이콘’에서 김성렬님의 강의를 보고 ORM 공부의 필요성을 느꼈습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-04-11T21:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django%20deep/django-orm-deep1/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] ORM 사용 방법을 위한 기록</h1>
+    
+    <h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<ul>
+  <li><a href="https://www.youtube.com/live/DJCmvzhFVOI?feature=share">‘우아한테크세미나’에서 이동욱(향로)</a>님께서 제어할 수 없는 것들에 의존하지 않기라는 주제로 발표하셨습니다.</li>
+  <li>제어하기 쉬운 부분은 Business Logic을 담당하는 애플리케이션이고, UI와 Data 파트는 상대적으로 제어하기가 어려운 영역입니다.</li>
+  <li>제어할 수 없는 부분인 Database가 SQL이든, NoSQL이든 어떻게 변경 되더라도 대응하기 쉬운 애플리케이션 코드를 작성하는 것이 좋은 코드라는 말씀에 공감되었습니다.</li>
+  <li>Django ORM의 사용법에 한계가 많다고 생각했던 탓에 무작정 Raw SQL을 사용했지만, 이는 DB에 의존적으로 된다는 단점이 있기 때문에 ORM을 익혀두는 것이 중요하다고 생각되었습니다.</li>
+  <li><a href="https://youtu.be/EZgLfDrUlrk">‘2020 파이콘’에서 김성렬님의 강의</a>를 보고 ORM 공부의 필요성을 느꼈습니다.</li>
+</ul>
+
+<p><strong>이하 사용할 모듈 및 메서드</strong></p>
+<ul>
+  <li>사용하는 모듈: <a href="https://pypi.org/project/django-query-counter/">Django Query Counter</a>, ORM 사용시 생성되는 쿼리문과 요청 속도 파악을 위해 사용합니다.</li>
+  <li>사용하는 데이터베이스: postgreSQL</li>
+</ul>
+
+<h2 id="orm-사용-권장-팁">ORM 사용 권장 팁</h2>
+<ul>
+  <li>쿼리셋을 작성할 때 권장되는 순서는 다음과 같습니다. 여기서 핵심은, prefetch를 가장 아래에 두는 것입니다.</li>
+  <li>prefetch_related를 통해 테이블을 조회하면, 추가 쿼리가 발생하기 때문에, filter 아래에 두어, 다른 쿼리셋임을 나타내어 보기 용이하게 합니다.</li>
+</ul>
+
+<h3 id="추천하는-쿼리셋-순서">추천하는 쿼리셋 순서</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Model</span><span class="p">.</span><span class="n">objects</span>
+    <span class="p">.</span><span class="nf">annotate</span><span class="p">(</span>
+        <span class="n">커스텀프로퍼티1선언</span><span class="o">=</span><span class="nc">F</span><span class="p">(</span><span class="sh">"</span><span class="s">DB컬럼명</span><span class="sh">"</span><span class="p">),</span>
+        <span class="n">커스텀프로퍼티2선언</span><span class="o">=</span><span class="nc">Case</span><span class="p">(</span>
+            <span class="nc">When</span><span class="p">(</span>
+                <span class="n">조건절_모델필드아무거나__isnull</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">then</span><span class="o">=</span><span class="nc">Count</span><span class="p">(</span><span class="sh">'</span><span class="s">특정모델필드</span><span class="sh">'</span><span class="p">)),</span>
+            <span class="n">default</span><span class="o">=</span><span class="nc">Value</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="nc">Integerfield</span><span class="p">(</span>
+                <span class="n">help_text</span><span class="o">=</span><span class="sh">'</span><span class="s">해당 어트리뷰트 결과값을 django에서 무슨타입으로 받을건지 선택하는 파라미터입니다.</span><span class="sh">'</span>
+            <span class="p">),),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="p">.</span><span class="nf">selected_related</span><span class="p">(</span><span class="sh">"</span><span class="s">정방향_참조모델1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">정방향참조모델2</span><span class="sh">"</span><span class="p">)</span>
+    <span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nc">Q</span><span class="p">(),</span> <span class="o">~</span><span class="nc">Q</span><span class="p">()).</span><span class="nf">exclude</span><span class="p">()</span>
+    <span class="p">.</span><span class="nf">only</span><span class="p">()</span> <span class="n">또는</span> <span class="p">.</span><span class="nf">defer</span><span class="p">()</span>
+    <span class="p">.</span><span class="nf">prefetch_related</span><span class="p">(</span>
+        <span class="nc">Prefetch</span><span class="p">(</span><span class="n">to_attr</span><span class="o">=</span><span class="sh">"</span><span class="s">역방향_참조모델1</span><span class="sh">"</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">BModel</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">select_related</span><span class="p">(</span><span class="sh">"</span><span class="s">b_model의 정방향참조모델1</span><span class="sh">"</span><span class="p">).</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="bp">False</span><span class="p">)),</span>
+        <span class="nc">Prefetch</span><span class="p">(</span><span class="n">to_attr</span><span class="o">=</span><span class="sh">"</span><span class="s">역방향_참조모델2</span><span class="sh">"</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">CModel</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">())</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="쿼리셋-작성-예시">쿼리셋 작성 예시</h3>
+<p><strong>요구사항</strong></p>
+<ul>
+  <li>상품 데이터를 조회합니다. 조회시 브랜드명과 카테고리 명을 정방향 참조하여 가져옵니다.</li>
+  <li>상품의 썸네일 부분(이미지 타입 T)을 역방향 참조하여 가져옵니다.</li>
+</ul>
+
+<ol>
+  <li>raw query만 사용해서 조회하는 경우
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kn">from</span> <span class="n">django.db.models.query</span> <span class="kn">import</span> <span class="n">RawQuerySet</span>
+
+ <span class="k">def</span> <span class="nf">findAllOnlyRawQuery</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Product</span><span class="p">]:</span>
+     <span class="n">rawQueryStr</span><span class="p">:</span> <span class="n">RawQuerySet</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">'''</span><span class="s">
+     select 
+         p.prod_id
+         , p.prod_name
+         , b.brand_name
+         , p.buy_link
+         , string_agg(pi.url, </span><span class="sh">'</span><span class="s">,</span><span class="sh">'</span><span class="s">) as thumbnailConcat
+     from products p
+     join productimages pi on pi.prod_id=p.prod_id
+     join brands b on b.brand_id=p.brand_id
+     where pi.type=</span><span class="sh">'</span><span class="s">T</span><span class="sh">'</span><span class="s"> and p.deleted=</span><span class="sh">'</span><span class="s">N</span><span class="sh">'</span><span class="s">
+     group by p.prod_id, b.brand_name;
+     </span><span class="sh">'''</span>
+     <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+     <span class="n">prodQs</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">raw</span><span class="p">(</span><span class="n">rawQueryStr</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">translations</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">prodQ</span> <span class="ow">in</span> <span class="n">prodQs</span><span class="p">:</span>
+         <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">prodQ</span><span class="p">.</span><span class="n">__dict__</span><span class="p">)</span>
+     <span class="k">return</span> <span class="n">prodQs</span>
+
+ <span class="c1"># 출력결과
+</span> <span class="c1"># [INFO] ProductRepository {'_state': &lt;django.db.models.base.ModelState object at 0xffff7b8280d0&gt;, 'prod_id': 15, 'prod_name': '아주 멋진 옷', 'buy_link': 'https://www.thehandsome.com/ko/PM/productDetail/SH2C3TRN634M?itmNo=004', 'brand_name': '브랜드 미선택', 'thumbnailconcat': 'https://cdn-img.thehandsome.com/studio/goods/SH/2C/SS/SH2C3TRN634M_OW_W01.jpg?rs=684X1032'}
+</span>
+ <span class="sh">'''</span><span class="s">
+ http://127.0.0.1:8000/products/
+ |------|-----------|----------|----------|----------|------------|
+ | Type | Database  |   Reads  |  Writes  |  Totals  | Duplicates |
+ |------|-----------|----------|----------|----------|------------|
+ | RESP |  default  |    0     |    1     |    1     |     0      |
+ |------|-----------|----------|----------|----------|------------|
+ Total queries: 1 in 0.0829s
+ </span><span class="sh">"</span><span class="s">GET /products/ HTTP/1.1</span><span class="sh">"</span><span class="s"> 200 833
+ </span><span class="sh">'''</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>상품의 순번을 GROUP BY로 묶어서 사용하면 쿼리를 한 번에 출력할 수 있지만, 각각의 이미지를 <code class="language-plaintext highlighter-rouge">','</code>로 나누어 리스트로 다시 넣는 작업을 추가로 작성해야합니다.</li>
+    </ul>
+  </li>
+  <li>ORM만 사용하여 조회하는 경우
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">def</span> <span class="nf">findAllOnlyORM</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Product</span><span class="p">]:</span>
+     <span class="n">prefetch</span> <span class="o">=</span> <span class="nc">Prefetch</span><span class="p">(</span>
+         <span class="sh">"</span><span class="s">related_prod</span><span class="sh">"</span><span class="p">,</span>
+         <span class="n">queryset</span><span class="o">=</span><span class="n">ProductImage</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="sh">"</span><span class="s">T</span><span class="sh">"</span><span class="p">),</span>
+         <span class="n">to_attr</span><span class="o">=</span><span class="sh">'</span><span class="s">prodImgs</span><span class="sh">'</span>
+     <span class="p">)</span>
+     <span class="n">prodQs</span> <span class="o">=</span> <span class="n">Product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">annotate</span><span class="p">(</span>
+         <span class="n">prodId</span><span class="o">=</span><span class="nc">F</span><span class="p">(</span><span class="sh">'</span><span class="s">prod_id</span><span class="sh">'</span><span class="p">)</span>
+         <span class="p">,</span> <span class="n">prodName</span><span class="o">=</span><span class="nc">F</span><span class="p">(</span><span class="sh">'</span><span class="s">prod_name</span><span class="sh">'</span><span class="p">)</span>
+         <span class="p">,</span> <span class="n">brandName</span><span class="o">=</span><span class="nc">F</span><span class="p">(</span><span class="sh">'</span><span class="s">brand_id__brand_name</span><span class="sh">'</span><span class="p">)</span>
+     <span class="p">).</span><span class="nf">select_related</span><span class="p">(</span>
+         <span class="sh">"</span><span class="s">brand_id</span><span class="sh">"</span>
+     <span class="p">).</span><span class="nf">prefetch_related</span><span class="p">(</span><span class="n">prefetch</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">prodQ</span> <span class="ow">in</span> <span class="n">prodQs</span><span class="p">:</span>
+         <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">prodQ</span><span class="p">.</span><span class="n">__dict__</span><span class="p">)</span>
+     <span class="k">return</span> <span class="n">prodQs</span>
+    
+ <span class="c1"># 출력결과
+</span> <span class="c1"># [INFO] ProductRepository {'_state': &lt;django.db.models.base.ModelState object at 0xffffb1d27610&gt;, 'prod_id': 15, 'prod_name': '아주 멋진 옷', 'buy_link': 'https://www.thehandsome.com/ko/PM/productDetail/SH2C3TRN634M?itmNo=004', 'cate_id_id': 1, 'brand_id_id': 1, 'deleted': 'N', 'created_at': datetime.date(2023, 4, 5), 'prodId': 15, 'prodName': '아주 멋진 옷', 'brandName': '브랜드 미선택', '_prefetched_objects_cache': {}, 'prodImgs': [&lt;ProductImage: ProductImage object (10)&gt;]}
+</span>
+ <span class="sh">'''</span><span class="s">
+ http://127.0.0.1:8000/products/
+ |------|-----------|----------|----------|----------|------------|
+ | Type | Database  |   Reads  |  Writes  |  Totals  | Duplicates |
+ |------|-----------|----------|----------|----------|------------|
+ | RESP |  default  |    2     |    0     |    2     |     0      |
+ |------|-----------|----------|----------|----------|------------|
+ Total queries: 2 in 0.0726s
+ </span><span class="sh">'''</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>model에서 ProductImage의 related_name을 <code class="language-plaintext highlighter-rouge">related_prod</code>라고 작성해두었기 때문에, <code class="language-plaintext highlighter-rouge">Prefetch</code>의 looku 인자로 <code class="language-plaintext highlighter-rouge">related_prod</code>로 갖습니다.</li>
+      <li>각각의 상품 쿼리는 상품 이미지 쿼리셋을 같습니다. 쿼리셋 메서드를 통해 상품이미지들 중 필요한 쿼리만 사용할 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>RawQuery와 ORM을 섞어서 사용하는 경우
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">def</span> <span class="nf">findAllRawQueryWithORM</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Product</span><span class="p">]:</span>
+     <span class="n">rawQueryStr</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">'''</span><span class="s">
+     select 
+         p.prod_id
+         , p.prod_name
+         , b.brand_name
+         , c.cate_name
+         , p.buy_link
+     from products p
+     join brands b on b.brand_id=p.brand_id
+     join categories c on c.cate_id=p.cate_id
+     </span><span class="sh">'''</span>
+     <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+
+     <span class="n">prefetch</span> <span class="o">=</span> <span class="nc">Prefetch</span><span class="p">(</span>
+         <span class="sh">"</span><span class="s">related_prod</span><span class="sh">"</span><span class="p">,</span>
+         <span class="n">queryset</span><span class="o">=</span><span class="n">ProductImage</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="sh">"</span><span class="s">T</span><span class="sh">"</span><span class="p">),</span>
+         <span class="n">to_attr</span><span class="o">=</span><span class="sh">'</span><span class="s">prodImgs</span><span class="sh">'</span>
+     <span class="p">)</span>
+     <span class="n">prodQs</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">raw</span><span class="p">(</span><span class="n">rawQueryStr</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">translations</span><span class="o">=</span><span class="bp">None</span><span class="p">).</span><span class="nf">prefetch_related</span><span class="p">(</span><span class="n">prefetch</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">prodQ</span> <span class="ow">in</span> <span class="n">prodQs</span><span class="p">:</span>
+         <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">prodQ</span><span class="p">.</span><span class="n">__dict__</span><span class="p">)</span>
+     <span class="k">return</span> <span class="n">prodQs</span>
+
+ <span class="c1"># 출력결과
+</span> <span class="c1"># [INFO] ProductRepository {'_state': &lt;django.db.models.base.ModelState object at 0xffff9efa6110&gt;, 'prod_id': 15, 'prod_name': '아주 멋진 옷', 'buy_link': 'https://www.thehandsome.com/ko/PM/productDetail/SH2C3TRN634M?itmNo=004', 'brand_name': '브랜드 미선택', 'cate_name': '카테고리 미선택', '_prefetched_objects_cache': {}, 'prodImgs': [&lt;ProductImage: ProductImage object (10)&gt;]}
+</span></code></pre></div>    </div>
+    <ul>
+      <li>RawQuerySet을 사용하더라도, QuerySet의 제어권에 들어오게 되기 때문에 prefetch_related는 체이닝이 가능합니다.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="예시들을-작성하며">예시들을 작성하며</h3>
+<ul>
+  <li>RawQuery를 사용하는 경우 어쩔 수 없이 쿼리문을 String으로 작성하게 되며, 이는 리팩토링하여 특정 부분을 재사용하기가 어렵게 됩니다.</li>
+  <li>장고에서 제공하는 객체인 QuerySet 형식으로 재사용 가능한 부분을 이용하기 위해서는 더 고급의 ORM 사용법을 숙지해야할 필요성을 느꼈습니다.</li>
+  <li>또한, Low Query를 판단하기 위해 DEBUG 모드에서 장고가 어떻게 Query문을 변경하여 DB에 요청하는지 모니터링하면서 나은 구문들로 만들 수 있을 것입니다.</li>
+</ul>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

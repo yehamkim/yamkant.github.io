@@ -1,0 +1,449 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까? - Yam’s Dev Logs</title>
+<meta name="description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?">
+<meta property="og:url" content="http://localhost:4000/django%20strategy/django-view/">
+
+
+  <meta property="og:description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-05-27T18:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django%20strategy/django-view/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</h1>
+    
+    <p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
+<h3 id="generic-view의-동작방식">Generic view의 동작방식</h3>
+<ul>
+  <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
+  <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
+  <li>generic view는 네가지 속성을 통해 API 동작을 결정합니다.
+  ```
+    <ul>
+      <li>authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
+        <ul>
+          <li>.get_authenticators(self)</li>
+        </ul>
+      </li>
+      <li>permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
+        <ul>
+          <li>.get_permissions(self)</li>
+        </ul>
+      </li>
+      <li>queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
+        <ul>
+          <li>.get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.</li>
+          <li>.filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.</li>
+        </ul>
+      </li>
+      <li>serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
+        <ul>
+          <li>.get_serializer_class(self)</li>
+          <li>.get_serializer_context(self)</li>
+          <li>.get_serializer(self, …)
+  ```</li>
+        </ul>
+      </li>
+      <li><code class="language-plaintext highlighter-rouge">queryset</code>에서, soft-deleted 요소를 조회하면, <code class="language-plaintext highlighter-rouge">queryset = Item.objects.filter(is_deleted='N')</code>과 같이 처리합니다. (정적 필터 적용)</li>
+      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># items/views/ItemView.py
+</span>  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+  <span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+  <span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+
+  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+  <span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+      <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+      <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+      <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+      <span class="bp">...</span>
+</code></pre></div>    </div>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># settings.py
+</span>  <span class="bp">...</span>
+
+  <span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">),</span>
+      <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
+          <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="sh">"</span><span class="s">DEFAULT_FILTER_BACKENDS</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">'</span><span class="s">django_filters.rest_framework.DjangoFilterBackend</span><span class="sh">'</span><span class="p">,</span>
+      <span class="p">),</span>
+  <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해두고, 전역적으로 이를 사용할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
+</span>
+<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+<span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+<span class="kn">from</span> <span class="n">items.models</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Category</span>
+<span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+<span class="sh">'''</span><span class="s">
+# 요구사항
+아이템 생성
+- 아이템 이름, 가격, 브랜드가 모두 같은 경우 생성을 막습니다.
+- 상품의 금액이 10000원 이하인 경우 생성을 막습니다. 
+
+아이템 조회
+- soft deleted 되지 않은 상품들을 가져옵니다.
+</span><span class="sh">'''</span>
+
+<span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+    <span class="n">allowed_method</span> <span class="o">=</span> <span class="p">[</span><span class="sh">"</span><span class="s">get</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">post</span><span class="sh">"</span><span class="p">]</span>
+    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+    <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_queryset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemSerializer</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemCreateSerializer</span>
+    
+    <span class="k">def</span> <span class="nf">filter_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="sh">'</span><span class="s">name</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nc">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">queryset</span>
+    
+    <span class="k">def</span> <span class="nf">get_serializer_context</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_serializer_context</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">category</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">reqData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reqData</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">categoryObject</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">reqData</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">])</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">check_object_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">,</span> <span class="n">categoryObject</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">categoryObject</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
+</ul>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

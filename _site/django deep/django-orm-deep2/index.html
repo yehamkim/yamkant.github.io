@@ -1,0 +1,422 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] ORM 사용시 주의사항 - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 계기    ORM 사용에 익숙해지면 알더라도 정리하지 않고 넘어가는 부분이 많습니다.   실수하기 쉬운 부분들을 정리해두고 주기적으로 해당 게시글을 회독하면 좀 더 지혜롭게 코드를 작성할 수 있을 거라고 생각되어 작성했습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] ORM 사용시 주의사항">
+<meta property="og:url" content="http://localhost:4000/django%20deep/django-orm-deep2/">
+
+
+  <meta property="og:description" content="글을 작성하게 된 계기    ORM 사용에 익숙해지면 알더라도 정리하지 않고 넘어가는 부분이 많습니다.   실수하기 쉬운 부분들을 정리해두고 주기적으로 해당 게시글을 회독하면 좀 더 지혜롭게 코드를 작성할 수 있을 거라고 생각되어 작성했습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-04-11T21:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django%20deep/django-orm-deep2/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] ORM 사용시 주의사항</h1>
+    
+    <h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<ul>
+  <li>ORM 사용에 익숙해지면 알더라도 정리하지 않고 넘어가는 부분이 많습니다.</li>
+  <li>실수하기 쉬운 부분들을 정리해두고 주기적으로 해당 게시글을 회독하면 좀 더 지혜롭게 코드를 작성할 수 있을 거라고 생각되어 작성했습니다.</li>
+</ul>
+
+<h3 id="레퍼런스">레퍼런스</h3>
+<ul>
+  <li><a href="https://youtu.be/EZgLfDrUlrk">‘2020 파이콘’에서 김성렬님의 강의</a></li>
+  <li><a href="https://medium.com/delivervtechkorea/django-quervset-1-14b0cc715eb7">김성렬님의 ORM 관련 블로그 글 1</a></li>
+  <li><a href="https://medium.com/delivervtechkorea/diango%EC%97%90%EC%84%9C%EB%8A%94-queryset%EC%9D%B
+4-%EB%8B%B9%EC%8B%A0%EC%9D%84-%EB%A7%8C%EB%93%AD%EB%8B%88%EB%8B%A4-2-5f6f
+8c6cd7e3">김성렬님의 ORM 관련 블로그 글 2</a></li>
+</ul>
+
+<h3 id="쿼리셋-캐시를-재활용하지-못하는-경우">쿼리셋 캐시를 재활용하지 못하는 경우</h3>
+<ul>
+  <li>일반적으로 장고 ORM은 쿼리 명령어를 선언할 때 캐싱해두었다가, 파이썬 로직에서 실행할 때 DB에 호출하여 값을 받아오는 방식입니다.</li>
+  <li>파이썬의 명령어인 list() 혹은 tuple()과 같이 사용할 때 query가 실행되고, 그 전까지는 query를 실행하지 않습니다.</li>
+  <li>몇몇 경우에 캐싱을 제대로 활용하지 못하여 N+1 문제가 발생하게 되는데, 아래와 같은 에시입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># Product 테이블에서 Company에 매칭되는 상품들을 모두 불러옵니다.
+</span>  <span class="c1"># (쿼리 호출을 마쳐서 데이터를 가지고 있는 상태 - eger loading)
+</span>
+  <span class="n">company_list</span> <span class="o">=</span> <span class="nf">list</span><span class="p">(</span><span class="n">Company</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">prefetch_related</span><span class="p">(</span><span class="sh">"</span><span class="s">product_set</span><span class="sh">"</span><span class="p">).</span><span class="nf">all</span><span class="p">())</span>
+
+  <span class="c1"># 이와같이 사용하면 sql에 추가 쿼리를 한 번 더 호출하게 됩니다..
+</span>  <span class="n">company</span><span class="p">.</span><span class="n">product_set</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">불닭볶음면</span><span class="sh">"</span><span class="p">)</span>
+
+  <span class="c1"># 해결방법: 기존에 캐싱해서 가지고 있던 데이터를 활용해서 값을 가지고와야합니다.
+</span>  <span class="n">fire_noodle_product_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">product</span> <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">company</span><span class="p">.</span><span class="n">product_set</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span> <span class="k">if</span> <span class="n">product</span><span class="p">.</span><span class="n">name</span><span class="o">==</span><span class="sh">"</span><span class="s">불닭볶음면</span><span class="sh">"</span><span class="p">]</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="raw-쿼리셋과-장고-orm-비교">Raw 쿼리셋과 장고 ORM 비교</h3>
+<ul>
+  <li>RawQuerySet을 사용하더라도, QuerySet의 제어권에 들어오게 됩니다. 이 때, SQL 쿼리에서 작성할 수 있는 구문들은 체이닝할 수 없습니다.</li>
+  <li>RawQuerySet을 통해 쿼리를 호출할 때, 사용할 수 없는 메서드: <code class="language-plaintext highlighter-rouge">selected_related()</code>, <code class="language-plaintext highlighter-rouge">FilteredRelation()</code>, <code class="language-plaintext highlighter-rouge">annotate()</code>, <code class="language-plaintext highlighter-rouge">order_by()</code>, <code class="language-plaintext highlighter-rouge">extra()</code>, <code class="language-plaintext highlighter-rouge">[:10]</code>(limit 관련 옵션)</li>
+  <li>prefetch_related는 추가 쿼리로 분류되기 때문에, chaining하여 사용할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.db.models.query</span> <span class="kn">import</span> <span class="n">RawQuerySet</span>
+  <span class="kn">from</span> <span class="n">django.db.models</span> <span class="kn">import</span> <span class="n">QuerySet</span>
+
+  <span class="n">order_queryset</span><span class="p">:</span> <span class="n">RawQueryset</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="n">Order</span><span class="p">.</span><span class="n">objecs</span>
+      <span class="p">.</span><span class="nf">raw</span><span class="p">(</span><span class="n">raw_query</span><span class="o">=</span><span class="sh">"""</span><span class="s">
+      SELECT
+      * FROM </span><span class="sh">"</span><span class="s">orm_practice_app_order</span><span class="sh">"</span><span class="s">
+      INNER JOIN </span><span class="sh">"</span><span class="s">orm_practice_app_user</span><span class="sh">"</span><span class="s"> ON (</span><span class="sh">"</span><span class="s">orm_practice_app_order</span><span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="s">order_owner_id</span><span class="sh">"</span><span class="s">=</span><span class="sh">"</span><span class="s">orm_practice_app_user</span><span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="s">)
+      WHEN </span><span class="sh">"</span><span class="s">orm_practice_app_user</span><span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="s"> = %(username_param1)s
+      </span><span class="sh">"""</span><span class="p">,</span>
+      <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">username_param1</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">username4</span><span class="sh">"</span><span class="p">})</span>
+      <span class="p">.</span><span class="nf">prefetch_related</span><span class="p">(</span><span class="sh">'</span><span class="s">product_set_included_order</span><span class="sh">'</span><span class="p">)</span>
+  <span class="p">)</span>
+
+  <span class="n">order_queryset</span><span class="p">:</span> <span class="n">QuerySet</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="n">Order</span><span class="p">.</span><span class="n">objects</span>
+      <span class="p">.</span><span class="nf">select_related</span><span class="p">(</span><span class="sh">'</span><span class="s">order_owner</span><span class="sh">'</span><span class="p">)</span>
+      <span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">order_owner__username</span><span class="o">=</span><span class="sh">"</span><span class="s">username4</span><span class="sh">"</span><span class="p">)</span>
+      <span class="p">.</span><span class="nf">prefetch_related</span><span class="p">(</span><span class="sh">"</span><span class="s">product_set_included_order</span><span class="sh">"</span><span class="p">)</span>
+  <span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="서브쿼리가-발생하는-경우">서브쿼리가 발생하는 경우</h3>
+<ul>
+  <li>위에서, 장고는 쿼리셋 관련 명령어를 사용하면, 사용 즉시 DB에 query를 호출하는 것이 아니라 기억해두었다가 파이썬 문법을 사용하면 쿼리를 호출한다고 했습니다.</li>
+  <li>따라서 파이썬 문법으로 아직 호출하지 않고 대기했다가 한 번에 호출하는 경우에 서브 쿼리가 발생할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># 첫 번째 줄에서 아직 쿼리를 DB로 호출하지 않은 상태입니다.
+</span>  <span class="n">company_queryset</span><span class="p">:</span> <span class="n">QuerySet</span> <span class="o">=</span> <span class="n">Company</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">id__lte</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="nf">values_list</span><span class="p">(</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="n">product_queryset</span><span class="p">:</span> <span class="n">QuerySet</span> <span class="o">=</span> <span class="n">Product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span>
+      <span class="n">product_owned_company_id__in</span><span class="o">=</span><span class="n">company_queryset</span>
+  <span class="p">)</span>
+
+  <span class="c1"># 이 때, 먼저 쿼리셋을 수행시켜버린다면, Subquery로 동작하지 않고 두개의 쿼리가 나뉘어 동작합니다.
+</span>  <span class="n">company_queryset</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Company</span><span class="p">]</span> <span class="o">=</span> <span class="n">Company</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">id__lte</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="nf">values_list</span><span class="p">(</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="n">product_queryset</span><span class="p">:</span> <span class="n">QuerySet</span> <span class="o">=</span> <span class="n">Product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span>
+      <span class="n">product_owned_company_id__in</span><span class="o">=</span><span class="n">company_queryset</span>
+  <span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="queryset-반환타입-종류-정리">QuerySet 반환타입 종류 정리</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="n">django.db.models.query</span> <span class="kn">import</span> <span class="n">QuerySet</span>
+
+<span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Model</span><span class="p">]</span> <span class="o">=</span> <span class="n">Model</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">().</span><span class="nf">only</span><span class="p">().</span><span class="nf">defer</span><span class="p">()</span>
+<span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Model</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">values</span><span class="p">()</span>
+<span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Model</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">values_list</span><span class="p">()</span>
+<span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">Model</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">values_list</span><span class="p">(</span><span class="sh">'</span><span class="s">pk</span><span class="sh">'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuerySet</span><span class="p">]</span> <span class="o">=</span> <span class="n">Model</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">values_list</span><span class="p">(</span><span class="n">named</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="values-values_list-사용시-주의점">values(), values_list() 사용시 주의점</h3>
+<ul>
+  <li>두 메서드를 사용하게 되면 EagerLoading 옵션을 무시해버립니다.</li>
+  <li>따라서, 처음 쿼리에 대한 값을 불러올 당시 JOIN하지 않고, 챀조 테이블의 값을 사용하게 될 때 비로소 JOIN하게 됩니다.</li>
+  <li>ORM은 파이썬의 객체와 데이터베이스의 Relation 간에 맵핑을 시키는 방식입니다.</li>
+  <li>하지만, 위 두 메서드는 Relation을 신경쓰지 않고, 목표 테이블의 데이터를 Raw 단위로 한 줄 한 줄 받아오게 됩니다.</li>
+  <li>따라서 Relation 관련 메서드인 <code class="language-plaintext highlighter-rouge">select_related()</code>와 <code class="language-plaintext highlighter-rouge">prefetch_related()</code>가 무시됩니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

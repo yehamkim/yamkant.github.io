@@ -1,0 +1,487 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리 - Yam’s Dev Logs</title>
+<meta name="description" content="오류발생 보고 참고 자료    이동욱님 블로그 자료: https://jojoldu.tistory.com/714   promise-pool 모듈: https://github.com/supercharge/promise-pool   dalseo님 async jest test: https://www.daleseo.com/jest-async/">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리">
+<meta property="og:url" content="http://localhost:4000/error%20handle/errorhandle-promise-pool/">
+
+
+  <meta property="og:description" content="오류발생 보고 참고 자료    이동욱님 블로그 자료: https://jojoldu.tistory.com/714   promise-pool 모듈: https://github.com/supercharge/promise-pool   dalseo님 async jest test: https://www.daleseo.com/jest-async/">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-04-11T21:00:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/error%20handle/errorhandle-promise-pool/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Error Handle] Promise Pool: connection pool 제한에 따른 비동기 처리</h1>
+    
+    <h2 id="오류발생-보고">오류발생 보고</h2>
+<p>참고 자료</p>
+<ul>
+  <li>이동욱님 블로그 자료: https://jojoldu.tistory.com/714</li>
+  <li>promise-pool 모듈: https://github.com/supercharge/promise-pool</li>
+  <li>dalseo님 async jest test: https://www.daleseo.com/jest-async/</li>
+</ul>
+
+<p>오류 내용</p>
+<ul>
+  <li>주기적으로 배치서버를 통해 국민클럽의 상품을 업데이트하는 함수를 실행시킵니다.</li>
+  <li>이 때, <code class="language-plaintext highlighter-rouge">Promse.allSettled</code>를 사용하여 시간효율적으로 처리하도록 설계했습니다.</li>
+  <li>하지만, DB의 스펙을 낮추었을 때 too many connections 오류와 함께 서버가 중단되었습니다.</li>
+  <li>chunk 단위로 해결하는 방법을 검색합니다.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.js</span>
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">PromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">@supercharge/promise-pool</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">excuteBasicPromisePool</span> <span class="o">=</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">{</span>
+        <span class="nx">results</span><span class="p">,</span> <span class="nx">errors</span>
+    <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">PromisePool</span><span class="p">.</span><span class="k">for</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="p">).</span><span class="nf">process</span><span class="p">(</span><span class="k">async</span> <span class="nx">num</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">num</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="nx">results</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">excuteBasicPromisePool</span><span class="p">,</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>-</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.test.js</span>
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">excuteBasicPromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./promise_pool</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">excuteBasicPromisePool</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="k">await</span> <span class="nf">excuteBasicPromisePool</span><span class="p">()).</span><span class="nf">toEqual</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]);</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<ul>
+  <li>jest를 사용한 테스트 파일을 작성합니다.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// utils.js</span>
+<span class="kd">const</span> <span class="nx">users</span> <span class="o">=</span> <span class="p">[{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userA</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userB</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userC</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">userD</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">}]</span>
+
+<span class="kd">function</span> <span class="nf">getUserByIdWithDelayTime</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nc">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nf">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">users</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nx">obj</span> <span class="o">=&gt;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">id</span> <span class="o">===</span> <span class="nx">param</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+            <span class="nf">resolve</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+        <span class="p">},</span> <span class="nx">param</span><span class="p">.</span><span class="nx">time</span><span class="p">)</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">users</span><span class="p">,</span>
+    <span class="nx">getUserByIdWithDelayTime</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li>test에서 사용하기 위한 utility 파일을 작성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">getUserById()</code> 메서드는 id에 따른 user를 가져오는 함수입니다. 이 때, DB로 부터 값을 가지고 오는 것과 같이 시간이 소요되는 항목을 모킹하기 위해 delay time을 함께 param 변수에 넣도록 합니다.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.js</span>
+
+<span class="kd">const</span> <span class="p">{</span> <span class="nx">PromisePool</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">@supercharge/promise-pool</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="p">{</span>
+    <span class="nx">getUserByIdWithDelayTime</span><span class="p">,</span>
+<span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./utils</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">_</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">lodash</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">measurePromiseAllWithChunk</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// chunkAll를 각각의 chunk로 나누기</span>
+    <span class="kd">const</span> <span class="nx">chunkSetAll</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nf">chunk</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="kd">let</span> <span class="nx">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for </span><span class="p">(</span><span class="kd">const</span> <span class="nx">chunkSet</span> <span class="k">of</span> <span class="nx">chunkSetAll</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">chunkStartTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+        <span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nf">all</span><span class="p">(</span><span class="nx">chunkSet</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="nx">param</span> <span class="o">=&gt;</span> <span class="nf">getUserByIdWithDelayTime</span><span class="p">(</span><span class="nx">param</span><span class="p">)));</span>
+        <span class="kd">const</span> <span class="nx">chunkEndTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromiseAllWihChunk: </span><span class="p">${</span><span class="nx">idx</span><span class="o">++</span><span class="p">}</span><span class="s2"> - elapsed time: </span><span class="p">${</span><span class="nx">chunkEndTime</span> <span class="o">-</span> <span class="nx">chunkStartTime</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="nx">endTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromiseAllWihChunk: total time: </span><span class="p">${</span><span class="nx">endTime</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">}</span><span class="s2"> ms`</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">measurePromisePoolWithConcurrency</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="nx">chunkSize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="kd">const</span> <span class="p">{</span>
+        <span class="nx">results</span><span class="p">,</span> <span class="nx">errors</span>
+    <span class="p">}</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">PromisePool</span>
+        <span class="p">.</span><span class="k">for</span><span class="p">(</span><span class="nx">paramList</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">withConcurrency</span><span class="p">(</span><span class="nx">chunkSize</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">process</span><span class="p">(</span><span class="nx">getUserByIdWithDelayTime</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">endTime</span> <span class="o">=</span> <span class="nx">performance</span><span class="p">.</span><span class="nf">now</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`measurePromisePoolWihConcurrency time: </span><span class="p">${</span><span class="nx">endTime</span> <span class="o">-</span> <span class="nx">startTime</span><span class="p">}</span><span class="s2"> ms`</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">results</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">measurePromiseAllWithChunk()</code>: <code class="language-plaintext highlighter-rouge">{id: ?, time: ?}</code>의 리스트로 주어지게될 파라미터를 직접 chunk 단위로 나누어 chunk set을 반복해서 <code class="language-plaintext highlighter-rouge">Promise.all()</code>작업을 수행합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">measurePromisePoolWithConcurrency()</code>: 위 함수와 같은 역할을 하지만, 직접 chunk를 나누지 않고 내장된 <code class="language-plaintext highlighter-rouge">withConcurrency()</code> 메서드를 사용합니다.</li>
+</ul>
+
+<h3 id="테스트-결과-분석">테스트 결과 분석</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// promise_pool.test.js</span>
+
+<span class="kd">const</span> <span class="p">{</span>
+    <span class="nx">measurePromiseAllWithChunk</span><span class="p">,</span>
+    <span class="nx">measurePromisePoolWithConcurrency</span><span class="p">,</span>
+<span class="p">}</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">./promise_pool</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">measurePromiseAllWithChunk</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">paramList</span> <span class="o">=</span> <span class="p">[{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="na">id</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="na">time</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="p">}]</span>
+
+    <span class="k">await</span> <span class="nf">measurePromiseAllWithChunk</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">measurePromisePoolWithConcurrency</span><span class="dl">"</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// 위와 동일</span>
+    <span class="kd">const</span> <span class="nx">paramList</span> <span class="o">=</span> <span class="p">[{</span>
+        <span class="p">...</span>
+    <span class="p">}]</span>
+
+    <span class="k">await</span> <span class="nf">measurePromisePoolWithConcurrency</span><span class="p">(</span><span class="nx">paramList</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="cm">/** 출력 결과
+measurePromiseAllWihChunk: 0 - elapsed time: 300.7714159488678
+measurePromiseAllWihChunk: 1 - elapsed time: 200.38870894908905
+measurePromiseAllWihChunk: total time: 505.5954999923706 ms
+
+measurePromisePoolWihConcurrency time: 301.0168330669403 ms
+*/</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Promise.all</code>을 사용하면, 100ms와 300ms가 같은 chunk로 묶여있기 때문에, 100ms task를 마치더라도 200ms task를 진행할 수 없었습니다. 따라서 300ms와 200ms의 합인 500ms 이상의 시간이 소요됩니다.</li>
+  <li>하지만, <code class="language-plaintext highlighter-rouge">PromisePool</code>을 사용한 결과 100ms task가 끝나고 다른 chunk에 있는 200ms 바로 사용하였기 때문에, 300ms 정도의 시간만 소요되었습니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

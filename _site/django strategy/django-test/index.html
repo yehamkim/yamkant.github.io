@@ -1,0 +1,500 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] 테스트는 어떻게 수행할까? - Yam’s Dev Logs</title>
+<meta name="description" content="작성이유 및 목표    흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.   알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다.   해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다.   커스텀 유저를 위한 members 도메인을 예시로 설명합니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] 테스트는 어떻게 수행할까?">
+<meta property="og:url" content="http://localhost:4000/django%20strategy/django-test/">
+
+
+  <meta property="og:description" content="작성이유 및 목표    흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.   알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다.   해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다.   커스텀 유저를 위한 members 도메인을 예시로 설명합니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-06-09T08:05:07+07:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/django%20strategy/django-test/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] 테스트는 어떻게 수행할까?</h1>
+    
+    <h3 id="작성이유-및-목표">작성이유 및 목표</h3>
+<ul>
+  <li>흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다.</li>
+  <li>알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다.</li>
+  <li>해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다.</li>
+  <li>커스텀 유저를 위한 members 도메인을 예시로 설명합니다.</li>
+</ul>
+
+<h3 id="폴더-경로">폴더 경로</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web/
+<span class="p">-</span> apps/
+<span class="p">  -</span> config/
+<span class="p">  -</span> core/
+<span class="p">    -</span> tests.py
+<span class="p">  -</span> members/
+<span class="p">    -</span> tests/
+<span class="p">      -</span> integration.py
+<span class="p">      -</span> e2e.py
+</code></pre></div></div>
+
+<h2 id="integration-test">Integration test</h2>
+<p>외부 라이브러리와 같이 의존적인 부분을 함께 테스트합니다. Django에서는 test DB를 수월하게 만들고 수정하게 할 수 있습니다.</p>
+
+<h3 id="기본-테스트-클래스-설명">기본 테스트 클래스 설명</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps/core/tests.py
+</span>
+<span class="kn">from</span> <span class="n">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="n">django.core.serializers.base</span> <span class="kn">import</span> <span class="n">Serializer</span>
+
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
+<span class="kn">from</span> <span class="n">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span><span class="p">,</span> <span class="n">override_settings</span>
+
+<span class="k">class</span> <span class="nc">TestSerializerHelper</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">Serializer</span><span class="p">,</span> <span class="n">queryCnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span> <span class="o">=</span> <span class="n">queryCnt</span>
+
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">():</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">instance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">createData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_create</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span><span class="p">:</span>
+            <span class="n">createData</span> <span class="o">=</span> <span class="nf">wrapFunctionForQueryCount</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">queryCnt</span><span class="p">)(</span><span class="n">self</span><span class="p">.</span><span class="n">_create</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">createData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">serializer_type</span> <span class="o">==</span> <span class="sh">"</span><span class="s">create</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">IntegrationSerializerTestCase</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">serializer_test</span><span class="p">(</span>
+        <span class="n">self</span><span class="p">,</span>
+        <span class="n">expectedQueryCount</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">expectedResult</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">data</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">testSerializerHelper</span> <span class="o">=</span> <span class="nc">TestSerializerHelper</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">serializer</span><span class="p">,</span> <span class="n">expectedQueryCount</span><span class="p">)</span>
+
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">testSerializerHelper</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">expectedResult</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">expectedResult</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>는 serializer의 integration 테스트를 위해 구성한 <code class="language-plaintext highlighter-rouge">TestCase</code> 클래스입니다.</li>
+  <li>테스트를 수행하기 위해 이를 상속한 클래스에서 테스트를 위한 <code class="language-plaintext highlighter-rouge">serializer</code>를 클래스 변수로 지정하면 해당 <code class="language-plaintext highlighter-rouge">TestCase</code>에서 이를 활용하는 방식입니다.
+(상속하여 사용하는 방식 이 후 설명)</li>
+  <li>얼마나 많은 sql query를 호출했는지 평가하기 위해 DB 호출 부분을 <code class="language-plaintext highlighter-rouge">wrapFunctionForQueryCount</code>로 감싸서 사용합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="bp">...</span>
+  <span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
+  <span class="bp">...</span>
+
+  <span class="k">def</span> <span class="nf">wrapFunctionForQueryCount</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+      <span class="nd">@override_settings</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="nf">reset_queries</span><span class="p">()</span>
+          <span class="n">ret</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">queries</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">queries</span>
+          <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+              <span class="c1"># TODO: Logger 사용하여 출력결과 저장
+</span>              <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">QUERY: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">sql</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="s">, TIME: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">time</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+          <span class="k">assert</span> <span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="n">count</span><span class="p">,</span> <span class="sh">"</span><span class="s">QUERY COUNT:%d != %d</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">ret</span>
+      <span class="k">return</span> <span class="n">wrapper</span>
+  <span class="k">return</span> <span class="n">decorator</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>Serializer 구성</strong></p>
+<ul>
+  <li>저는 생성을 위해 사용하는 <code class="language-plaintext highlighter-rouge">ExampleCreateSerializer</code>는 <code class="language-plaintext highlighter-rouge">core.serializers.CreateSerializer</code>를 상속받도록 생성합니다.</li>
+  <li>따라서, 내부에 어떤 타입의 serializer인지 명시하기 때문에, <code class="language-plaintext highlighter-rouge">TestSerialize.run()</code>과 같이 사용할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># core.sesrializers.CreateSerializer
+</span>  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+
+  <span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="n">serializer_type</span> <span class="o">=</span> <span class="sh">"</span><span class="s">create</span><span class="sh">"</span>
+
+      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="기본-테스트-클래스를-상속받는-테스트-예시">기본 테스트 클래스를 상속받는 테스트 예시</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps/members/tests.integration.py
+</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="n">core.tests</span> <span class="kn">import</span> <span class="n">IntegrationSerializerTestCase</span>
+<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
+
+<span class="k">class</span> <span class="nc">MemberCreateSerializerTest</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># 1st query: unique phone number check
+</span>    <span class="c1"># 2nd query: insert new member
+</span>    
+    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">instance</span><span class="p">.</span><span class="n">phone</span><span class="p">,</span> <span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_mismatch_password</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59332</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_empty_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">""</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59333</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_register_repeated_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>위와 같이, member 생성 테스트를 위한 테스트 클래스는 앞서 설명한 기본 테스트 클래스를 상속받습니다.</li>
+  <li>기대하는 결과(생성이므로 생성되었는지)가 잘 반환되었는지, 테스트 중 오류는 없는지 확인할 수 있습니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
