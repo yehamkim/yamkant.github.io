@@ -1403,7 +1403,7 @@ Generic view의 동작방식
       <span class="page__meta-readtime">
         <i class="far fa-clock" aria-hidden="true"></i>
         
-          1 minute read
+          2 minute read
         
       </span>
     
@@ -1412,8 +1412,8 @@ Generic view의 동작방식
 
     <p class="archive__item-excerpt" itemprop="description">오류 내용
 
-  상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다.
-  이 때, Promse.allSettled를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, t...</p>
+  상품의 상태(재고량 및 단종여부)를 주기적으로 업데이트하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 배치 함수를 비동기적으로 실행시킵니다.
+  하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버...</p>
   </article>
 </div>
 

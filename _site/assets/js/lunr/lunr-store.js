@@ -96,7 +96,7 @@ var store = [{
         "teaser": null
       },{
         "title": "[Error Async] connection pool 제한에 따른 비동기 처리",
-        "excerpt":"오류 내용 상품의 상태를 주기적으로 업데이트 하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 함수를 실행시킵니다. 이 때, Promse.allSettled를 사용하여 비동기적으로 처리하도록 설계했습니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다. 해결 내용 promise-pool 모듈을 사용하여, 배치서버를 위해 사용할 connection pool을 제한하여 chunk 단위로 // promise_pool.js const...","categories": ["Error Async"],
+        "excerpt":"오류 내용 상품의 상태(재고량 및 단종여부)를 주기적으로 업데이트하기 위해, 배치서버를 통해 국민클럽B2B(폐쇄몰)의 업데이트하는 배치 함수를 비동기적으로 실행시킵니다. 하지만, DBCP를 고려하지 않은 설계로 인해, too many connections 오류와 함께 서버가 중단되었습니다. 해결 내용 정해진 개수의 connection pool에만 접근 가능하도록 Sequelize option을 사용하여 connection pool을 제한하였습니다. 제한된 connection pool에서 task들이 비동기적으로 실행될...","categories": ["Error Async"],
         "tags": [],
         "url": "/error%20async/errorasync-promise-pool/",
         "teaser": null
