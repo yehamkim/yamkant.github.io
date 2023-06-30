@@ -112,6 +112,9 @@
 <loc>http://localhost:4000/categories/error-async/</loc>
 </url>
 <url>
+<loc>http://localhost:4000/categories/server/</loc>
+</url>
+<url>
 <loc>http://localhost:4000/</loc>
 </url>
 <url>

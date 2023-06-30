@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[Server] Docker network를 통한 Nginx와 django server 세팅 - Yam’s Dev Logs</title>
-<meta name="description" content="글을 작성하게 된 계기    docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.">
+<!-- begin _includes/seo.html --><title>[Server] Nginx를 이용한 무중단 배포 방법 (Nginx - Django) - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 계기    기존 서비스에서는 하나의 docker-compose 안에 nginx, django, api_server, db 등 모든 컨테이너를 넣어 한 번에 실행시켰습니다.   하지만, 이러한 구조는 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 제어할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, 컨테이너를 분리하고 docker network를 활용하는 방법으로 변경하는 과정을 작성하게 되었습니다.   또한, 무중단 배포 방식인 Blue-Green 배포 형식을 Nginx로 구현하는 방법을 기록합니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -22,11 +22,11 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="[Server] Docker network를 통한 Nginx와 django server 세팅">
+<meta property="og:title" content="[Server] Nginx를 이용한 무중단 배포 방법 (Nginx - Django)">
 <meta property="og:url" content="http://localhost:4000/server/server-1/">
 
 
-  <meta property="og:description" content="글을 작성하게 된 계기    docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.">
+  <meta property="og:description" content="글을 작성하게 된 계기    기존 서비스에서는 하나의 docker-compose 안에 nginx, django, api_server, db 등 모든 컨테이너를 넣어 한 번에 실행시켰습니다.   하지만, 이러한 구조는 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 제어할 수 없다는 단점을 가지고 있습니다.   server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, 컨테이너를 분리하고 docker network를 활용하는 방법으로 변경하는 과정을 작성하게 되었습니다.   또한, 무중단 배포 방식인 Blue-Green 배포 형식을 Nginx로 구현하는 방법을 기록합니다.">
 
 
 
@@ -309,6 +309,26 @@
                 
                 
             </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (1)</a></li>
+                
+                
+                
+                
+            </ul>
             <span class="nav__sub-title">Error Handle</span>
             <ul>
                 
@@ -359,12 +379,14 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">[Server] Docker network를 통한 Nginx와 django server 세팅</h1>
+      <h1 id="page-title" class="page__title">[Server] Nginx를 이용한 무중단 배포 방법 (Nginx - Django)</h1>
     
     <h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
 <ul>
-  <li>docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다.</li>
-  <li>server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다.</li>
+  <li>기존 서비스에서는 하나의 docker-compose 안에 nginx, django, api_server, db 등 모든 컨테이너를 넣어 한 번에 실행시켰습니다.</li>
+  <li>하지만, 이러한 구조는 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 제어할 수 없다는 단점을 가지고 있습니다.</li>
+  <li>server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, 컨테이너를 분리하고 docker network를 활용하는 방법으로 변경하는 과정을 작성하게 되었습니다.</li>
+  <li>또한, 무중단 배포 방식인 Blue-Green 배포 형식을 Nginx로 구현하는 방법을 기록합니다.</li>
 </ul>
 
 <h3 id="최종-목표">최종 목표</h3>
@@ -377,7 +399,7 @@
 
 <p><strong>순서</strong></p>
 <ol>
-  <li>custom network 생성</li>
+  <li>custom network 생성 (bridge 모드)</li>
   <li>nginx 단독 container 구성</li>
   <li>django server 구성(docker-compose로 구성 x custom network)</li>
   <li>custom network 연결 (nginx container 실행 및 custom network)</li>
@@ -385,8 +407,6 @@
 </ol>
 
 <h2 id="1-custom-network-생성">1. Custom network 생성</h2>
-<p>참고: https://itbhome.tistory.com/47</p>
-
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># custom network를 원하는 대역에 생성</span>
 <span class="nv">$ </span>docker network create <span class="se">\</span>
     <span class="nt">--driver</span><span class="o">=</span>bridge <span class="se">\</span>
@@ -394,6 +414,9 @@
     <span class="nt">--gateway</span><span class="o">=</span>172.20.0.1 <span class="se">\</span>
     my-network
 </code></pre></div></div>
+<ul>
+  <li>참고: <a href="https://itbhome.tistory.com/47">i-Art님 블로그</a>. Bridge 네트워크 모드에 대한 구체적인 설명</li>
+</ul>
 
 <h2 id="2-nginx-단독-container-구성">2. nginx 단독 container 구성</h2>
 <p><strong>nginx 설정파일</strong></p>
@@ -436,8 +459,8 @@
 <span class="p">}</span>
 </code></pre></div></div>
 <ul>
-  <li>환경변수를 활용하여 conf 파일을 변경하는 경우가 생길 수 있기 때문에, template 파일을 작성 후, nginx container 내부 sh 파일을 통해 이를 치환합니다. (위의 예제에서는 NGINX_HOST 변수처리)</li>
-  <li>해당 파일은 치환이 완료되면 <code class="language-plaintext highlighter-rouge">.template</code> 접미사가 제거되며 docker container 내부에서는 /etc/nginx/conf.d/default.conf로 변환됩니다.</li>
+  <li>nginx 도커 이미지에는 <code class="language-plaintext highlighter-rouge">/docker-entrypoint.d/20-envsubst-on-templates.sh</code> 쉘 파일이 내장됩니다. 이 파일은 <code class="language-plaintext highlighter-rouge">templates/*.template</code> 경로의 파일 내 <code class="language-plaintext highlighter-rouge">${}</code>로 기입된 변수들을 치환하여 <code class="language-plaintext highlighter-rouge">/etc/nginx/conf.d/</code>에 <code class="language-plaintext highlighter-rouge">.template</code> 접미사를 뗴어내고 생성합니다.</li>
+  <li>즉, <code class="language-plaintext highlighter-rouge">templates/default.conf.template</code>을 컨테이너 내부 <code class="language-plaintext highlighter-rouge">/etc/nginx/template</code> 폴더 내에 위치 시킨다면, 쉘파일 실행 후 <code class="language-plaintext highlighter-rouge">/etc/nginx/conf.d/default.conf</code> 파일이 됩니다.</li>
   <li><code class="language-plaintext highlighter-rouge">#//</code>로 처리해둔 주석은 이 후에, 서버 배포가 진행될 때 <code class="language-plaintext highlighter-rouge">conf.d/default.conf</code>를 수정하는 과정에서 지우게 될 주석입니다.</li>
 </ul>
 
@@ -459,6 +482,11 @@
 
 <span class="k">CMD</span><span class="s"> ["/bin/bash", "/run.sh"]</span>
 </code></pre></div></div>
+<ul>
+  <li>간단하게 https 세팅을 추가하기 위해 openssl 패키지를 설치합니다. (과정 생략 가능)</li>
+  <li>위에서 설명한 것과 같이, <code class="language-plaintext highlighter-rouge">Dockerfile</code>에 <code class="language-plaintext highlighter-rouge">ENV</code> 키워드를 통해 환경변수를 추가하여, nginx 설정 파일에서 대체하고자 하는 변수들을 세팅합니다.</li>
+</ul>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># run.sh
 
 #!/bin/bash
@@ -487,7 +515,7 @@ fi
 nginx -g "daemon off;"
 </code></pre></div></div>
 <ul>
-  <li>run.sh는 openssl 설정 및 환경변수 값으로 치환하기 위한 프로그램 수행, nginx를 실행하는 역할을 합니다.</li>
+  <li>run.sh는 openssl 관련 설정(생략가능) 및 nginx 설정 파일의 변수들을 환경변수로 치환하기 위한 프로그램 수행, nginx를 실행하는 역할을 합니다.</li>
 </ul>
 
 <p><strong>nginx container 실행 및 네트워크 연결</strong></p>
@@ -501,17 +529,21 @@ nginx -g "daemon off;"
 <span class="nv">MOUNT_CONF_DIR</span><span class="o">=</span><span class="nv">$CUR_PATH</span>/code/conf.d
 
 docker build <span class="nt">-t</span> <span class="nv">$IMAGE_NAME</span> <span class="nv">$CUR_PATH</span>
-docker run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443 <span class="nt">-v</span> <span class="nv">$MOUNT_LOG_DIR</span>:/var/log/nginx/logs <span class="nt">-v</span> <span class="nv">$MOUNT_CONF_DIR</span>:/etc/nginx/conf.d <span class="nt">--name</span> my-nginx <span class="nv">$IMAGE_NAME</span>
+docker run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443 <span class="se">\</span>
+    <span class="nt">-v</span> <span class="nv">$MOUNT_LOG_DIR</span>:/var/log/nginx/logs <span class="se">\</span>
+    <span class="nt">-v</span> <span class="nv">$MOUNT_CONF_DIR</span>:/etc/nginx/conf.d  <span class="se">\</span>
+    <span class="nt">--name</span> my-nginx <span class="nv">$IMAGE_NAME</span>
 
 <span class="c"># connect custom network for nginx container </span>
 docker network connect my-network my-nginx
 </code></pre></div></div>
 <ul>
-  <li>HOST에서도 nginx의 로그와 설정값을 관리하기 위해 컨테이너와 Volume을 연결하도록 설정합니다.</li>
+  <li>HOST에서도 nginx의 로그와 설정값을 마운트해서 관리하기 위해 컨테이너와 Volume을 연결하도록 설정합니다.</li>
+  <li>가장 처음 생성한 bridge network를 연결하며 nginx 실행을 마무리합니다.</li>
 </ul>
 
 <h2 id="4-django-server-구성">4. Django server 구성</h2>
-<pre><code class="language-docker-compose"># docker-compose.yaml
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># docker-compose-blue.yaml</span>
 
 version: '3'
 services:
@@ -535,24 +567,24 @@ services:
       - ./django_server/.env
     environment:
       - PROFILE=set1-server2
-  # monitor:
-  #   build: ./monitor_server
-  #   command: tail -f /dev/null
-  #   container_name: my-monitor
+  <span class="c"># monitor:</span>
+  <span class="c">#   build: ./monitor_server</span>
+  <span class="c">#   command: tail -f /dev/null</span>
+  <span class="c">#   container_name: my-monitor</span>
 
 networks:
   my-network:
     name: my-network
     external: true
-</code></pre>
+</code></pre></div></div>
 <ul>
-  <li>server-blue-1, server-blue-2 등 같은 버전의 여러대의 컨테이너로 docker-compose를 구성합니다.</li>
-  <li>이미 생성된 custom network에 docker-compose를 연결합니다.</li>
-  <li>혹시(?) 사용하게 될지도 모르는 monitor 서버를 추가적으로 구성합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">docker compose up -d</code>를 통해 compose를 빌드할 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">server-blue-1</code>, <code class="language-plaintext highlighter-rouge">server-blue-2</code> 등 같은 버전의 여러대의 컨테이너로 서비스를 구성합니다. (Replica 모방하는 방식..)</li>
+  <li>처음에 생성하여 두었던 bridge network를 서비스에 연결하여, nginx와 같은 network를 사용하도록 설정합니다.</li>
+  <li>monitor 서버를 추가적으로 구성했지만, 위와 같이 생략 가능합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker-compose -f docker-compose-blue.yaml up -d</code> 명령어를 통해 blue 버전의 서비스를 실행합니다.</li>
 </ul>
 
-<pre><code class="language-docker-compose">docker-compose.green.yaml
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose.green.yaml
 
 version: '3'
 services:
@@ -585,13 +617,13 @@ networks:
   my-network:
     name: my-network
     external: true
-</code></pre>
+</code></pre></div></div>
 <ul>
-  <li>server-green-1, server-green-2 등 새로운 버전을 위한 compose 파일을 구성합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">docker compose -f docker-compose.green.yaml up -d</code>를 통해 compose를 빌드할 수 있습니다.</li>
+  <li>새로운 green 버전의 서비스를 위한 compose 파일을 구성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker-compose -f docker-compose-green.yaml up -d</code> 명령어를 통해 green 버전의 서비스를 실행합니다.</li>
 </ul>
 
-<h3 id="확인">확인</h3>
+<h3 id="bridge-network의-서비스-연결-확인">bridge network의 서비스 연결 확인</h3>
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker network inspect my-network
 <span class="o">[</span>
     <span class="o">{</span>
@@ -652,7 +684,7 @@ networks:
 <span class="o">]</span>
 </code></pre></div></div>
 <ul>
-  <li>위 과정들을 전부 수행하면 my-nginx, blue server들, green server들이 gateway에 배치되어, 서로 ping, curl 등 network tool을 통해 소통할 수 있게 됩니다.</li>
+  <li>위 과정들을 전부 수행하면 my-nginx, blue server들, green server들이 같은 gateway에 배치되어, 서로 ping, curl 등 network tool을 통해 소통할 수 있게 됩니다.</li>
 </ul>
 
 <h2 id="5-nginx-배포환경-구성">5. Nginx 배포환경 구성</h2>
@@ -672,15 +704,14 @@ networks:
 <span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s|</span><span class="k">${</span><span class="nv">SRC_SERVER2</span><span class="k">}</span><span class="s2">|</span><span class="k">${</span><span class="nv">TAR_SERVER2</span><span class="k">}</span><span class="s2">|g"</span> /etc/nginx/conf.d/default.conf
 </code></pre></div></div>
 <ul>
-  <li>2번 단계에서 설정했던 nginx 설정 파일을 수정하여 배포 환경에 맞게 수정하는 파일로, upstream 부분의 reverse proxy 부분을 수정합니다.</li>
-  <li>기존에 server1, server2로 되어있던 부분을 <code class="language-plaintext highlighter-rouge">my-network</code>(위에서 커스텀으로 설정한)에서 받아와서 설정해야합니다. (아래 <code class="language-plaintext highlighter-rouge">deploy.sh</code> 참고)</li>
+  <li>2번 단계에서 설정했던 nginx 설정 파일을 수정하여 배포 환경에 맞게 수정하는 실행 파일로, upstream 부분의 reverse proxy 부분을 수정합니다.</li>
+  <li>기존 server1, server2로 되어있던 부분을 <code class="language-plaintext highlighter-rouge">my-network</code>(위에서 커스텀으로 설정한)에서 받아와서 설정해야합니다. (아래 <code class="language-plaintext highlighter-rouge">deploy.sh</code> 참고)</li>
 </ul>
 
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># deploy.sh</span>
 
-<span class="nt">---</span>
-
 <span class="c">#!/bin/bash</span>
+ 
 <span class="nv">PARAM</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span>:?<span class="s2">"requires an argument. in: init, dp: deploy, rb: rollback"</span><span class="k">}</span>
 
 <span class="nv">BLUE_SERVER_1_HOST</span><span class="o">=</span><span class="sb">`</span>docker inspect <span class="nt">-f</span> <span class="s1">''</span> my-blue-server-1<span class="sb">`</span>
@@ -707,7 +738,7 @@ if</span> <span class="o">[</span> <span class="nv">$PARAM</span> <span class="o
 docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx nginx <span class="nt">-s</span> reload
 </code></pre></div></div>
 <ul>
-  <li>in: initial 모드로, nginx.conf의 server1, server2를 my-network에서 컨테이너명에 따라 가져온 IP로 변경합니다. (my-blue-server1, my-blue-server2가 될 것)</li>
+  <li>in: initial 모드로, <code class="language-plaintext highlighter-rouge">nginx.conf</code>의 server1, server2를 <code class="language-plaintext highlighter-rouge">my-network</code>에서 컨테이너명에 따라 가져온 IP로 변경합니다. (my-blue-server1, my-blue-server2가 될 것)</li>
   <li>dp: 새로운 버전을 배포하는 모드로, blue-server1, blue-server2에 연결되어 있던 reverse proxy를 green-server1, green-server2로 연결되도록 수정합니다.</li>
   <li>rb: 롤백 모드로, green-server1, green-server2로 연결되어 있던 reverse proxy를 blue-server1, blue-server2로 연결되도록 다시 수정합니다.</li>
   <li>in 모드가 아니고 green server가 배포가 되어있지 않다면, 배포 프로세스를 진행하지 않습니다.</li>
@@ -721,21 +752,21 @@ docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx nginx <
     <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  - /root
     - nginx/
       - templates/
-          - default.conf.template
+        - default.conf.template
       - code/
-          - nginx.conf
-          - run.sh
-          - set_nginx_conf.sh
-          - Dockerfile
+        - nginx.conf
+        - run.sh
+        - set_nginx_conf.sh
+        - Dockerfile
       - docker_run.sh
 
     - server/
       - django_server/
-          - Dockerfile
-          - ...
+        - Dockerfile
+        - ...
       - monitor_server/
-          - Dockerfile
-          - ...
+        - Dockerfile
+        - ...
       - docker-compose.yaml
       - docker-compose.green.yaml
 
@@ -744,28 +775,26 @@ docker <span class="nb">exec</span> <span class="nt">-it</span> my-nginx nginx <
   </li>
 </ul>
 
-<p><strong>초기 컨테이너들 설정</strong></p>
+<p>아래 명령어들은 root 폴더에서 진행합니다.</p>
+
+<p><strong>초기 컨테이너들 설정</strong><br />
+1 새로운 network 생성: <code class="language-plaintext highlighter-rouge">./create_network.sh</code> <br />
+2 server 실행:  <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.yaml up -d</code>  <br />
+3 nginx 실행 및 새로운 network 연결: <code class="language-plaintext highlighter-rouge">nginx/docker_ruh.sh</code><br />
+4 초기 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh in</code></p>
+
+<p><strong>새로운 배포를 하는 경우</strong><br />
+5 server 실행: <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.green.yaml up -d</code><br />
+6 새로운 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh dp</code></p>
+
+<p><strong>롤백하는 경우</strong><br />
+7 롤백 후 재배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh rb</code></p>
+
+<h2 id="글을-마무리하며">글을 마무리하며</h2>
 <ul>
-  <li>아래 명령어들은 root 폴더에서 진행합니다.
-    <ol>
-      <li>새로운 network 생성: <code class="language-plaintext highlighter-rouge">./create_network.sh</code></li>
-      <li>server 실행:  <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.yaml up -d</code></li>
-      <li>nginx 실행 및 새로운 network 연결: <code class="language-plaintext highlighter-rouge">nginx/docker_ruh.sh</code></li>
-      <li>초기 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh in</code></li>
-    </ol>
-  </li>
+  <li>글을 작성하며, AWS와 같은 클라우드에서 서비스를 어떻게 구성하면 좋을지 고민해 볼 수 있었습니다. 네트워크 구성 및 유연한 배포를 위해 서비스의 구성을 어떻게 하면 좋을지 공부해보고 생각해볼 수 있었습니다.</li>
+  <li>글을 작성한 이후에는 VPC / ELB / ECS를 통해 서비스를 구축하고 배포 환경까지 세팅하였는데, 이에 대한 여정 또한 기회가 되면 기록해두도록 하겠습니다.</li>
 </ul>
-
-<p><strong>새로운 배포를 하는 경우</strong></p>
-<ol>
-  <li>server 실행: <code class="language-plaintext highlighter-rouge">docker-compose -f ./server/docker-compose.green.yaml up -d</code></li>
-  <li>새로운 배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh dp</code></li>
-</ol>
-
-<p><strong>롤백하는 경우</strong></p>
-<ol>
-  <li>롤백 후 재배포 수행: <code class="language-plaintext highlighter-rouge">./deploy.sh rb</code></li>
-</ol>
 
   </div>
 </div>

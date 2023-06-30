@@ -65,8 +65,8 @@ var store = [{
         "url": "/django%20strategy/django-serializer/",
         "teaser": null
       },{
-        "title": "[Server] Docker network를 통한 Nginx와 django server 세팅",
-        "excerpt":"글을 작성하게 된 계기 docker compose 내에 nginx / django server / db를 모두 넣는 방식은 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 컨트롤 할 수 없다는 단점을 가지고 있습니다. server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, docker network를 활용하는 방법을 생각해보며 글을 작성하게 되었습니다....","categories": ["Server"],
+        "title": "[Server] Nginx를 이용한 무중단 배포 방법 (Nginx - Django)",
+        "excerpt":"글을 작성하게 된 계기 기존 서비스에서는 하나의 docker-compose 안에 nginx, django, api_server, db 등 모든 컨테이너를 넣어 한 번에 실행시켰습니다. 하지만, 이러한 구조는 network를 서로 공유할 수 있다는 편리함을 가졌지만 서로 독립적으로 제어할 수 없다는 단점을 가지고 있습니다. server 증설 및 감축을 위해 설정을 간소화하는 방법을 모색 중에, 컨테이너를 분리하고...","categories": ["Server"],
         "tags": [],
         "url": "/server/server-1/",
         "teaser": null
