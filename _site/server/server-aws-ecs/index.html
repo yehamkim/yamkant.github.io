@@ -1,0 +1,628 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Server] AWS ECS를 사용한 배포환경 구성 - Yam’s Dev Logs</title>
+<meta name="description" content="최종 목표    ECS 내에서 nginx와 django를 사용한 서버 구성   참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Server] AWS ECS를 사용한 배포환경 구성">
+<meta property="og:url" content="http://localhost:4000/server/server-aws-ecs/">
+
+
+  <meta property="og:description" content="최종 목표    ECS 내에서 nginx와 django를 사용한 서버 구성   참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-05-12T16:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/server/server-aws-ecs/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 25</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (2)</a></li>
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Server] AWS ECS를 사용한 배포환경 구성</h1>
+    
+    <h3 id="최종-목표">최종 목표</h3>
+<ul>
+  <li>ECS 내에서 nginx와 django를 사용한 서버 구성</li>
+  <li>참고: <a href="https://github.com/yamkant/aws-ecs">git repository</a> - 구체적인 코드 및 이미지를 볼 수 있습니다.</li>
+</ul>
+
+<p><strong>순서</strong></p>
+<ol>
+  <li>AWS ECS CLI 설치 및 계정 생성</li>
+  <li>Docker 구성 및 테스트</li>
+  <li>ECR 생성 및 업로드</li>
+  <li>ECS 클러스터 생성 및 서비스 생성</li>
+</ol>
+
+<h3 id="aws-ecs-cli-설치-및-계정-생성">AWS ECS CLI 설치 및 계정 생성</h3>
+<ul>
+  <li>aws ecs를 위한 CLI를 설치합니다.
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c"># aws ecs를 위한 CLI를 설치합니다.</span>
+  <span class="nv">$ </span>curl <span class="s2">"https://awscli.amazonaws.com/AWSCLIV2.pkg"</span> <span class="nt">-o</span> <span class="s2">"AWSCLIV2.pkg"</span>
+  <span class="nv">$ </span><span class="nb">sudo </span>installer <span class="nt">-pkg</span> AWSCLIV2.pkg <span class="nt">-target</span> /
+</code></pre></div>    </div>
+  </li>
+  <li>AWS CLI에 접근하기 위해 아래 값들을 설정합니다.
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>aws configure
+  AWS Access Key ID <span class="o">[</span>None]: ACCESS_KEY_ID
+  AWS Secret Access Key <span class="o">[</span>None]: SECRET_ACCESS_KEY
+  Default region name <span class="o">[</span>None]: ap-northeast-2
+  Default output format <span class="o">[</span>None]: json
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>configure 설정이 끝나면 <code class="language-plaintext highlighter-rouge">~/.aws/credentials</code> 폴더가 생성됩니다.</p>
+  </li>
+  <li>ECS CLI를 사용하기 위해 IAM 권한을 가진 계정을 생성합니다.<br />
+(위에서 configure에 등록한 계정은 <code class="language-plaintext highlighter-rouge">iam:CreateUser</code> 권한 필요 - <code class="language-plaintext highlighter-rouge">IAMUserFullAccess</code> 정책을 부여했습니다.)
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>aws iam create-user <span class="nt">--user-name</span> ecs-user
+  <span class="o">&gt;</span> <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::301869408653:user/ecs-user"</span>
+
+  <span class="nv">$ </span>aws iam create-access-key <span class="nt">--user-name</span> ecs-user
+  <span class="o">&gt;</span> <span class="s2">"AccessKeyId"</span>: <span class="s2">"AKIAUMSGRUGGXHHX6257"</span>,
+  <span class="o">&gt;</span> <span class="s2">"SecretAccessKey"</span>: <span class="s2">"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"</span>
+
+  <span class="c"># ECS 접근을 위한 정책들을 설정합니다.</span>
+  <span class="nv">$ </span>aws iam attach-user-policy <span class="se">\</span>
+      <span class="nt">--policy-arn</span> arn:aws:iam::aws:policy/AmazonEC2FullAccess <span class="nt">--user-name</span> ecs-user
+  <span class="nv">$ </span>aws iam attach-user-policy <span class="se">\</span>
+      <span class="nt">--policy-arn</span> arn:aws:iam::aws:policy/AmazonECS_FullAccess <span class="nt">--user-name</span> ecs-user
+  <span class="nv">$ </span>aws iam attach-user-policy <span class="se">\</span>
+      <span class="nt">--policy-arn</span> arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess <span class="nt">--user-name</span> ecs-user
+
+  <span class="c"># 아래 json 파일을 생성한 후, 해당 경로에서 명령어를 실행하여 정책을 추가합니다.</span>
+  <span class="nv">$ </span>aws iam create-policy <span class="nt">--policy-name</span> ecsUserPolicy <span class="nt">--policy-document</span> file://ecs-user-policy.json
+  <span class="o">&gt;</span> <span class="s2">"PolicyId"</span>: <span class="s2">"ANPAUMSGRUGG5Z2CWN5G3"</span>,
+  <span class="o">&gt;</span> <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::301869408653:policy/ecsUserPolicy"</span>,
+
+  <span class="nv">$ </span>aws iam attach-user-policy <span class="se">\</span>
+      <span class="nt">--policy-arn</span> arn:aws:iam::301869408653:policy/ecsUserPolicy <span class="se">\</span>
+      <span class="nt">--user-name</span> ecs-user
+    
+  <span class="c"># 위에서 생성한 ecs-user로 access key와 secret key를 등록하여 다시 인증합니다.</span>
+  <span class="nv">$ </span>aws configure
+</code></pre></div>    </div>
+    <p>ecs-user 추가적인 권한 설정을 위한 정책</p>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # ecs-user-policy.json
+  {
+      "Version": "2012-10-17",
+      "Statement": [{
+          "Effect": "Allow",
+          "Action": [
+              "iam:PassRole"
+          ],
+          "Resource": "arn:aws:iam::301869408653:role/ApplicationAutoscalingECSRole"
+      }, {
+          "Effect": "Allow",
+          "Action": [
+              "ec2:DescribeAddresses",
+              "ec2:AllocateAddress",
+              "ec2:DescribeInstances",
+              "ec2:AssociateAddress"
+              "ecr:CreateRepository"
+          ],
+          "Resource": "*"
+      }]
+  }
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="docker-구성-및-ecr-업로드">Docker 구성 및 ECR 업로드</h3>
+<p><strong>간단한 설명</strong></p>
+<ul>
+  <li>ecs에서의 최소 단위는 “태스크”이며, 하나의 태스크 내에는 다수의 이미지 파일을 사용할 수 있습니다.</li>
+  <li>하나의 “태스크”를 구성할 때 빌드시킬 도커 이미지는 ECR이라고 하는 저장소에 push 해야합니다.</li>
+</ul>
+
+<p><strong>ECR 등록 및 업로드</strong></p>
+<ul>
+  <li>ECR 로그인
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>aws ecr get-login-password  <span class="se">\</span>
+      <span class="nt">--region</span> ap-northeast-2 | docker login <span class="nt">--username</span> AWS <span class="se">\</span>
+      <span class="nt">--password-stdin</span> 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com
+</code></pre></div>    </div>
+  </li>
+  <li>ECR Repository 생성
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nv">$ </span>aws ecr create-repository <span class="nt">--repository-name</span> my-web
+  <span class="o">&gt;</span> <span class="s2">"repositoryUri"</span>: <span class="s2">"301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-web"</span>
+  <span class="nv">$ </span>aws ecr create-repository <span class="nt">--repository-name</span> my-nginx
+  <span class="o">&gt;</span> <span class="s2">"repositoryArn"</span>: <span class="s2">"arn:aws:ecr:ap-northeast-2:301869408653:repository/my-nginx"</span>
+</code></pre></div>    </div>
+  </li>
+  <li><a href="https://github.com/yamkant/aws-ecs/tree/main/srcs/ecr">Docker 구성 및 테스트</a>를 참고하여 ecr 업로드 전 실행을 확인합니다.</li>
+  <li>ECR 등록을 위한 이미지 태깅 및 docker push. 결과: <a href="https://github.com/yamkant/aws-ecs/blob/main/srcs/images/ecs-ecr-setting.png">ECR 이미지 구성 예시</a>
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c"># nginx 이미지 태그 및 업로드</span>
+  <span class="nv">$ </span>docker tag my-nginx:latest 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-nginx:latest
+  <span class="nv">$ </span>docker push 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-nginx:latest
+
+  <span class="c"># web 이미지 태그 및 업로드</span>
+  <span class="nv">$ </span>docker tag my-web:latest 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-web:latest
+  <span class="nv">$ </span>docker push 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-web:latest
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="ecs-클러스터-및-서비스-구성">ECS 클러스터 및 서비스 구성</h3>
+<p><a href="https://github.com/yamkant/aws-ecs/blob/main/srcs/images/ecs-cluster-setting.png">ECS cluster 생성 예시</a></p>
+<ul>
+  <li>빠른 구현을 위해 <code class="language-plaintext highlighter-rouge">VPC</code>는 기본으로, EC2를 이용한 서버 구성으로 진행합니다. (프리티어 사용 가능)</li>
+  <li>일정 시간이 지나고, 클러스터가 생성된 직 후, EC2 대시보드를 보면 인스턴스도 함께 생성됩니다.</li>
+  <li>새로 생성된 인스턴스 특징: <code class="language-plaintext highlighter-rouge">IAM: ecsInstanceRole</code>, <code class="language-plaintext highlighter-rouge">AMI: ami-ecs</code>, <code class="language-plaintext highlighter-rouge">ASG(Auto Scailing Group) 설정됨</code>, <code class="language-plaintext highlighter-rouge">기본 보안 그룹 설정</code></li>
+  <li>따라서, 만약 ECS에 등록된 인스턴스를 추가하고자 하면, 위의 설정을 그대로 EC2를 생성하면 됩니다.</li>
+</ul>
+
+<h3 id="태스크-정의-생성-host-모드">태스크 정의 생성 (host 모드)</h3>
+<p><strong>컨테이너 - 1</strong></p>
+<ul>
+  <li>이름: web</li>
+  <li>이미지 URI: 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-web</li>
+  <li>컨테이너 포트: 8000</li>
+  <li>환경 파일 추가: S3에서 호스팅된 파일의 ARN 경로를 기입합니다.</li>
+</ul>
+
+<p><strong>컨테이너 - 2</strong></p>
+<ul>
+  <li>이름: nginx</li>
+  <li>이미지 URI: 301869408653.dkr.ecr.ap-northeast-2.amazonaws.com/my-nginx</li>
+  <li>컨테이너 포트: 80</li>
+</ul>
+
+<p><strong>환경, 스토리지, 모니터링 및 태그 구성</strong></p>
+<ul>
+  <li>앱 환경: Amazon EC2 인스턴스</li>
+  <li>CPU: 0.125 vCPU / 메모리: 0.25 GB</li>
+  <li>태스크 실행 역할: ecsTaskExcutionRole</li>
+  <li>네트워크 모드: host</li>
+</ul>
+
+<p><strong>태스크 정의에 대한 설명</strong></p>
+<ul>
+  <li>ecs의 네트워크 모드를 host로 하면, 태스크 정의 내의 모든 컨테이너는 host의 네트워크와 같은 주소를 가집니다.</li>
+  <li>따라서, nginx 내에서 127.0.0.1:8000으로 <code class="language-plaintext highlighter-rouge">web</code> 컨테이너와 통신할 수 있습니다.</li>
+  <li>태스크 실행 역할의 경우, 처음 생성할 때 자동으로 부여됩니다. S3를 사용하기 위해서는 접근 권한이 필요한데, <code class="language-plaintext highlighter-rouge">ecsTaskExcutionRole</code> 역할에 <code class="language-plaintext highlighter-rouge">AmazonS3FullAccess</code> 정책을 추가할 수 있습니다.</li>
+</ul>
+
+<h3 id="서비스-생성-ec2-인스턴스-기반">서비스 생성 (EC2 인스턴스 기반)</h3>
+<p><strong>환경</strong></p>
+<ul>
+  <li>컴퓨팅 옵션: 시작유형</li>
+  <li>시작 유형: EC2</li>
+</ul>
+
+<p><strong>배포 구성</strong></p>
+<ul>
+  <li>애플리케이션 유형: 서비스</li>
+  <li>패밀리: 위에서 생성한 태스크 정의</li>
+  <li>서비스 유형: 복제본</li>
+</ul>
+
+<p><strong>서비스 생성에 대한 설명</strong></p>
+<ul>
+  <li>시작유형을 EC2로 하는 기본적인 서비스를 실행합니다.</li>
+  <li>서비스 연결을 통한 네임스페이스 사용과 로드밸런싱 추가 부분은 위 동작이 정상적으로 작동하면 추가하는 방식으로 진행합니다.</li>
+  <li>생성이 완료되면, 태스크가 동작하고 있는 EC2에 연결하여 <code class="language-plaintext highlighter-rouge">docker</code> 관련 명령어를 통해 상태를 모니터링 할 수 있습니다.</li>
+  <li>또한, 해당 EC2의 보안 그룹에 설정된 인바운드 규칙에 따라 포트가 개방되며, EC2의 퍼블릭 IP로 서비스가 호스팅하는 웹사이트에 접속 가능합니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

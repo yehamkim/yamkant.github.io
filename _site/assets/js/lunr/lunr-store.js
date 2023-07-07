@@ -71,6 +71,12 @@ var store = [{
         "url": "/server/server-1/",
         "teaser": null
       },{
+        "title": "[Server] AWS ECS를 사용한 배포환경 구성",
+        "excerpt":"최종 목표 ECS 내에서 nginx와 django를 사용한 서버 구성 참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다. 순서 AWS ECS CLI 설치 및 계정 생성 Docker 구성 및 테스트 ECR 생성 및 업로드 ECS 클러스터 생성 및 서비스 생성 AWS ECS CLI 설치 및 계정 생성 aws...","categories": ["Server"],
+        "tags": [],
+        "url": "/server/server-aws-ecs/",
+        "teaser": null
+      },{
         "title": "[Django] 배포/개발 환경은 어떻게 설정할까?",
         "excerpt":"최종 목표 .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용 Django Container Setting Django 폴더 구조 web - Dockerfile - apps/ - config/ - settings/ - base.py - development.py - production.py - wsgi/ - development.py - production.py ... - entrypoint.sh - manage.py - requirements.txt - .env Django 배포 환경...","categories": ["Django Strategy"],
         "tags": [],
