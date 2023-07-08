@@ -1,7 +1,7 @@
 ---
 layout: archive
 title:  "[Server] AWS ECS를 사용한 기본적인 배포환경 구성"
-date:   2023-05-12 16:05:07 +0900
+date:   2023-07-08 16:05:07 +0900
 categories: 
     - Server
 ---
