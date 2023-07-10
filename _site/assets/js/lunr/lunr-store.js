@@ -71,12 +71,6 @@ var store = [{
         "url": "/server/server-1/",
         "teaser": null
       },{
-        "title": "[Server] AWS ECS를 사용한 배포환경 구성",
-        "excerpt":"최종 목표 ECS 내에서 nginx와 django를 사용한 서버 구성 참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다. 순서 AWS ECS CLI 설치 및 계정 생성 Docker 구성 및 테스트 ECR 생성 및 업로드 ECS 클러스터 생성 및 서비스 생성 AWS ECS CLI 설치 및 계정 생성 aws...","categories": ["Server"],
-        "tags": [],
-        "url": "/server/server-aws-ecs/",
-        "teaser": null
-      },{
         "title": "[Django] 배포/개발 환경은 어떻게 설정할까?",
         "excerpt":"최종 목표 .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용 Django Container Setting Django 폴더 구조 web - Dockerfile - apps/ - config/ - settings/ - base.py - development.py - production.py - wsgi/ - development.py - production.py ... - entrypoint.sh - manage.py - requirements.txt - .env Django 배포 환경...","categories": ["Django Strategy"],
         "tags": [],
@@ -143,9 +137,21 @@ var store = [{
         "url": "/django%20strategy/django-test/",
         "teaser": null
       },{
-        "title": "Aws",
-        "excerpt":"6.1 Amazon VPC AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다. EC2나 RDS의 경우, VPC를 먼저 선택해야합니다. VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다. 외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다. 기능 네트워킹 환경을 설정합니다. IPv4, IPv6 둘 다 사용가능합니다. CIDR 블록, 서브넷 마스크를 설정할 수...","categories": [],
+        "title": "[Server] AWS ECS를 사용한 기본적인 배포환경 구성",
+        "excerpt":"최종 목표 ECS 내에서 nginx와 django를 사용한 서버 구성 참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다. 이 후 포스팅: VPC 구성 / ALB 구성 / Network Bridge 모드에서 Namespace 사용 순서 AWS ECS CLI 설치 및 계정 생성 Docker 구성 및 테스트 ECR 생성 및 업로드...","categories": ["Server"],
         "tags": [],
-        "url": "/aws/",
+        "url": "/server/server-aws-ecs/",
+        "teaser": null
+      },{
+        "title": "[Server] Github action을 활용한 CI/CD 구성",
+        "excerpt":"Github action Work Flow 구성 github action에서는 아래 템플릿을 기본적으로 제공합니다. (Repository -&gt; Actions -&gt; New workflow [배너] -&gt; 원하는 Framework 검색) 템플릿은 해당 프로젝트 리파지토리의 /.github/workflows/ 디렉토리에 .yaml 형식으로 작성합니다. 이 때, .env 파일 내의 정보는 보안상 workflow에 기입할 수 없으므로, 각각 github repository settings에서 관리합니다. (Repository -&gt; Settings...","categories": ["Server"],
+        "tags": [],
+        "url": "/server/server-githubaction/",
+        "teaser": null
+      },{
+        "title": "[Study] AWS 기본 개념",
+        "excerpt":"Amazon VPC AWS에 생성하는 가상의 네트워크(Virtual Private Cloud)를 의미합니다. EC2나 RDS의 경우, VPC를 먼저 선택해야합니다. VPC내에 서버를 설치하면 해당 네트워크에 소속되지만, 별도로 설정하지 않으면 격리된 네트워크입니다. 외부와 통신하기 위해 인터넷 혹은 회사 LAN과 연결해야합니다. 기능 네트워킹 환경을 설정합니다. IPv4, IPv6 둘 다 사용가능합니다. CIDR 블록, 서브넷 마스크를 설정할 수 있습니다....","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-aws-concept/",
         "teaser": null
       }]
