@@ -1,114 +1,170 @@
-
 ---
 layout: archive
-title:  "[Study] OSI 7 Layer, 구글에서 검색하면 일어나는 현상, Django에서"
+title:  "[Study] Python Clean Code - OOP"
 date:   2023-07-10 10:05:07 +0900
 categories: 
     - Study
 ---
 
- OSI 7계층
-**7 계층 - Application Layer**  
-- 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.
-- 애플리케이션 목적에 맞는 통신 방법을 제공합니다.
-- HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다. 
+## SOLID 원칙
+- S: 단일 책임 원칙 (Single Responsibility Principle)
+- O: 개방/폐쇄의 원칙
+- L: 리스코프(Liskov) 치환 원칙
+- I: 인터페이스 분리 원칙 (Interface Segregation Principle)
+- D: 의존성 역전 원칙 (Dependency Inversion Principle)
 
-**6 계층 - Presentation Layer**  
-- 애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다.
-- 데이터를 안전하게 전송하기 위해 암호화, 복호화하여 소통합니다.
+### 단일 책임 원칙
+- SRP은 소프트웨어 컴포넌트가 단 하나의 책임을 져야한다는 원칙입니다.
+- 따라서, 구체적인 하나의 일을 담당해야하며, 변화해야할 이유는 단 하나뿐입니다.
+- 관계형 데이터베이스 설계에서의 정규화 개념과 유사합니다. 객체으 속성이나 메서드의 특성이 다른 그룹에서 발견되면 이들을 다른 곳으로 옮겨야합니다. 
 
-**5 게층 - Session Layer**
-- 애플리케이션 통신에서 세션을 관리하는 계층입니다.
-- 예시로 RPC(remote procedure call)가 있습니다.
+### 개방/폐쇄 원칙
+- 클래스를 디자인 할 때는 유지보수가 쉽도록 로직을 캡슐화하여, 확장에는 열려있고 수정에는 닫있도록 해야합니다.
+- 새로운 기능을 추가하다가 기존 코드를 수정했다면, 기존 로직이 잘못 디자인 되었음을 의미합니다.
 
-**4 계층 - Transport Layer**
-- 애플리케이션 통신을 담당하며, 실제로 목적지 애필리케이션으로 데이터를 전송합니다.
-- TCP, UDP 프로토콜을 사용합니다.
-- TCP: 안정적이고 신뢰할 수 있는 데이터 전송을 보장합니다.
-- UDP: 데이터가 중간에 유실되거나 순서가 꼬일 수 있지만, 데이터를 무조건 전송합니다.
-- Network Layer의 기능을 사용하여 데이터를 전송합니다.
+**좋지 않은 코드 예시**
+```python
+class Event:
+    def __init__(self, raw_data):
+        self.raw_data = raw_data
+    
+class UnkownEvent(Event):
+    """데이터만으로 식별할 수 없는 이벤트"""
 
-**3 계층 - Network Layer**
-- 호스트 간의 통신을 담당합니다. (IP 프로토콜)
-- 목적지 호스트로 데이터를 전송합니다.
-- 네트워크 간의 최적의 경로를 결정합니다.
-- Data Link Layer의 기능을 사용하여 기능을 구현합니다.
+class LoginEvent(Event):
+    """로그인 사용자에 의한 이벤트"""
 
-**2 계층 - Data Link Layer**
-- IP 주소가 아닌 MAC 주소 기반으로 통신합니다.
-- ARP: IP 주소를 MAC 주소로 변환하는 프로토콜입니다.
+class LogoutEvent(Event):
+    """로그아웃 사용자에 의한 이벤트"""
 
-**1 계층 - Physical Layer**
-- bits 단위로 데이터를 전송합니다.
+class SystemMonitor:
+    """시스템에서 발생한 이벤트 분류"""
+    def __init__(self, event_data):
+        self.event_data = event_data
+    
+    def identify_event(self):
+        if self.event_data["before"]["session"] == 0 \
+            and self.event_data["after"]["session"] == 1:
+            return LoginEvent(self.event_data)
+        elif self.event_data["before"]["session"] == 1 \
+            and self.event_data["after"]["session"] == 0:
+            return LogoutEvent(self.event_data)
+        
+        return UnkownEvent(self.event_data)
+```
+- 위 코드들은, SystemMonitor를 생성할 때 `event_data` 딕셔너리 값에 따라서 반환하는 클래스가 달라집니다. 하지만, 몇가지 문제가 있습니다.
+- 이벤트 유형을 결정하는 논리가 일체형으로 중앙 집중화 되어있습니다. 이벤트가 늘어날수록 메서드도 커질 것 입니다.
+- 따라서, 한가지 일만 할 수 없을 뿐더러 한가지 일을 제대로 하지도 못합니다. 새로운 유형의 이벤트가 추가될 때마다 수정해야하므로, 수정에 닫혀있지 않습니다.
 
-- 서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.
-- 라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.
-- 
-유튜브 댓글 작성시 유튜브 서버까지 어떻게 전달되는지 살펴보기
-1. 애플리케이션 레이어에 메시지를 전송하기 위해 처리과정을 거칩니다. 부가적인 정보들을 애플리케이션 헤더에 담습니다. 
-2. presentation layer 관련 데이터들을 헤더에 담고, 담긴 정보를 Session Layer로 보냅니다.
+**리팩토링된 코드**
+```python
+class Event:
+    def __init__(self, raw_data):
+        self.raw_data = raw_data
+    @staticmethod
+    def meets_condition(event_data: dict):
+        return False
+    
+class UnkownEvent(Event):
+    """데이터만으로 식별할 수 없는 이벤트"""
 
+class LoginEvent(Event):
+    """로그인 사용자에 의한 이벤트"""
 
-## 구글을 주소창에서 입력하면 일어나는 일
-- DNS (Domain Name System Servers): URL들의 이름과 IP 주소를 저장하고 있는 데이터 베이스로, 웹사이트를 위한 주소록입니다. 숫자로된 IP를 사용자가 편리한 주소로 맵핑합니다. 최종적으로 사용자를 어떤 서버에 연결할 것인지 제어하는 요청을 쿼리라고 부릅니다.
-- DNS query: DNS 서버들을 검색해서 해당 사이트의 IP 주소를 찾습니다. 재귀적으로 서로 다른 DNS 서버를 오가며 에러가 날 때까지 반복적으로 요청합니다. (recursive search)
-- TCIP/IP (Transmission Control Protocol / Internet Protocol): 이를 따른다는 것은, IP 주소 체계를 따르며 TCP의 특성을 활용해 송신자와 수신자의 논리적 연결을 생성하고 신뢰성을 유지할 수 있도록 하겠다는 의미입니다.
-- HTTP(Hypertext Transfer Protocol): 
+    @staticmethod
+    def meets_condition(event_data: dict):
+        return (event_data["before"]["session"] == 0 \
+            and event_data["after"]["session"] == 1
+        )
 
-1. 사용자가 웹브라우저 검색창에 www.google.com을 입력
-2. 웹브라우저는 캐싱된 DNS 기록들을 통해 도메인 주소와 대응하는 IP 주소응답 (캐시에 없다면 3, 있다면 4로)
-3. 웹브라우저가 HTTP를 사용하여 DNS에 입력된 도메인 주소 요청 및 IP 주소 응답
-4. 웹브라우저가 웹서버에게 IP 주소를 통해 html 문서를 요청합니다. (TCP/IP)  
-5. 웹어플리케이션서버(WAS)와 데이터베이스에서 우선적으로 웹페이지 작업을 처리합니다.  
-6. 처리된 작업의 결과를 웹서버로 전송합니다.
-7. 웹서버는 브라우저에게 html 문셔 결과를 응답합니다.
-8. 웹브라우저는 화면에 웹페이지 내용을 출력합니다.
+class LogoutEvent(Event):
+    """로그아웃 사용자에 의한 이벤트"""
+    def meets_condition(event_data: dict):
+        return (event_data["before"]["session"] == 1 \
+            and event_data["after"]["session"] == 0
+        )
 
+class SystemMonitor:
+    """시스템에서 발생한 이벤트 분류"""
+    def __init__(self, event_data):
+        self.event_data = event_data
+    
+    def identify_event(self):
+        for event_cls in Event.__subclasses__():
+            try:
+                if event_cls.meets_condition(self.event_data):
+                    return event_cls(self.event_data)
+            except KeyError:
+                continue
+        return UnkownEvent(self.event_data)
+```
+- `SystemMonitor`를 추상적인 이벤트와 협력하도록 변경하고, 이벤트에 대응하는 개별 로직은 각 이벤트 클래스에 위임합니다.
+- `Event` 클래스 관련 인터페이스들은 `meets_condition` 메서드를 구현하여 다형성을 보장합니다.
+- 만약, 새로운 요구사항에 의해 사용자 트랜잭션에 대응하는 이벤트를 지원해야한다고 가정한다면, 아래와 같이 클래스 하나만 추가하면 됩니다.
+    ```python
+    class TransactionEvent(Event):
+        """시스템에서 발생한 트랜잭션 이벤트"""
+        @staticmethod
+        def meets_condition(event_data: dict):
+            return event_data["after"].get("transaction") is not None
+    ```
 
-## 웹서버 / 어플리케이션 서버 / 웹컨테이너
-**웹서버** 
-- 웹서버 소프트웨어와 HTML, CSS, JavaScript파일과 같은 정적 파일들을 저장하는 하드웨어
-- Client가 어떻게 호스트 파일들에 접근하는지 관리하는 소프트웨어
-- URI(Uniform Resource Identifier)와 HTTP(브라우저가 웹 페이지를 보여주기 위해 사용하는 프로토콜) 소프트웨어의 일부
-- HTTP를 통해 웹브라우저에서 요청하는 HTML 문서나 오브젝트들을 전송해주는 서비스 프로그램을 말합니다. 이 때, 다른 가공없이 파일을 그대로 전송하기만 하면 되기 때문에 정적(static)이라고 합니다.
-- 단순히 데이터만 반환하면 되기 떄문에 처리 속도가 빠르며, 트래픽의 과부하를 잘 처리할 수 있습니다.
-**애플리케이션 서버**
-- 웹 서비스가 복잡해지고 기능이 다양함에 따라서 데이터를 가공해서 처리하는 비즈니스 로직이 필요하게 됩니다.
-- 웹서버 하나에서 다른 로직까지 처리하기에 부하가 크기 때문에, 로직을 처리하는 서버가 필요하게 되어 만들어집니다.
-- 애플리케이션 서버가 HTTP 서버를 통해 브라우저에게 요청된 데이터를 전송하기 전에, 애플리케이션 서버가 데이터를 가공하기 때문에 동적이라고 부릅니다.
-**웹 컨테이너**
-- 웹 서버에서 동적인 데이터를 반환하려면 요청에 알맞는 프로그램이 필요합니다. 또한, 그 프로그램에 인자를 전달하기 위한 규약이 필요합니다. 
-- CGI(Common Gateway Interface)는 프로그램 사이에 데이터를 전달하는 중간자 역할에 필요한 통신규약을 의미합니다.
-- 
+### 리스코프 치환 원칙(LSP)
+- 설계 시 안전성을 유지하기 위해 객체 타입이 유지되어야 한다는 일련의 특성을 말합니다.
+- 만약 S가 T의 하위 타입이라면, 프로그램을 변경하지 않고 T 타입의 객체를 S 타입의 객체로 치환할 수 있어야 합니다.
+- 좋은 클래스는 명확하고 간결한 인터페이스를 가지고 있습니다.
+- 여러 타입의 객체를 사용하는 클라이언트 클래스가 있다면, 클라이언트는 어떤 인터페이스를 통해 객체와 상호작용하기를 원할 것입니다. 클라이언트 클래스에 추가적인 작업을 하지 않더라도, 모든 하위 클래스의 인스턴스로 작업할 수 있어야 합니다. (하위 클래스와 부모 클래스의 사용 시점을 변경핻봐도 문제가 없어야 합니다.)
+- 하위 클래스는 부모 클래스에 정의된 것보다 사전 조건을 엄격하게 만들면 안됩니다.
+- 하위 클래스는 부모 클래스에 정의된 것보다 약한 사후조건을 만들면 안됩니다.
+- Mypy나 Pylint같은 모듈을 통해 위반하는 클래스를 검출할 수 있습니다.
 
-### Django에서의 wsgi, cgi
-**CGI(Common Gateway Interface)**
-- www 서버와 서버 상에 등장하는 다른 프로그램등 HTML에서는 불가능한 동적인 요소를 홈페이지에 받아들여 쓸 수 있도록하는 웹서버와 웹어플리케이션 사이를 이어주는 미들웨어입니다.
-- CGI는 요청이 들어올 때마다 스레드를 생성하여 웹 어플리케이션을 동작시키게 됩니다. 이는 부하가 너무 크고, 10000개 이상의 동시 요청을 처리할 수 없다는 단점이 있습니다.
+**리팩토링 코드**
+```python
+class Event:
+    def __init__(self, raw_data):
+        self.raw_data = raw_data
+    @staticmethod
+    def meets_condition(event_data: dict):
+        return False
+    @staticmethod
+    def meets_condition_pre(event_data: dict):
+        """인터페이스 계약의 사전조건
+        'eveent_data' 파라미터의 유효성 검사
+        """
+        assert isinstance(event_data, dict), f"{event_data!r} is not a dict"
+        for moment in ("before", "after"):
+            assert moment in event_data, f"{moment} not in {event_data}"
+            assert isinstance(event_data[moment], dict)
+        return False
+    
+...
 
-**WSGI(Web Server Gateway Interface)**
-- 웹 서버 소프트웨어와 파이썬으로 작성된 스크립트(웹 응용 프로그램) 간 통신을 위한 표준 인터페이스입니다.
-- 즉, Nginx로 들어오는 http request를 파이썬이 이해할 수 있도록 통역합니다.
-- CGI의 단점을 보완하여 클라이언트 요청에 대해 멀티 스레드를 생성하여 효율적으로 처리합니다.
-- Django 진영에서는 uwsgi, gunicon 등을 사용하고 있습니다.
-- 동작 과정: 클라이언트 요청 -> server side에서 middleware component 호출 -> middleware component가 application side의 application 호출
+class SystemMonitor:
+    """시스템에서 발생한 이벤트 분류"""
+    def __init__(self, event_data):
+        self.event_data = event_data
+    
+    def identify_event(self):
+        Event.meets_condition_pre(self.event_data)
+        event_cls = next(
+            (
+                event_cls for event_cls in Event.__subclasses__()
+                if event_cls.meets_condition(self.event_data)
+            ),
+            UnkownEvent,
+        )
+        return event_cls(self.event_data)
+```
+- 사전조건에서 파라미터의 타입을 분석하기 때문에, 클라이언트는 KeyError를 받지 않으므로 발전된 캡슐화가 되었습니다.
+- LSP는 다형성을 강조하기 때문에 좋은 디자인의 기초가 됩니다. 새로운 클래스가 원래의 계약과 호환되지 않는 확장을 하려면 클라이언트와의 계약이 깨집니다.. 이를 주의해서 설계해야 합니다.
 
-**uWSGI와 Gunicorn**  
-uWSGI
-- C 언어로 작성된 웹서버이며, 파이썬 애플리케이션을 외부 웹서버와 연결하여 오청을 처리하는 방식입니다.
-- 다양한 프로그래밍 언어를 지원하며 고성능 및 확장성이 뛰어납니다.
-- 여러 프로세스 또는 스레드를 사용하여 동시에 여러 요청을 처리할 수 있습니다.
-- 초기설정 옵션이 다양하지만 복잡합니다. 유연성과 강력한 기능을 제공합니다.
-- 다양한 플러그인과 확장 기능을 제공하여 다양한 요구 사항에 대응할 수 있습니다.
+### 인터페이스 분리 원칙
+- 인터페이스는 객체가 노출하는 메서드의 집합입니다. 파이썬에서는 클래스 메서드의 형태를 보고 암시적으로 정해지며, 이는 덕타이핑 원리를 따릅니다.
+- 인터페이스는 각각 하나의 메서드를 가진 두 개의 다른 인터페이스로 분리하는 것이 좋습니다.
+- 예를 들어, `XMLEventParser`에서 파생된 클래스는 `from_xml()` 메서드만을 구현하면 되고, `JSONEventParser`에서 파생된 클래스는 `from_json()` 메서드만을 구현하면 됩니다.
+- 이 원칙을 준수하지 않으면 별개의 기능이 결합된 인터페이스가 만들어지며, 상속된 클래스는 SRP를 준수할 수 없게 됩니다.
 
-Gunicorn
-- Python으로 작성된 웹서버이며, 독자적으로 애플리케이션을 실행하고 관리하는 단일서버로, 프론트엔드 웹서버와 직접 연결하여 사용합니다.
-- 단일 프로세스에서 동작하며, 작은 규모의 애플리케이션을 처리하는데 적합합니다.
-- 간단하고 설정이 쉽습니다. 추가설정 없이도 동작합니다.
-- 파이썬 애플리케이션에 초점을 맞춘 경량 웹서버입니다.
-
-참고 블로그
-- biunx님: [웹서버와 웹어플리케이션서버](https://binux.tistory.com/32)
-- waonderboy님: [웹 서버, WAS, 웹 컨테이너](https://velog.io/@waoderboy/%EC%9B%B9-%EC%84%9C%EB%B2%84-WAS-%EC%9B%B9-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88)
-- stg0123님: [uwsgi를 django와 연결하기](https://stg0123.github.io/study/41/)
-- elastic7327님: [uwsgi를 버린 이유](https://elastic7327.medium.com/python%EA%B0%9C%EB%B0%9C%EC%9E%90-uwsgi%EB%A5%BC-%EB%B2%84%EB%A6%AC%EA%B3%A0-gunicorn%EC%9C%BC%EB%A1%9C-%EA%B0%88%EC%95%84%ED%83%80%EB%8B%A4-df1c95f220c5)
+### 의존성 역전
+- 추상화를 통해 세부 사항에 의존하지 않도록 해야 하지만, 반대로 세부 사항 (구체적인 구현)은 추상화에 의존해야 한다.
+- 저수준 내용에 따라 고수준 클래스가 변경되는 것은 좋은 디자인이 아닙니다. 이를 해결하기 위해서는 고수준 클래스에서 저수준 클래스를 구체 클래스 형태가 아닌 인터페이스 형태로 담당하는 것입니다.
+- 상속은 is a 관계입니다. The apple is a fruit. 과 같이 표현할 수 있다면, apple은 fruit을 상속받을 수 있습니다.

@@ -154,4 +154,10 @@ var store = [{
         "tags": [],
         "url": "/study/study-aws-concept/",
         "teaser": null
+      },{
+        "title": "[Study] Python Clean Code - OOP",
+        "excerpt":"SOLID 원칙 S: 단일 책임 원칙 (Single Responsibility Principle) O: 개방/폐쇄의 원칙 L: 리스코프(Liskov) 치환 원칙 I: 인터페이스 분리 원칙 (Interface Segregation Principle) D: 의존성 역전 원칙 (Dependency Inversion Principle) 단일 책임 원칙 SRP은 소프트웨어 컴포넌트가 단 하나의 책임을 져야한다는 원칙입니다. 따라서, 구체적인 하나의 일을 담당해야하며, 변화해야할 이유는 단 하나뿐입니다....","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-osi-model/",
+        "teaser": null
       }]
