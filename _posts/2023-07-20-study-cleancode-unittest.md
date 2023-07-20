@@ -1,7 +1,7 @@
 ---
 layout: archive
 title:  "[Study] Python Clean Code - Unittest"
-date:   2023-07-20 10:05:07 +0900
+date:   2023-07-20 00:05:07 +0900
 categories: 
     - Study
 ---
