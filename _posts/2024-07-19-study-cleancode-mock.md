@@ -1,6 +1,6 @@
 ---
 layout: archive
-title:  "[Study] Python Clean Code - Descriptor"
+title:  "[Study] Python Clean Code - Mocking (simple)"
 date:   2023-07-19 10:05:07 +0900
 categories: 
     - Study
@@ -10,7 +10,6 @@ categories:
 ### Mocking 이란?
 - 외부 API(타사 Open API 및 DB 등)에 의존하는 코드를 테스트하기 위해 사용합니다.
 - 의존적인 부분을 임의의 가짜 결과물로 대체하여 독립적으로 실행하는 테스팅 기법입니다.
-- 
 
 ### Mocking 사용하기
 Django에서는 아래와 같이 `unittest.mock` 모듈을 이용하여 모킹을 사용할 수 있습니다.
