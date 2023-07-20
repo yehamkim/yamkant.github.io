@@ -226,3 +226,93 @@ def test_acceptance_threshold_status_resolution(context, expected_status):
 - 또한, unittest로 작성한 테스트까지 실행하기 때문에 호환성이 좋습니다.
 - `pytest.raises`는 `unittest.TestCase.assertRaises`와 동일합니다. `assertRaises`의 경우에는 위와 같이 `match` 파라미터를 사용하여 구현할 수 있습니다.
 - `unittest.TestCase.subTest`에서 반복적으로 테스트했다면, pytest에서는 데코레이터를 통해 수행할 수 있습니다. 첫 번째 파라미터는 파라미터의 이름을, 두 번쨰 파라미터는 테스트하고자 하는 값들의 튜플입니다.
+
+### Mock 객체
+- 시스템이 서비스 되기 위해서는 외부 서비스(DB, Storage, 외부 API, 클라우드)를 사용하게 됩니다.
+- 외부 서비스를 사용하며 발생하는 부작용을 최소화하기 위해 외부 요소를 분리하고, 인터페이스를 사용하여 추상화해야 합니다.
+- Mock 객체는 원하지 않는 부작용으로부터 테스트 코드를 보호하는 방법 중 하나입니다.
+- 통햅테스트에서는 외부 서비스에 대한 테스트까지를 포함하지만, 단위 테스트에서는 모킹하는 것만으로 원하는 기능 위주로 테스트해야합니다.
+
+**Patch, Mock 사용시 주의사항**
+- 간단한 테스트를 작성하기 위해 다양한 몽키패치(런타임 중 코드를 수정하는 것)과 모킹을 해야 한다면, 코드가 좋지 않다는 신호입니다.
+- Patch란 import 중에 경로를 지정했던 원본 코드를 Mock 객체로 대체하는 것으로, 런타임 중에 코드가 바뀌고 처음에 있던 원래 코드와의 연결이 끊어집니다.
+
+### Mock 사용
+```python
+from unittest.mock import MagicMock
+from typing import List, Dict
+
+class GitBranch:
+    def __init__(self, commits: List[Dict]):
+        self._commits = { c["id"]: c for c in commits }
+    
+    def __getitem__(self, commit_id):
+        return self._commits[commit_id]
+    
+    def __len__(self):
+        return len(self._commits)
+    
+def author_by_id(commit_id, branch):
+    return branch[commit_id]["author"]
+
+def test_find_commit():
+    branch = GitBranch([{"id": "123", "author": "dev1"}])
+    assert author_by_id("123", branch) == "dev1"
+
+def test_find_any():
+    mbranch = MagicMock()
+    mbranch.__getitem__.return_value = {"author": "test"}
+    assert author_by_id("123", mbranch) == "test"
+```
+- `MagicMock`을 사용해서 `GitBranch` 객체를 모킹합니다. 이 떄, `GitBranch`는 매직메서드를 사용하기 때문에 `MagicMock`을 이용합니다.
+- 이 때, `mbarnch`는 `__getitem__`에 대한 반환 값만 지정했기 때문에, `commit_id`에 상관없이 출력값만 테스트합니다.
+
+### 테스트 더블 사용 예시
+```python
+# mock_2.py
+from datetime import datetime
+
+import requests
+from constants import STATUS_ENDPOINT
+
+class BuildStatus:
+    """Continuous Integration  도구에서의 머지 리퀘스트 상태"""
+
+    @staticmethod
+    def build_date() -> str:
+        return datetime.utcnow().isoformat()
+    
+    @classmethod
+    def notify(cls, merge_request_id, status):
+        build_status = {
+            "id": merge_request_id,
+            "status": status,
+            "built_at": cls.build_date(),
+        }
+        response = requests.post(STATUS_ENDPOINT, json=build_status)
+        response.raise_for_status() # 200이 아닐 경우에 예외 발생
+        return response
+```
+- constants.py 모듈에는 `STATUS_ENDPOINT`를 test@example.com으로 설정해뒀습니다.
+- `notify` 메서드는 원하는 endpoint에 post 요청한 결과값을 받아옵니다.
+
+```python
+from unittest import mock
+
+from constants import STATUS_ENDPOINT
+from mock_2 import BuildStatus
+
+@mock.patch("mock_2.requests")
+def test_build_notification_sent(mock_requests):
+    build_date = "2023-01-01T00:00:01" # 반환값으로 사용할 build_date
+    with mock.patch("mock_2.BuildStatus.build_date", return_value=build_date):
+        BuildStatus.notify(123, "OK")
+    
+    expected_payload = {"id": 123, "status": "OK", "built_at": build_date}
+    mock_requests.post.assert_called_with(
+        STATUS_ENDPOINT, json=expected_payload
+    )
+```
+- 데코레이터는 테스트 함수 내에서 mock_2.requests를 호출하면 함수의 인자인 mock_requests라는 객체가 mock을 대신할 것이라고 알려줍니다.
+- `mock_2.BuildStatus.build_date` 메서드에 대한 반환값으로는 테스터 내에서 지정해준 `build_date`로 사용하도록 context를 구성하고, `notify` 메서드에 `id`와 `status`를 인자로 넣습니다.
+- `mock_requests`는 post 요청이 될 때 어떤 인자로 호출되었는지 테스트합니다.
