@@ -1,7 +1,7 @@
 ---
 layout: archive
 title:  "[Study] Python Clean Code - Mocking (simple)"
-date:   2023-07-19 10:05:07 +0900
+date:   2024-07-19 10:05:07 +0900
 categories: 
     - Study
 ---
