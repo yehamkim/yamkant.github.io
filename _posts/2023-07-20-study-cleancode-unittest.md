@@ -316,3 +316,68 @@ def test_build_notification_sent(mock_requests):
 - 데코레이터는 테스트 함수 내에서 mock_2.requests를 호출하면 함수의 인자인 mock_requests라는 객체가 mock을 대신할 것이라고 알려줍니다.
 - `mock_2.BuildStatus.build_date` 메서드에 대한 반환값으로는 테스터 내에서 지정해준 `build_date`로 사용하도록 context를 구성하고, `notify` 메서드에 `id`와 `status`를 인자로 넣습니다.
 - `mock_requests`는 post 요청이 될 때 어떤 인자로 호출되었는지 테스트합니다.
+
+### 리팩토링
+- 위와 같이 설계하는 경우, `notify` 메서드가 request 모듈에 직접 의존하는 문제가 있습니다.
+- 따라서, 테스터를 작성시에도 의존성을 고려해서 메서드와 객체에 대한 설정을 함께 생각하며 작성해야합니다.
+- 함수의 간의 의존성을 줄이는 방식으로 아래와 같이 리팩토링 할 수 있습니다.
+
+```python
+# mock_2_refactor.py
+class BuildStatus:
+    endpoint = STATUS_ENDPOINT
+
+    def __init__(self, transport):
+        self.transport = transport
+
+    @staticmethod
+    def build_date() -> str:
+        return datetime.utcnow().isoformat()
+    
+    def compose_payload(self, merge_request_id, status) -> dict:
+        return {
+            "id": merge_request_id,
+            "status": status,
+            "built_at": self.build_date(),
+        }
+    
+    def deliver(self, payload):
+        response = requests.post(STATUS_ENDPOINT, json=payload)
+        response.raise_for_status()
+        return response
+    
+    def notify(self, merge_request_id, status):
+        return self.deliver(self.compose_payload(merge_request_id, status))
+```
+- `notify` 메서드를 `compose_payload`, `deliver` 메서드로 각각 분리하고 `requests` 모듈로 한정지어 구현하는 것이 아닌, 생성자 주입으로 처리합니다.
+
+```python
+# test_mock_2_refactor.py
+from unittest import mock
+import pytest
+from mock_2_refactor import BuildStatus
+
+
+@pytest.fixture
+def build_status():
+    # NOTE: transport에 mock 객체를 주입합니다.
+    bstatus = BuildStatus(mock.Mock())
+    bstatus.build_date = mock.Mock(return_value="2023-01-01T00:00:01")
+    return bstatus
+
+def test_build_notification_sent(build_status):
+    build_status.notify(123, "OK")
+
+    expected_payload = {
+        "id": 123,
+        "status": "OK",
+        "built_at": build_status.build_date()
+    }
+
+    # NOTE: transport 자리에 mock 객체가 주입되었기 때문에 아래와 같이 사용 가능합니다.
+    build_status.transport.post.assert_called_with(
+        build_status.endpoint, json=expected_payload
+    )
+```
+- requests 모듈 등 호출을 담당하는 `transport` 자리에 Mock 객체를 주입하여 처리합니다.
+- `BuildStatus`에 모킹 처리를 한 `build_status` fixture를 사용해서 테스트를 보다 깔끔하게 진행할 수 있습니다.
