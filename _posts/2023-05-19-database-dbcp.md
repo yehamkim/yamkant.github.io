@@ -8,7 +8,7 @@ categories:
 
 # DBCP (DB Connection Pool)
 - 참고: https://youtu.be/zowzVqx3MQ4
-- 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다.
+- 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글입니다.
 
 **통신방법**
 - 백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다.
@@ -21,16 +21,16 @@ categories:
 4. [close connection] 빌려왔던 connection을 connection pool에 다시 반환합니다.
 5. API 응답을 반환합니다.
 
-- 위와 같이, connection pool을 사용한다면 connection을 재사용하므로써 DB와의 TCP 연결 시간을 절약할 수 있습니다.
+- 위와 같이, connection pool을 사용한다면 connection을 재사용함으로써 DB와의 TCP 연결 시간을 절약할 수 있습니다.
 
 **DBCP 설정 방법**
 - 해당 강의에서는 DB 서버는 MySQL을, 백엔드 서버는 HikariCP를 사용합니다.
-- DB connection은 백엔드 서버와 DB 서버 각각에서의 설정 방법을 잘 알고 있어야합니다.
+- DB connection은 백엔드 서버와 DB 서버 각각에서의 설정 방법을 잘 알고 있어야 합니다.
 
 ### MySQL DB Connection 설정 방법
 **max_connections**  
 - client(백엔드 서버)와 맺을 수 있는 최대 connection 수를 결정하는 파라미터입니다.
-- `max_connections`를 여유있게 설정하지 않게 되면, DBCP의 connection 수가 증가해야하는 경우에 DB 서버와 connection할 수 없는 문제가 발생합니다.
+- `max_connections`를 여유 있게 설정하지 않게 되면, DBCP의 connection 수가 증가해야 하는 경우에 DB 서버와 connection 할 수 없는 문제가 발생합니다.
 
 **wait_timeout**
 - DB 서버에서 connection이 inactive 할 때, 다시 요청이 오기까지 얼마의 시간을 기다린 뒤 close 할 것인지를 결정하는 파라미터입니다.
@@ -41,27 +41,27 @@ categories:
 ### 백엔드 서버 DB Connection 설정 방법 (HikariCP)
 **minimumIdle**
 - pool에서 유지하는 최소한의 idle(요청이 올 때 까지 대기하고 있는 유휴자원) connection의 수를 결정하는 파라미터입니다.
-- connection들이 계속 사용 되다가 모두 반환되어 여러개의 connection이 생기더라도, `minimumIdle`의 개수에 맞도록 나머지 connection은 끊어줍니다.
+- connection들이 계속 사용되다가 모두 반환되어 여러 개의 connection이 생기더라도, `minimumIdle`의 개수에 맞도록 나머지 connection은 끊어줍니다.
 **maximumPoolSize**
 - pool이 가질 수 있는 최대 connection의 수(idle과 active(in-use) connection을 합친)를 결정하는 파라미터입니다.
-- 이는 minimumIdle 보다 우선순위를 가지게 되어 점유중인 connection이 minimumIdle보다 작다면 새로 값을 추가해야하지만, maximumPoolSize 이상으로 추가할 수는 없습니다. (아래 예시)
+- 이는 minimumIdle 보다 우선순위를 가지게 되어 점유 중인 connection이 minimumIdle보다 작다면 새로 값을 추가해야 하지만, maximumPoolSize 이상으로 추가할 수는 없습니다. (아래 예시)
 - minimumIdle이 2이고, maximumPoolSize가 4인 경우: connection pool에 4개의 connection이 있고, 그 중 세 개의 connection이 점유 중이고, 하나가 idle connection 상태일 때 -> maximumPoolSize가 4이기 때문에 connection을 추가할 수 없게 됩니다.
 **maxLifetime**
 - pool에서 connection의 최대 수명을 설정하는 파라미터입니다.
 - pool 내의 connection 상태가 이를 넘기면 idle인 경우 바로 제거하고, active 인 경우는 pool로 반환 후에 제거합니다.
 - 주의: `maxLifetime`이 제대로 동작하기 위해서는 connection이 제 때 반환되어야 합니다. 따라서, API 처리가 길어져 connection을 오래 점유하고 DB 서버에서 `wait_timeout`에 의해 연결도 끊긴 상태라면 `maxLifetime`이 캐치할 수 없는 메모리 connection 누수 현상이 발생하게 될 수 있습니다.
-- 권유: DB 서버의 connection time limit(MySQL의 경우, `wait_timeout`)보다 2~3초 정도 더 짧게 설정해두는 것이 좋습니다. connection을 통한 처리 요청이 DB 서버까지 다다르기 전에 DB 서버의 connection time이 만료될 수 있기 때문입니다.
+- 권유: DB 서버의 connection time limit(MySQL의 경우, `wait_timeout`)보다 2~3초 정도 더 짧게 설정해 두는 것이 좋습니다. connection을 통한 처리 요청이 DB 서버까지 다다르기 전에 DB 서버의 connection time이 만료될 수 있기 때문입니다.
 **connectionTimeout**
 - pool에서 connection을 받기 위한 대기 시간으로, 백엔드 서버에 트래픽이 밀려올 때 해당 시간 내에 pool에서 connection을 받아오지 못하는 경우 exception이 발생합니다.
-- 해당 시간을 설정할 때, 서비스 이용자가 요청 후 얼마나 대기할 수 있는지까지 판단하여 설정해야합니다. timeout 시간을 30초로 잡더라도 서비스 이용자가 백엔드 서버와의 연결을 끊는다면 의미가 없기 떄문입니다.
+- 해당 시간을 설정할 때, 서비스 이용자가 요청 후 얼마나 대기할 수 있는지까지 판단하여 설정해야 합니다. timeout 시간을 30초로 잡더라도 서비스 이용자가 백엔드 서버와의 연결을 끊는다면 의미가 없기 때문입니다.
 
 ## 적절한 connection 수를 찾기 위한 과정
 - 기본적으로 DB 서버를 구성할 때, 고가용성을 보장하기 위해 replication으로 구성합니다. Primary 서버는 read-write를 담당하고, Secondary 서버는 read-only를 담당합니다. 
 - 적절한 connection 수를 찾기 위해 모니터링 환경(서버 리소스, 서버 스레드 수, DBCP 등등)을 구축합니다.
 - 백엔드 시스템에 대한 부하 테스트(tool: nGrinder)를 수행하면서 traffic에 따른 서버의 동작을 모니터링합니다.
-- 관찰해야할 사항: 백엔드 서버, DB 서버의 CPU, MEM 등의 리소스 사용률을 확인
+- 관찰해야 할 사항: 백엔드 서버, DB 서버의 CPU, MEM 등의 리소스 사용률을 확인
   - request per second: **백엔드 시스템의 전체적인 처리량**을 보기 위한 지표입니다.
-  - average response time: 요청을 처리할 때 평균적인 응답처리를 보며, **api 성능을 확인하는 지표**를 확인해야합니다.
+  - average response time: 요청을 처리할 때 평균적인 응답처리를 보며, **api 성능을 확인하는 지표**를 확인해야 합니다.
 - 만약 트래픽이 많아짐에 따라서 백엔드 서버는 문제가 없지만 DB 서버에 문제가 있는 경우
   - select 쿼리를 많이 처리하게 되면서 발생하는 문제라면, Secondary 서버를 추가합니다.
   - 백엔드 서버와 DB 서버 사이에 Cache layer를 두어 DB 서버가 직접적으로 받는 부하를 낮출 수 있습니다.
@@ -214,6 +214,6 @@ Lag: 12108.08195900917ms
 ...
 ```
 
-- 20명이 5개의 커넥션 풀로 모든 작업을 완료해야합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기중인 요청 10개)
+- 20명이 5개의 커넥션 풀로 모든 작업을 완료해야 합니다. 1,2,3,4,5번이 처음 요청을 보낼 때, 가장 먼저 요청한 다섯 명은 처리가 제 때 완료되어 3초의 지연이 있고(기다리는 요청 15개), 6,7,8,9,10번은 앞의 다섯 명을 기다리느라 6초의 지연이 있습니다.(처리된 요청 5개, 대기 중인 요청 10개)
 - 이 때, 처리된 요청이 다시 요청을 보내므로 6,7,8,9,10이 DB 동작을 처리하기 시작할 때, 이미 1,2,3,4,5번의 두 번째 요청이 대기 중입니다.
 - 따라서 1,2,3,4,5번의 두 번째 요청부터는 응답을 받으려면 12000ms 정도가 걸리게 되는 것입니다. 이와 같이 모든 유저의 두 번째 요청부터는 12000ms 정도가 걸리게 되어 Lag가 일정 시점부터는 12000ms로 고정됩니다.

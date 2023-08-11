@@ -9,7 +9,7 @@ categories: [Django Strategy]
 ### Generic view의 동작방식
 - DRF 기본 클래스인 `APIView`에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.
 - Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.
-- generic view는 네가지 속성을 통해 API 동작을 결정합니다.
+- generic view는 네 가지 속성을 통해 API 동작을 결정합니다.
     ```
     - authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
         - .get_authenticators(self)
@@ -58,7 +58,7 @@ categories: [Django Strategy]
         ),
     }
     ```
-- 인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해두고, 전역적으로 이를 사용할 수 있습니다.
+- 인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해 두고, 전역적으로 이를 사용할 수 있습니다.
 
 ```python
 # views.py
@@ -115,7 +115,7 @@ class ItemListCreateAPIView(ListCreateAPIView):
         return categoryObject
 ```
 - `queryset`: `get_queryset()` 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)
-- `filter_queryset`: url query parameter을 parsing하여 `queryset`에 필터링을 추가합니다.
+- `filter_queryset`: url query parameter을 parsing 하여 `queryset`에 필터링을 추가합니다.
 - `get_serializer_context`: POST 요청시, `create` serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.
 
 

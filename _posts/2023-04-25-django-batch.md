@@ -16,8 +16,8 @@ last_modified_at: 2023-04-25
 - 참고: https://cholol.tistory.com/531
 - Django에서 Command는 `python manage.py <command>`로 동작되는 기능들입니다.  
   예제: `python manage.py makemigrations / python manage.py migrate` 등
-- Command로 사용할 항목들을 특정 앱(예시: batch)에 `batch/management/commands/` 안에 넣으면, 위와 같이 명령어로 사용할 수 있게됩니다.
-- 이 때, batch 앱은 settings.py > INSTALLED_APPS에 등록되어야 합니다.
+- Command로 사용할 항목들을 특정 앱(예시: batch)에 `batch/management/commands/` 안에 넣으면, 위와 같이 명령어로 사용할 수 있게 됩니다.
+- 이때, batch 앱은 settings.py > INSTALLED_APPS에 등록되어야 합니다.
 
 ### 파일 생성 방법
 - 만들게 될 파일의 클래스는 Django에서 제공하는 BaseCommand 클래스를 상속받게 합니다.
@@ -79,11 +79,8 @@ LOGGING = {
 ...
 ```
 
-
 ### crontab을 사용한 배치 방법
 - 할 일: 다른 배치 프로그램들과 무엇이 다른지 비교하기
-
-
 
 ## 파이썬에서 비동기 처리
 참고 자료
@@ -127,7 +124,7 @@ async def application(scope, receive, send):
        'body': b'Hello, world!',
    })
 ```
-- ASGI는 함수 전반에서 비동기 메타포를 사용합니다. 함수 자체는 async이며, HTTP 헤더와 응답 본문을 별도의 두가지 `await send()` 명령으로 보냅니다.
+- ASGI는 함수 전반에서 비동기 메타포를 사용합니다. 함수 자체는 async이며, HTTP 헤더와 응답 본문을 별도의 두 가지 `await send()` 명령으로 보냅니다.
 - 함수 자체와 send 명령은 아무것도 차단하지 않기 때문에, 많은 연결의 application과 `send` 호출이 동시에 교차가 가능합니다.
 - 추가적으로, `receive`는 다른 작업을 차단하지 않고도 요청 본문을 받을 수 있습니다. 
 

@@ -13,7 +13,7 @@ categories: [Django Strategy]
 ## Post의 목표
 - Django의 Serializer 기본 개념 및 예시를 작성합니다.
 - Item을 `create` 및 `update`하는 예시를 구현합니다. Item 필요한 부분에서 Validation을 추가합니다.
-- 이 때, Item은 Category를 FK로 가지며, ItemImage는 Item을 FK로 가집니다.
+- 이때, Item은 Category를 FK로 가지며, ItemImage는 Item을 FK로 가집니다.
 
 ## Serializers
 - Serializer는 쿼리셋과 모델 인스턴스들과 같이 복잡한 데이터 타입들을 Python datatype으로 변경하기 위해 사용합니다.
@@ -96,7 +96,7 @@ class ItemRepository():
             raise Exception(serializer.errors)
         return instance
 ```
-- 새로운 데이터 추가시, 위와 같이 serializer에서 유효한 값인지 먼저 확인하고, 유효하지 않다면 error를 반환할 수 있습니다.
+- 새로운 데이터 추가 시, 위와 같이 serializer에서 유효한 값인지 먼저 확인하고, 유효하지 않다면 error를 반환할 수 있습니다.
     (참고: `serializer.is_valid(raise_exception=True)` 옵션을 사용하면 400 상태로 바로 반환도 가능합니다.)
 - 저의 경우에 Custom Exception 객체를 생성하여 이를 통해 에러를 핸들링하기도 합니다.
 - 만약, 위와 같이 create, update 등을 상세하게 구분하여 사용하지 않는 경우, serializer.save()를 메서드를 통해 validated data를 기준으로 데이터 값을 해당 모델에 저장할 수 있습니다. 
@@ -118,7 +118,7 @@ class OverTenValidator:
 ```
 - serializer의 validation 방식에는 `Field-level`, `Object-level` 등이 있습니다.
 - 저는 다른 Serializer에서 추가적으로 사용될 수 있으므로, 재사용성을 위해 파일을 분리하여 class based validator로 사용합니다.
-- Serializer의 Meta 클래스 내부에는 DRF에 내장되어있는 Validator를 사용하고, 각 필드별 Validator는 custom validator 클래스들을 import하여 사용합니다.
+- Serializer의 Meta 클래스 내부에는 DRF에 내장되어있는 Validator를 사용하고, 각 필드별 Validator는 custom validator 클래스들을 import 하여 사용합니다.
 
 ### 목표 및 정책  
 
@@ -127,7 +127,7 @@ class OverTenValidator:
 
 **정책**
 1. 상품은 여러 개의 상품 이미지를 가질 수 있고, 각 이미지는 타입에 따라 썸네일/상세이미지로 저장합니다.
-2. 상품이 생성될 때, 상품에 대한 썸네일과 상세 이미지 등 이미지 정보가 필수로 들어가야합니다.
+2. 상품이 생성될 때, 상품에 대한 썸네일과 상세 이미지 등 이미지 정보가 필수로 들어가야 합니다.
 
 ### Nested objects 사용하기
 ```python

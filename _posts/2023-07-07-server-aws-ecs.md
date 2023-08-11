@@ -9,7 +9,7 @@ categories:
 ### 최종 목표
 - ECS 내에서 nginx와 django를 사용한 서버 구성
 - 참고: [git repository](https://github.com/yamkant/aws-ecs) - 구체적인 코드 및 이미지를 볼 수 있습니다.
-- 이 후 포스팅: VPC 구성 / ALB 구성 / Network Bridge 모드에서 Namespace 사용
+- 이후 포스팅: VPC 구성 / ALB 구성 / Network Bridge 모드에서 Namespace 사용
 
 **순서**
 1. AWS ECS CLI 설치 및 계정 생성
@@ -93,7 +93,7 @@ categories:
 ### Docker 구성 및 ECR 업로드
 **간단한 설명**
 - ecs에서의 최소 단위는 "태스크"이며, 하나의 태스크 내에는 다수의 이미지 파일을 사용할 수 있습니다.
-- 하나의 "태스크"를 구성할 때 빌드시킬 도커 이미지는 ECR이라고 하는 저장소에 push 해야합니다.
+- 하나의 "태스크"를 구성할 때 빌드시킬 도커 이미지는 ECR이라고 하는 저장소에 push 해야 합니다.
 
 **ECR 등록 및 업로드**
 - ECR 로그인

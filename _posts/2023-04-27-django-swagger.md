@@ -49,7 +49,7 @@ code
     }
     ```  
 
-- static 폴더 경로를 설정 후에, drf-yasg 라이브러리의 static들을 가지고와서 설정합니다.
+- static 폴더 경로를 설정 후에, drf-yasg 라이브러리의 static들을 가지고 와서 설정합니다.
     ```shell
     # 서두의 디렉터리 레벨 참고
     $ cp -r .venv/lib/drf-yasg/static/* ./code/static

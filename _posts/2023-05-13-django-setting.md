@@ -163,7 +163,7 @@ web
     ```shell
     $ gunicorn --bind 0.0.0.0:8000 config.wsgi.development:application
     ```
-- 이 때, 정적 파일은 서빙되지 않기 때문에, Nginx 설정과 함께 배포해주어야 합니다.
+- 이때, 정적 파일은 서빙되지 않기 때문에, Nginx 설정과 함께 배포해주어야 합니다.
 - 먼저 Django를 컨테이너로 세팅하기 위해 Dockerfile을 다음과 같이 작성합니다.
   ```Docker
   # Dockerfile

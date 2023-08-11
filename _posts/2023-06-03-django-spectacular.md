@@ -8,26 +8,26 @@ categories: [Django Strategy]
 ### Open API와 OAS, Swagger
 **Open API란?**
 - Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다.
-- OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다.
+- OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다.
 - 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. 
 
 **Swagger란?**
 - 2010년대 초 Tam Wordnik이 개발하기 시작하여, 그의 회사 자체 API용 UI로 개발되었다가 SmartBear에서 인수했습니다.
 - 2015년대 말 Linux Foundation의 후원으로 OpenAPI Initiative에 Swagger를 기부하며 OpenAPI Specification으로 이름을 변경합니다.
-- 현재, OpenAPI를 실행하기위한 도구로써의 의미로 사용됩니다.
+- 현재, OpenAPI를 실행하기 위한 도구로써의 의미로 사용됩니다.
 - Swagger Editor: 브라우저 기반의 편집기로, OpenAPI 스펙을 쉽게 작성할 수 있도록 돕습니다.
 - Swagger UI: API test가 가능한 OpenAPI 스펙 문서
 - Swagger Codegen: 서버나 클라이언트가 stub code를 OpenAPI 스펙에 맞게 생성
 
 **OpenAPI 2.0과 OpenAPI 3.0의 차이**
 - 2.0에서는 endpoint url을 host, basePath, schemes로 정의했지만, 3.0에서는 멀티 URL을 지원하고, 각 url마다 username, port, basepath 필드를 가집니다.
-- 2.0에서는 특정 Path에서 중복되는 값이 있더라도 일일이 서술해줘야하는 반면, 3.0에서는 Component로 처리하여 중복부분을 변수화 할 수 있습니다.
+- 2.0에서는 특정 Path에서 중복되는 값이 있더라도 일일이 서술해줘야 하는 반면, 3.0에서는 Component로 처리하여 중복 부분을 변수화할 수 있습니다.
 
 **OAS의 궁극적인 목표**
 - API 문서와 API UI는 서로 다른 프로젝트입니다. 예를 들어, Swagger-UI는 Swagger 프로젝트 중 일부일 뿐이고, API 문서는 json/yaml로 나타낼 수 있는 데이터 덩어리에 불과합니다.
 - Swagger-UI와 Redoc은 보기 편하게 만들어진 API 문서 User Interface입니다.
 - OAS는 UI를 만드는 것만을 목표로 하지는 않습니다. Client Side와 Server Side 간 API Client SDK와 관련된 모든 것들을 자동화하는 것입니다.
-- API 문서를 명확하게 명세해야하는 이유는, 명세를 하는 것만으로도 Client Side에 필요한 소스코드를 역생성하기 위한 것입니다. 이를 위한 프로젝트가 `Swagger Codegen`입니다.
+- API 문서를 명확하게 명세해야 하는 이유는, 명세를 하는 것만으로도 Client Side에 필요한 소스코드를 역생성하기 위한 것입니다. 이를 위한 프로젝트가 `Swagger Codegen`입니다.
 
 **drf-spectacular를 사용하는 이유**
 - 많이 사용되는 drf-yasg의 경우, OpenAPI3.0을 지원하지 않습니다.

@@ -79,7 +79,7 @@ module.exports = {
 ```
 - test에서 사용하기 위한 utility 파일에 `getUserByIdWithDelayTime()`를 생성합니다.  
     (id에 따른 user를 조회하는 함수)
-- 이 때, DB로 부터 값을 가지고 오는 것과 같이 시간이 소요되는 항목을 모킹하기 위해 delay time(데이터 조회 시간)을 함께 param 변수에 넣도록 합니다.
+- 이때, DB로 부터 값을 가지고 오는 것과 같이 시간이 소요되는 항목을 모킹하기 위해 delay time(데이터 조회 시간)을 함께 param 변수에 넣도록 합니다.
 
 ```javascript
 // promise_pool.js
