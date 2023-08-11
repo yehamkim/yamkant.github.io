@@ -1,0 +1,686 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Python Clean Code - Descriptor - Yam’s Dev Logs</title>
+<meta name="description" content="Descriptor">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Python Clean Code - Descriptor">
+<meta property="og:url" content="http://localhost:4000/study/study-cleancode-descriptor/">
+
+
+  <meta property="og:description" content="Descriptor">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-07-17T10:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cleancode-descriptor/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 31</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Python Clean Code - Descriptor</h1>
+    
+    <h2 id="descriptor">Descriptor</h2>
+
+<ul>
+  <li>디스크립터를 구현하기 위해 두 가지 클래스(클라이언트 클래스, 디스크립터 클래스)가 필요합니다.</li>
+</ul>
+
+<p><strong>핵심 용어</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">client</code>: <code class="language-plaintext highlighter-rouge">ClientClass</code>의 인스턴스입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">descriptor</code>: <code class="language-plaintext highlighter-rouge">DescriptorClass</code>의 인스턴스입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">ClientClass</code>: 솔루션을 위해 생성한 일반적인 추상화 객체입니다. class attribute로 <code class="language-plaintext highlighter-rouge">discriptor</code>를 갖습니다. (필수)</li>
+  <li><code class="language-plaintext highlighter-rouge">DescriptorClass</code>: 디스크립터 로직의 구현체로, 디스크립터 프로토콜을 구현한 클래스의 인스턴스입니다. 매직메서드 <code class="language-plaintext highlighter-rouge">__get__</code>, <code class="language-plaintext highlighter-rouge">__set__</code>, <code class="language-plaintext highlighter-rouge">__delete__</code>, <code class="language-plaintext highlighter-rouge">__set_name</code> 중 최소 하나 이상을 포함해야합니다.</li>
+</ul>
+
+<p><strong>동작 원리</strong></p>
+<ul>
+  <li>클래스 속성을 객체로 선언하면 디스크립터로 인식되고, 클라이언트에서 해당 속성을 호출하면 <code class="language-plaintext highlighter-rouge">__get__</code>의 결과를 반환합니다.
+```python
+class DescriptorClass:
+  def <strong>get</strong>(self, instance, owner):
+      if instance is None:
+          return self
+      logger.info(
+          “Call: %s.<strong>get</strong>(%r, %r)”,
+          self.<strong>class</strong>.<strong>name</strong>, instance, owner
+      )</li>
+</ul>
+
+<p>class ClientClass:
+    desciptor = DescriptorClass()</p>
+
+<p>client = ClientClass()
+logger.info(client.desciptor)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-  `ClientClass` 인스턴스의 `descriptor`에 접근하면, `DescriptorClass` 인스턴스를 반환하지 않고, `__get__`의 반환 값을 사용합니다.
+- 이를 이용해, `__get__` 메서드 뒤쪽으로 모든 종류의 논리를 추상화하여 클라이언트에게 내용을 숨긴 채로 변환을 투명하게 실행할 수 있습니다. (캡슐화)
+
+### 디스크립터 프로토콜의 메서드 탐색
+- 디스크립터는 객체이기 때문에, self를 첫 번째 파라미터로 사용하며,  self는 객체 자신을 의미합니다.
+
+`__get__(self, instance, owner)`  
+- instance는 디스크립터를 호출한 객체입니다. (client 객체)
+- owner는 해당 객체의 클래스를 의미합니다. (ClientClass 클래스)
+- 즉, instance는 디스크립터가 행동을 취하려는 객체이며, owner는 인스턴스의 클래스입니다.
+
+```python
+class DescriptorClass:
+    def __get__(self, instance, owner):
+        if instance is None:
+            return f"{self.__class__.__name__}.{owner.__name__}"
+        return f"value for {instance}"
+
+class ClientClass:
+    descriptor = DescriptorClass()
+</code></pre></div></div>
+<ul>
+  <li>위의 예제에서, <code class="language-plaintext highlighter-rouge">ClientClass.descriptor</code>로 호출하면 instance가 있는 형태로 호출하는 것이지만,</li>
+  <li><code class="language-plaintext highlighter-rouge">ClientClass().descriptor</code>로 호출하면 instance를 None으로 인식하여 단순히 디스크립터 자체를 반한합니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">__set__(self, instance, value)</code></p>
+<ul>
+  <li>꼭 구현할 필요는 없으며, 구현한 디스크립터에 대해서만 활성화됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">instance</code> 파라미터는 <code class="language-plaintext highlighter-rouge">client</code>이며 <code class="language-plaintext highlighter-rouge">value</code> 인자는 문자열을 갖습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Validation</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validation_function</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">validation_function</span> <span class="o">=</span> <span class="n">validation_function</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="n">error_msg</span>
+    
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">self</span><span class="p">.</span><span class="nf">validation_function</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s"> </span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">error_msg</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">Field</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">validations</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">validations</span> <span class="o">=</span> <span class="n">validations</span>
+    
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+    
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">validation</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">validations</span><span class="p">:</span>
+            <span class="nf">validation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="k">class</span> <span class="nc">ClientClass</span><span class="p">:</span>
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="nc">Field</span><span class="p">(</span>
+        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="sh">"</span><span class="s">는 숫자가 아닙니다.</span><span class="sh">"</span><span class="p">),</span>
+        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="sh">"</span><span class="s">는 음수입니다.</span><span class="sh">"</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="c1"># 사용 예시
+</span><span class="n">client</span> <span class="o">=</span> <span class="nc">ClientClass</span><span class="p">()</span>
+<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">42</span> <span class="c1"># 음수이므로, Validation 에러 발생
+</span><span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="sh">"</span><span class="s">invalid value</span><span class="sh">"</span> <span class="c1"># 문자열이므로, Validation 발생
+</span></code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__set__()</code> 메서드가 @property.setter가 하던 일을 대신하게 됩니다.</li>
+  <li>위와 같이, 프로퍼티 자리에 놓일 수 있는 부분은 디스크립터로 추상화가 가능합니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">__delete__(self, instance)</code></p>
+<ul>
+  <li>
+    <p>self는 descriptor 속성을 나타내며, instance는 client를 나타냅니다.
+```python
+class ProtctedAttribute:
+  def <strong>init</strong>(self, requires_role=None) -&gt; None:
+      self.permission_required = requires_role
+      self._name = None</p>
+
+    <p>def <strong>set_name</strong>(self, owner, name):
+      self._name = name</p>
+
+    <p>def <strong>set</strong>(self, user, value):
+      if value is None:
+          raise ValueError(f”{self._name}를 None으로 설정할 수 없습니다.”)
+      user.<strong>dict</strong>[self._name] = value</p>
+
+    <p>def <strong>delete</strong>(self, user):
+      if self.permission_required in user.permissions:
+          user.<strong>dict</strong>[self._name] = None
+      else:
+          raise ValueError(
+              f”{user!s} 사용자는 {self.permission_required} 권한이 없습니다.”
+          )</p>
+  </li>
+</ul>
+
+<p>class User:
+    “"”admin 권한을 가진 사용자만 이메일 주소를 제거할 수 있습니다.”””</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>email = ProtctedAttribute(requires_role="admin")
+
+def __init__(self, username: str, email: str, permission_list: list = None) -&gt; None:
+    self.username = username
+    self.email = email
+    self.permissions = permission_list or []
+
+def __str__(self):
+    return self.username
+</code></pre></div></div>
+
+<p>admin = User(“root”, “root@example.com”, [“admin”])
+logger.info(admin.email)
+del admin.email
+logger.info(admin.email)</p>
+
+<p>user = User(“user”, “user@example.com”, [“email”, “helpdesk”])
+logger.info(user.email)
+del user.email</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- User 클래스는 username과 email 파라미터를 필수로 받습니다. 
+- email은 "admin" 권한이 있는 사용자만 제거할 수 있습니다.
+
+`__set_name__(self, owner, name)`
+- 디스크립터에 필요한 이름을 지정하기 위한 메서드입니다.
+- 속성의 이름은 `__dict__`에서 `__get__`과 `__set__` 메서드로 읽고 쓸 때 사용됩니다.
+```python
+class DescriptorWithName:
+    def __init__(self, name=None) -&gt; None:
+        self.name = name
+    
+    def __set_name__(self, owner, name):
+        self.name = name
+        print(f'__set_name__(owner: {owner}, name: {name})')
+
+class ClientClass:
+    descriptor1 = DescriptorWithName() #1
+    descriptor2 = DescriptorWithName() #2
+
+logger.info(ClientClass())
+</code></pre></div></div>
+<ul>
+  <li>위와 같이 사용하면, #1 Descriptor 이름은 <code class="language-plaintext highlighter-rouge">descriptor1</code>이 됩니다.</li>
+  <li>즉, 필드명을 descriptor명이 되도록 동작시키는 역할이라고 볼 수 있습니다.</li>
+</ul>
+
+<h3 id="디스크립터의-유형">디스크립터의 유형</h3>
+<p><strong>비데이터 디스크립터</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__get__</code> 메서드만을 구현한 디스크립터입니다.
+```python
+class NonDataDescriptor:
+  def <strong>get</strong>(self, instance, owner):
+      if instance is None:
+          return self
+      return 42</li>
+</ul>
+
+<p>class ClientClass:
+    descriptor = NonDataDescriptor()</p>
+
+<p>client = ClientClass()</p>
+<h1 id="vars-클래스의-__dict__를-반환합니다">vars(): 클래스의 __dict__를 반환합니다.</h1>
+<p>logger.info(vars(client)) #1</p>
+
+<p>client.descriptor = 43 #2
+logger.info(vars(client)) #3</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 비데이터 디스크립터의 경우, `__set__`과 `__delete__`를 구현하지 않기 때문에, #2와 같이 속성 값을 변경하는 경우, descriptor instance는 일반 정수로 변경됩니다.
+- 따라서, #1의 결과는 비어있는 딕셔너리지만, #3의 결과는 descriptor 속성이 일반 정수 43으로 갖는 것으로 출력됩니다.
+- 이 때, #2에서 지정한 descriptor를 `del client.descriptor`로 제거한다면, 원래 동작과(#1)과 같이 수행됩니다.
+
+**데이터 디스크립터**
+- `__set__`이나 `__delete__` 메서드를 구현한 경우입니다. 
+```python
+class DataDescriptor:
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return 42
+    
+    def __set__(self, instance, value):
+        logger.info("%s.descriptor를 %s 값으로 설정", instance, value)
+        instance.__dict__["descriptor"] = value
+
+class ClientClass:
+    descriptor = DataDescriptor()
+
+client = ClientClass()
+logger.info(vars(client)) #1
+
+client.descriptor = 43
+logger.info(client.descriptor) #2
+logger.info(vars(client)) #3
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__set__</code> 메서드를 구현한 데이터 디스크립터의 경우, #2에서 출력 결과가 변경되지 않고 42임을 알 수 있습니다.</li>
+  <li>하지만, <code class="language-plaintext highlighter-rouge">vars()</code> 메서드를 사용하여 속성을 분석하면, descriptor 속성이 추가되면서 값이 바뀌어 있게됩니다.</li>
+  <li>데이터 디스크립터에서 속성을 조회하면 객체의 <code class="language-plaintext highlighter-rouge">__dict__</code>에서 조회하는 대신 클래스의 <code class="language-plaintext highlighter-rouge">descriptor</code>를 먼저 조회합니다.</li>
+  <li>즉, 데이터 디스크립터는 인스턴스의 <code class="language-plaintext highlighter-rouge">__dict__</code>를 오버라이드하여 인스턴스 사전보다 높은 우선순위를 가지지만, 비데이터 디스크립터는 인스턴스 사전보다 낮은 우선순위를 가집니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

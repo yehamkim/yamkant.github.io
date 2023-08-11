@@ -1,0 +1,836 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Python Clean Code - Unittest - Yam’s Dev Logs</title>
+<meta name="description" content="Unit Test    단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다.   단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다.   격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다.   성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다.   자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야합니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Python Clean Code - Unittest">
+<meta property="og:url" content="http://localhost:4000/study/study-cleancode-unittest/">
+
+
+  <meta property="og:description" content="Unit Test    단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다.   단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다.   격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다.   성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다.   자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야합니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-07-20T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cleancode-unittest/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 31</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Python Clean Code - Unittest</h1>
+    
+    <h2 id="unit-test">Unit Test</h2>
+<ul>
+  <li>단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다.</li>
+  <li>단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다.</li>
+  <li>격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다.</li>
+  <li>성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다.</li>
+  <li>자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야합니다.</li>
+</ul>
+
+<p><strong>추가</strong></p>
+<ul>
+  <li>통합 테스트: 한 번에 여러 컴포넌트를 테스트하여, 종합적으로 예상대로 잘 동작하는지 검증합니다.</li>
+  <li>통합 테스트의 경우, 부작용이나 격리를 고려하지 않은 채로, HTTP 요청을 하거나 데이터베이스에 연결하는 등의 작업이 수행 가능합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">import</span> <span class="n">unittest</span>
+<span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
+<span class="kn">from</span> <span class="n">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="sh">"</span><span class="s">skeleton</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="nc">StreamHandler</span><span class="p">())</span>
+
+<span class="k">class</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="nb">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MergeRequestStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">APPROVED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">approved</span><span class="sh">"</span>
+    <span class="n">REJECTED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">rejected</span><span class="sh">"</span>
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="sh">"</span><span class="s">pending</span><span class="sh">"</span>
+    <span class="n">OPEN</span> <span class="o">=</span> <span class="sh">"</span><span class="s">open</span><span class="sh">"</span>
+    <span class="n">CLOSED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">closed</span><span class="sh">"</span>
+
+<span class="k">class</span> <span class="nc">MergeRequest</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
+            <span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">OPEN</span>
+    
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span>
+
+        <span class="k">return</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">_cannot_vote_if_closed</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">upvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">downvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>        
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">AcceptanceThreshold</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">merge_request_context</span>
+
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">'</span><span class="s">downvotes</span><span class="sh">'</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+        <span class="k">elif</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+        <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="p">.</span><span class="nf">main</span><span class="p">()</span>
+</code></pre></div></div>
+<ul>
+  <li>위의 클래스 및 테스터는 머지 상황에서, 두 명 이상의 개발자가 upvote를 하거나 한 명이라도 downvote를 하면 머지를 실패하는 경우에 대한 프로그램입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>를 최소 단위로 분리하여 테스트를 진행하고, <code class="language-plaintext highlighter-rouge">MergeRequest</code> 클래스에서 이를 사용하는 방식입니다. (리팩토링 전에 <code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>의 status 메서드가 <code class="language-plaintext highlighter-rouge">MergeRequest</code> 메서드였음)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용한 테스트 케이스</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">TestMergeRequestStatus</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="c1"># NOTE: 한 명이 downvote하여, 머지 리퀘스트가 거부된 상황입니다.
+</span>    <span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
+    
+    <span class="c1"># NOTE: 한 명만 upvote를 한 상황에서는 다음 투표를 대기합니다.
+</span>    <span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
+
+    <span class="c1"># NOTE: 두 명 이상이 upvote를 수행하면 승인됩니다.
+</span>    <span class="k">def</span> <span class="nf">test_approved</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span><span class="p">)</span>
+
+    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
+</span>    <span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaises</span><span class="p">(</span>
+            <span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
+</span>    <span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaisesRegex</span><span class="p">(</span>
+            <span class="n">MergeRequestException</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">merge_request</span><span class="p">.</span><span class="n">downvote</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">TestAcceptanceThreshold</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="c1"># NOTE: 테스트 전반에 걸쳐 사용될 데이터 픽스처를 정의합니다.
+</span>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_status_resolution</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">context</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span><span class="p">:</span>
+            <span class="c1"># NOTE: subTest: 호출되는 테스트 조건을 표시하는데 사용됩니다.
+</span>            <span class="c1">#       반복 중 하나가 실패하면, subTest에 전달된 변수의 값을 나타냅니다.
+</span>            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
+                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용하는 경우, <code class="language-plaintext highlighter-rouge">TestCase</code> 클래스를 상속받는 테스터 클래스를 생성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">Exception</code> 반환을 테스트하기 위해 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>, <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaisesRegex</code> 메서드를 사용할 수 있습니다.</li>
+  <li>for 루프를 이용하면, 테스트에서 오류가 발생한 시점에서 멈추게 되지만, <code class="language-plaintext highlighter-rouge">subTest</code> 메서드를 사용하면 모든 케이스에 대해 테스트를 마치고, 실패 케이스들을 모두 알 수 있습니다.</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">pytest</code> 모듈을 사용한 테스트 케이스</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: MergeRequestStatus
+</span><span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+
+<span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+<span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+<span class="k">def</span> <span class="nf">test_approved</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+
+<span class="k">def</span> <span class="nf">test_invalid_types</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="nb">TypeError</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="p">{</span><span class="sh">"</span><span class="s">invalid-object</span><span class="sh">"</span><span class="p">})</span>
+
+<span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span>
+        <span class="n">MergeRequestException</span><span class="p">,</span>
+        <span class="n">match</span><span class="o">=</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span>
+    <span class="p">):</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># NOTE: AcceptanceThreshold
+</span><span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="sh">"</span><span class="s">context, expected_status</span><span class="sh">"</span><span class="p">,</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+    <span class="p">)</span>
+<span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_acceptance_threshold_status_resolution</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">expected_status</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected_status</span>
+</code></pre></div></div>
+<ul>
+  <li>pytest에서는 <code class="language-plaintext highlighter-rouge">assert</code> 비교만으로 단위 테스트를 식별하고 결과를 확인하는 것이 가능합니다.</li>
+  <li>또한, unittest로 작성한 테스트까지 실행하기 때문에 호환성이 좋습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">pytest.raises</code>는 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>와 동일합니다. <code class="language-plaintext highlighter-rouge">assertRaises</code>의 경우에는 위와 같이 <code class="language-plaintext highlighter-rouge">match</code> 파라미터를 사용하여 구현할 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">unittest.TestCase.subTest</code>에서 반복적으로 테스트했다면, pytest에서는 데코레이터를 통해 수행할 수 있습니다. 첫 번째 파라미터는 파라미터의 이름을, 두 번쨰 파라미터는 테스트하고자 하는 값들의 튜플입니다.</li>
+</ul>
+
+<h3 id="mock-객체">Mock 객체</h3>
+<ul>
+  <li>시스템이 서비스 되기 위해서는 외부 서비스(DB, Storage, 외부 API, 클라우드)를 사용하게 됩니다.</li>
+  <li>외부 서비스를 사용하며 발생하는 부작용을 최소화하기 위해 외부 요소를 분리하고, 인터페이스를 사용하여 추상화해야 합니다.</li>
+  <li>Mock 객체는 원하지 않는 부작용으로부터 테스트 코드를 보호하는 방법 중 하나입니다.</li>
+  <li>통햅테스트에서는 외부 서비스에 대한 테스트까지를 포함하지만, 단위 테스트에서는 모킹하는 것만으로 원하는 기능 위주로 테스트해야합니다.</li>
+</ul>
+
+<p><strong>Patch, Mock 사용시 주의사항</strong></p>
+<ul>
+  <li>간단한 테스트를 작성하기 위해 다양한 몽키패치(런타임 중 코드를 수정하는 것)과 모킹을 해야 한다면, 코드가 좋지 않다는 신호입니다.</li>
+  <li>Patch란 import 중에 경로를 지정했던 원본 코드를 Mock 객체로 대체하는 것으로, 런타임 중에 코드가 바뀌고 처음에 있던 원래 코드와의 연결이 끊어집니다.</li>
+</ul>
+
+<h3 id="mock-사용">Mock 사용</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="k">class</span> <span class="nc">GitBranch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_commits</span> <span class="o">=</span> <span class="p">{</span> <span class="n">c</span><span class="p">[</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">]:</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">commits</span> <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">[</span><span class="n">commit_id</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="n">commit_id</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">branch</span><span class="p">[</span><span class="n">commit_id</span><span class="p">][</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_find_commit</span><span class="p">():</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="nc">GitBranch</span><span class="p">([{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}])</span>
+    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
+
+<span class="k">def</span> <span class="nf">test_find_any</span><span class="p">():</span>
+    <span class="n">mbranch</span> <span class="o">=</span> <span class="nc">MagicMock</span><span class="p">()</span>
+    <span class="n">mbranch</span><span class="p">.</span><span class="n">__getitem__</span><span class="p">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">mbranch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">MagicMock</code>을 사용해서 <code class="language-plaintext highlighter-rouge">GitBranch</code> 객체를 모킹합니다. 이 떄, <code class="language-plaintext highlighter-rouge">GitBranch</code>는 매직메서드를 사용하기 때문에 <code class="language-plaintext highlighter-rouge">MagicMock</code>을 이용합니다.</li>
+  <li>이 때, <code class="language-plaintext highlighter-rouge">mbarnch</code>는 <code class="language-plaintext highlighter-rouge">__getitem__</code>에 대한 반환 값만 지정했기 때문에, <code class="language-plaintext highlighter-rouge">commit_id</code>에 상관없이 출력값만 테스트합니다.</li>
+</ul>
+
+<h3 id="테스트-더블-사용-예시">테스트 더블 사용 예시</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2.py
+</span><span class="kn">from</span> <span class="n">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="n">requests</span>
+<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
+
+<span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
+    <span class="sh">"""</span><span class="s">Continuous Integration  도구에서의 머지 리퀘스트 상태</span><span class="sh">"""</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
+    
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="n">build_status</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">cls</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">build_status</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span> <span class="c1"># 200이 아닐 경우에 예외 발생
+</span>        <span class="k">return</span> <span class="n">response</span>
+</code></pre></div></div>
+<ul>
+  <li>constants.py 모듈에는 <code class="language-plaintext highlighter-rouge">STATUS_ENDPOINT</code>를 test@example.com으로 설정해뒀습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드는 원하는 endpoint에 post 요청한 결과값을 받아옵니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
+<span class="kn">from</span> <span class="n">mock_2</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
+
+<span class="nd">@mock.patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.requests</span><span class="sh">"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">mock_requests</span><span class="p">):</span>
+    <span class="n">build_date</span> <span class="o">=</span> <span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span> <span class="c1"># 반환값으로 사용할 build_date
+</span>    <span class="k">with</span> <span class="n">mock</span><span class="p">.</span><span class="nf">patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.BuildStatus.build_date</span><span class="sh">"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">build_date</span><span class="p">):</span>
+        <span class="n">BuildStatus</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
+    
+    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_date</span><span class="p">}</span>
+    <span class="n">mock_requests</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
+        <span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>데코레이터는 테스트 함수 내에서 mock_2.requests를 호출하면 함수의 인자인 mock_requests라는 객체가 mock을 대신할 것이라고 알려줍니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">mock_2.BuildStatus.build_date</code> 메서드에 대한 반환값으로는 테스터 내에서 지정해준 <code class="language-plaintext highlighter-rouge">build_date</code>로 사용하도록 context를 구성하고, <code class="language-plaintext highlighter-rouge">notify</code> 메서드에 <code class="language-plaintext highlighter-rouge">id</code>와 <code class="language-plaintext highlighter-rouge">status</code>를 인자로 넣습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">mock_requests</code>는 post 요청이 될 때 어떤 인자로 호출되었는지 테스트합니다.</li>
+</ul>
+
+<h3 id="리팩토링">리팩토링</h3>
+<ul>
+  <li>위와 같이 설계하는 경우, <code class="language-plaintext highlighter-rouge">notify</code> 메서드가 request 모듈에 직접 의존하는 문제가 있습니다.</li>
+  <li>따라서, 테스터를 작성시에도 의존성을 고려해서 메서드와 객체에 대한 설정을 함께 생각하며 작성해야합니다.</li>
+  <li>함수의 간의 의존성을 줄이는 방식으로 아래와 같이 리팩토링 할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2_refactor.py
+</span><span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">STATUS_ENDPOINT</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">transport</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">transport</span> <span class="o">=</span> <span class="n">transport</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">compose_payload</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">compose_payload</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드를 <code class="language-plaintext highlighter-rouge">compose_payload</code>, <code class="language-plaintext highlighter-rouge">deliver</code> 메서드로 각각 분리하고 <code class="language-plaintext highlighter-rouge">requests</code> 모듈로 한정지어 구현하는 것이 아닌, 생성자 주입으로 처리합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># test_mock_2_refactor.py
+</span><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">import</span> <span class="n">pytest</span>
+<span class="kn">from</span> <span class="n">mock_2_refactor</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">build_status</span><span class="p">():</span>
+    <span class="c1"># NOTE: transport에 mock 객체를 주입합니다.
+</span>    <span class="n">bstatus</span> <span class="o">=</span> <span class="nc">BuildStatus</span><span class="p">(</span><span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">())</span>
+    <span class="n">bstatus</span><span class="p">.</span><span class="n">build_date</span> <span class="o">=</span> <span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bstatus</span>
+
+<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">build_status</span><span class="p">):</span>
+    <span class="n">build_status</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_status</span><span class="p">.</span><span class="nf">build_date</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1"># NOTE: transport 자리에 mock 객체가 주입되었기 때문에 아래와 같이 사용 가능합니다.
+</span>    <span class="n">build_status</span><span class="p">.</span><span class="n">transport</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
+        <span class="n">build_status</span><span class="p">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>requests 모듈 등 호출을 담당하는 <code class="language-plaintext highlighter-rouge">transport</code> 자리에 Mock 객체를 주입하여 처리합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">BuildStatus</code>에 모킹 처리를 한 <code class="language-plaintext highlighter-rouge">build_status</code> fixture를 사용해서 테스트를 보다 깔끔하게 진행할 수 있습니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

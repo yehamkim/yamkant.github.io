@@ -1,0 +1,787 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Python Clean Code - Decorator - Yam’s Dev Logs</title>
+<meta name="description" content="Decorator    원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Python Clean Code - Decorator">
+<meta property="og:url" content="http://localhost:4000/study/study-cleancode-decorator/">
+
+
+  <meta property="og:description" content="Decorator    원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-07-16T10:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cleancode-decorator/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>I am an Product Maker.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 31</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Python Clean Code - Decorator</h1>
+    
+    <h2 id="decorator">Decorator</h2>
+<ul>
+  <li>원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다.</li>
+</ul>
+
+<h3 id="함수-데코레이터">함수 데코레이터</h3>
+<ul>
+  <li>아래와 같은 방식으로 데코레이터의 형태를 구현할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+  <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="n">RETRIES_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+      <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">RETRIES_LIMIT</span><span class="p">):</span>
+          <span class="k">try</span><span class="p">:</span>
+              <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="k">except</span> <span class="n">ControlledException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+              <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+      <span class="k">raise</span> <span class="n">last_raised</span>
+  <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div>    </div>
+  </li>
+  <li>특정 함수가 오류를 발생시킬 경우를 대비하여 정상적인 동작까지 3번은 무조건 실행시키는 방법입니다.</li>
+  <li>위의 <code class="language-plaintext highlighter-rouge">retry</code> 데코레이터는 파라미터가 필요없기 때문에 어떤 함수에도 쉽게 적용할 수 있습니다.</li>
+</ul>
+
+<h3 id="클래스-데코레이터">클래스 데코레이터</h3>
+<ul>
+  <li>데코레이터 함수의 파라미터로 함수가 아닌 클래스를 받는 형태입니다.</li>
+  <li>클래스 데코레이터를 사용하면 여러 클래스가 특정 기준을 따르도록 강제할 수 있으며, 단순한 클래스의 기능을 차차 보강해나갈 수 있습니다.</li>
+</ul>
+
+<h3 id="중첩-함수의-데코레이터">중첩 함수의 데코레이터</h3>
+<ul>
+  <li>다음과 같은 형식으로 구현할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nd">@retry</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="p">..)</span>
+
+  <span class="c1"># @ 구문은 데코레이팅 객체에 대한 연산결과를 반환합니다. 따라서 이는 위의 코드와 같습니다.
+</span>  <span class="o">&lt;</span><span class="n">original_function</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nf">retry</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="p">...)(</span><span class="o">&lt;</span><span class="n">original_function</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>앞선 예제에서, 원하는 횟수를 추가하여 변수로 사용하고 싶다면, 아래와 같이 변경할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">with_retry</span><span class="p">(</span><span class="n">retries_limit</span><span class="o">=</span><span class="n">RETRIES_LIMIT</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+      <span class="n">allowed_exceptions</span> <span class="o">=</span> <span class="n">allowed_exceptions</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ControlledException</span><span class="p">,)</span>
+
+      <span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+          <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+          <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">retries_limit</span><span class="p">):</span>
+                  <span class="k">try</span><span class="p">:</span>
+                      <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                  <span class="k">except</span> <span class="n">ControlledException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+                      <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+              <span class="k">raise</span> <span class="n">last_raised</span>
+          <span class="k">return</span> <span class="n">wrapped</span>
+      <span class="k">return</span> <span class="n">retry</span>
+
+  <span class="c1"># 실행방식
+</span>  <span class="nd">@with_retry</span><span class="p">()</span>
+  <span class="k">def</span> <span class="nf">run_operation</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+
+  <span class="nd">@with_retry</span><span class="p">(</span><span class="n">retries_limit</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="p">(</span><span class="nb">ZeroDivisionError</span><span class="p">,</span> <span class="nb">AttributeError</span><span class="p">))</span>
+  <span class="k">def</span> <span class="nf">run_with_custom_parameters</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>반복 횟수 및 exception의 종류를 지정하여 원하는 함수를 여러 번 실행시킬 수 있습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터-객체">데코레이터 객체</h3>
+<ul>
+  <li>앞 선 예제에서는 세 단계나 되는 중첩함수가 필요합니다. 클래스를 사용하여 정의한다면, 더 깔끔하게 구현이 가능합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">WithRetry</span><span class="p">:</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">retries_limit</span><span class="o">=</span><span class="n">RETRIES_LIMIT</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">retries_limit</span> <span class="o">=</span> <span class="n">retries_limit</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">allowed_exceptions</span> <span class="o">=</span> <span class="n">allowed_exceptions</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ControlledException</span><span class="p">,)</span>
+        
+      <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
+          <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+          <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+
+              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">retries_limit</span><span class="p">):</span>
+                  <span class="k">try</span><span class="p">:</span>
+                      <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                  <span class="k">except</span> <span class="n">self</span><span class="p">.</span><span class="n">allowed_exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+                      <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+                  <span class="k">raise</span> <span class="n">last_raised</span>
+
+          <span class="k">return</span> <span class="n">wrapped</span>
+    
+  <span class="c1"># 사용 예시
+</span>  <span class="nd">@WithRetry</span><span class="p">(</span><span class="n">retry_limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">run_with_custom_retries_limit</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">__init__</code> 메서드에 파라미터를 전달한 후, <code class="language-plaintext highlighter-rouge">__call__</code> 메서드에서 데코레이션 로직을 구현하는 방식입니다.</li>
+      <li>@ 연산 전에 전달된 파라미터를 사용해 데코레이터 객체를 생성합니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">run_with_custom_retries_limit</code> 함수를 래핑하여 <code class="language-plaintext highlighter-rouge">__call__</code> 매직 메서드를 호출합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터-활용-우수-사례">데코레이터 활용 우수 사례</h3>
+<ul>
+  <li>원하는 API를 노출하기 위해 노출하고 싶지 않은 부분을 캡슐화하여 숨길 수 있습니다.</li>
+  <li>파라미터와 함께 함수의 실행을 로깅하려는 경우 코드 추적을 위해 사용할 수 있습니다. (실행 경로 추적 / CPU 사용률 및 메모리 사용량 모니터링 / 함수 실행 시간 / 전달되는 파라미터 종류)</li>
+  <li>파라미터의 유효성을 검사하는 경우</li>
+  <li>재시도 로직을 구현하는 경우 및 일부 반복작업을 단순화하고자하는 경우</li>
+</ul>
+
+<h3 id="데코레이터-자주-발생하는-실수">데코레이터 자주 발생하는 실수</h3>
+<ul>
+  <li>데코레이터는 원본 객체 데이터를 보존해야합니다. 즉, 원래 함수의 어떤 것도 변ㄴ경하지 않아야 합니다.</li>
+  <li>하지만, 코드에 결함이 있어서 이름이나 docstring을 변경하는 경우가 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">trace_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@trace_decorator</span>
+  <span class="k">def</span> <span class="nf">process_account</span><span class="p">(</span><span class="n">account_id</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">id별 계정 처리</span><span class="sh">"""</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 계정 처리</span><span class="sh">"</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">process_account</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>위와 같이 출력하면, 출력값은 <code class="language-plaintext highlighter-rouge">trace_decorator.&lt;locals&gt;.wrapped</code>가 되어, 어떤 함수를 호출했는지 알 수 없습니다.</li>
+    </ul>
+  </li>
+  <li>따라서, 이를 방지하기 위해, 데코레이터의 <code class="language-plaintext highlighter-rouge">wrapped</code> 함수 앞에 <code class="language-plaintext highlighter-rouge">@wraps</code> 데코레이터를 적용하여 실제로는 function 파라미터 함수를 래핑했음을 명시합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+  <span class="k">def</span> <span class="nf">trace_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@trace_decorator</span>
+  <span class="k">def</span> <span class="nf">process_account</span><span class="p">(</span><span class="n">account_id</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">id별 계정 처리</span><span class="sh">"""</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 계정 처리</span><span class="sh">"</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">process_account</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>위와 같이 <code class="language-plaintext highlighter-rouge">@wraps</code> 데코레이터를 추가하면 function 파라미터 함수를 래핑한 것임을 알려줄 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>아래와 같은 템플릿으로 데코레이터를 작성해야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">origin_function</span><span class="p">):</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">origin_function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="c1"># 데코레이터에 의한 수정 작업
+</span>          <span class="k">return</span> <span class="nf">origin_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">decorated_function</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="데코레이터-부작용-처리">데코레이터 부작용 처리</h3>
+<ul>
+  <li>데코레이터 함수로 사용하기 위한 조건은 가장 안쪽에 정의된 함수여야 한다는 것입니다.</li>
+  <li>다음 데코레이터는 문제가 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">traced_function_wrong</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+              <span class="sh">"</span><span class="s">함수 %s의 실행시간: %.2fs</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+          <span class="p">)</span>
+          <span class="k">return</span> <span class="n">result</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@traced_function_wrong</span>
+  <span class="k">def</span> <span class="nf">process_with_delay</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+      <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+      <span class="k">return</span> <span class="nf">callback</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>해당 모듈의 함수를 임포트만 하더라도, 함수가 호출됩니다.</li>
+      <li>함수를 여러번 호출하면, 처음 임포트하는 시점의 시간을 start_time으로 기억하게 되어, 누적된 시간이 결과가 되어 도출됩니다.</li>
+    </ul>
+  </li>
+  <li>데코레이션은 <code class="language-plaintext highlighter-rouge">process_with_delay = traced_function_wrong(process_with_delay)</code>와 동작이 같습니다. 따라서, 모듈이 임포트될 떄, 이 구문이 실행됩니다.</li>
+  <li>위 문제를 해결하기 위해, 아래와 같이 <code class="language-plaintext highlighter-rouge">start_time</code> 위치를 함수의 가장 안쪽에 넣어야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">traced_function_wrong</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+          <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+
+          <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+              <span class="sh">"</span><span class="s">함수 %s의 실행시간: %.2fs</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+          <span class="p">)</span>
+          <span class="k">return</span> <span class="n">result</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="어느-곳에서나-동작하는-데코레이터-만들기">어느 곳에서나 동작하는 데코레이터 만들기</h3>
+<ul>
+  <li>데코레이터를 만들 때는 일반적으로 재사용을 고려하여 함수뿐만 아니라 메서드에서도 동작하도록 하길 바랍니다.</li>
+  <li>다음은, DB Driver에 따라 쿼리를 수행하는 데코레이터 예제입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">DBDriver</span><span class="p">:</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">dbstring</span> <span class="o">=</span> <span class="n">dbstring</span>
+        
+      <span class="k">def</span> <span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+          <span class="k">return</span> <span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">dbstring</span><span class="si">}</span><span class="s">에서 쿼리 </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s"> 실행</span><span class="sh">"</span>
+        
+  <span class="k">def</span> <span class="nf">inject_db_driver</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">데이터베이스 dns 문자열을 받아서 DBDriver 인스턴스를 생성
+      </span><span class="sh">"""</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">dbstring</span><span class="p">):</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="nc">DBDriver</span><span class="p">(</span><span class="n">dbstring</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@inject_db_driver</span>
+  <span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span><span class="n">driver</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">driver</span><span class="p">.</span><span class="nf">excute</span><span class="p">(</span><span class="sh">"</span><span class="s">test_function</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>메서드는 DB 정보 문자열을 받아서 DBDriver 인스턴스를 생성하고, 함수에 전달합니다.</li>
+      <li>따라서, <code class="language-plaintext highlighter-rouge">run_query</code>를 호출할 때 DBDriver 인스턴스를 함께 대입해주지 않아도 됩니다.</li>
+    </ul>
+  </li>
+  <li>하지만, 위의 예시의 경우 아래와 같은 클래스를 생성하고 내부 메서드를 사용한다면 오류가 발생합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">DataHandler</span><span class="p">:</span>
+      <span class="nd">@inject_db_driver</span>
+      <span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">driver</span><span class="p">.</span><span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">__class__</span><span class="p">.</span><span class="n">__name__</span><span class="p">)</span>
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">DataHandler</span><span class="p">.</span><span class="nf">run_query</span><span class="p">(</span><span class="sh">"</span><span class="s">test_fails</span><span class="sh">"</span><span class="p">))</span> <span class="c1"># 오류 발생
+</span></code></pre></div>    </div>
+    <ul>
+      <li>하나의 파라미터만 받도록 설계된 <code class="language-plaintext highlighter-rouge">@inject_db_driver</code>는 문자열 자리에 self를 전달하고, 두 번쨰 파라미터에는 아무것도 전달하지 않아서 발생하는 에러입니다.</li>
+    </ul>
+  </li>
+  <li>따라서, 이와 같은 데코레이터를 사용할 때는 <code class="language-plaintext highlighter-rouge">__get__</code> 메서드를 구현한 디스크립터 객체를 만들어야 합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">inject_db_driver</span><span class="p">:</span>
+      <span class="sh">"""</span><span class="s">문자열을 DBDriver 인스턴스로 변환하여 래핑된 함수에 전달
+      </span><span class="sh">"""</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+          <span class="nf">wraps</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">function</span><span class="p">)(</span><span class="n">self</span><span class="p">)</span>
+        
+      <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">function</span><span class="p">(</span><span class="nc">DBDriver</span><span class="p">(</span><span class="n">dbstring</span><span class="p">))</span>
+
+      <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+              <span class="k">return</span> <span class="n">self</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">__class__</span><span class="p">(</span><span class="nc">MethodType</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">function</span><span class="p">,</span> <span class="n">instance</span><span class="p">))</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">inject_db_driver</code> 데코레이터를 함수가 아닌 클래스 형태로 변경하였습니다.</li>
+      <li>인스턴스에 <code class="language-plaintext highlighter-rouge">function</code>을 동적으로 bind하여 리턴한 결과를 <code class="language-plaintext highlighter-rouge">__class__</code>로 다시 래핑합니다.</li>
+      <li>이를 사용하려는 클래스에 클래스 변수로 넣어주면, 호출될 때 <code class="language-plaintext highlighter-rouge">__get__</code>을 호출합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터와-관심사-분리">데코레이터와 관심사 분리</h3>
+<ul>
+  <li>코드 재사용이란, 함수 및 클래스는 최소한의 책임을 가져서 오직 한 가지 일만 해야합니다. 컴포넌트가 작을수록 재사용성이 높아집니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">traced_function</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">함수 %s 처리 소요시간 %.2fs</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">,</span>
+            <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div></div>
+<ul>
+  <li>위 함수는 어떤 함수가 호출되었는지 기록할 뿐 아니라, 함수의 소요시간을 함께 측정합니다.</li>
+  <li>따라서, 한 가지 경우만 원할 때에도 두 가지 기능 모두를 사용해야합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">log_excution</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">started execution of %s.</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+
+<span class="k">def</span> <span class="nf">measure_time</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">function %s took %.2fs</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">,</span>
+            <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+
+<span class="nd">@measure_time</span>
+<span class="nd">@log_excution</span>
+<span class="k">def</span> <span class="nf">operation</span><span class="p">():</span>
+    <span class="bp">...</span>
+</code></pre></div></div>
+<ul>
+  <li>위와 같이 재사용성이 더 높은 두 가지 데코레이터로 나누어 구현할 수 있습니다.</li>
+  <li>이 때, 데코레이터가 적용되는 순서도 중요합니다.</li>
+</ul>
+
+<h3 id="좋은-데코레이터란">좋은 데코레이터란?</h3>
+<ul>
+  <li>캡슐화와 관심사의 분리: 실제로 하는 일과 데코레이팅하는 일의 책임이 명확히 구분됩니다. (데코레이터의 클라이언트는 데코레이터 함수를 블랙박스로 생각하게 됩니다.)</li>
+  <li>독립성: 데코레이터의 동작은 독립적이며, 데코레이팅되는 객체와 최대한 분리되어야 합니다.</li>
+  <li>재사용성: 데코레이터는 하나의 함수 인스턴스에만 적용되는 것이 아닌, 여러 유형에 적용 가능되도록 만들어야합니다.(데코레이터가 함수의 역할을 하는 경우도 있음)</li>
+</ul>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

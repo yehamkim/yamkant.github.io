@@ -160,4 +160,28 @@ var store = [{
         "tags": [],
         "url": "/study/study-osi-model/",
         "teaser": null
+      },{
+        "title": "[Study] Python Clean Code - Decorator",
+        "excerpt":"Decorator 원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다. 함수 데코레이터 아래와 같은 방식으로 데코레이터의 형태를 구현할 수 있습니다. def retry(operation): @wraps(operation) def wrapped(*args, **kwargs): last_raised = None RETRIES_LIMIT = 3 for _ in range(RETRIES_LIMIT): try: return operation(*args, **kwargs) except ControlledException as e: logger.info(\"retrying...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cleancode-decorator/",
+        "teaser": null
+      },{
+        "title": "[Study] Python Clean Code - Descriptor",
+        "excerpt":"Descriptor 디스크립터를 구현하기 위해 두 가지 클래스(클라이언트 클래스, 디스크립터 클래스)가 필요합니다. 핵심 용어 client: ClientClass의 인스턴스입니다. descriptor: DescriptorClass의 인스턴스입니다. ClientClass: 솔루션을 위해 생성한 일반적인 추상화 객체입니다. class attribute로 discriptor를 갖습니다. (필수) DescriptorClass: 디스크립터 로직의 구현체로, 디스크립터 프로토콜을 구현한 클래스의 인스턴스입니다. 매직메서드 __get__, __set__, __delete__, __set_name 중 최소 하나 이상을 포함해야합니다....","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cleancode-descriptor/",
+        "teaser": null
+      },{
+        "title": "[Study] Python Clean Code - Unittest",
+        "excerpt":"Unit Test 단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다. 단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다. 격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다. 성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다. 자체 검증:...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cleancode-unittest/",
+        "teaser": null
+      },{
+        "title": "[Study] Load Balancer",
+        "excerpt":"작성 계기 면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다. 로드밸런서 트래픽을 받아서 여러 대의 서버에 분산시키는 하드웨어/소프트웨어를 의미합니다. 부하 분산에는 L4 Load Balancer와 L7 Load Balancer가 사용됩니다. L4 Load Balancer IP Port를 활용하여 서버부하분산을 하는 것을 의미합니다. 적합한 server...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-load-balancer/",
+        "teaser": null
       }]

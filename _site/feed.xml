@@ -1,4 +1,1078 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-07-15T23:33:36+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] Python Clean Code - OOP</title><link href="http://localhost:4000/study/study-osi-model/" rel="alternate" type="text/html" title="[Study] Python Clean Code - OOP" /><published>2023-07-10T10:05:07+09:00</published><updated>2023-07-10T10:05:07+09:00</updated><id>http://localhost:4000/study/study-osi-model</id><content type="html" xml:base="http://localhost:4000/study/study-osi-model/"><![CDATA[<h2 id="solid-원칙">SOLID 원칙</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-11T10:19:59+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] Load Balancer</title><link href="http://localhost:4000/study/study-load-balancer/" rel="alternate" type="text/html" title="[Study] Load Balancer" /><published>2023-08-11T00:05:07+09:00</published><updated>2023-08-11T00:05:07+09:00</updated><id>http://localhost:4000/study/study-load-balancer</id><content type="html" xml:base="http://localhost:4000/study/study-load-balancer/"><![CDATA[<h2 id="작성-계기">작성 계기</h2>
+<ul>
+  <li>면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에<br />
+대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.</li>
+</ul>
+
+<h3 id="로드밸런서">로드밸런서</h3>
+<ul>
+  <li>트래픽을 받아서 여러 대의 서버에 분산시키는 하드웨어/소프트웨어를 의미합니다.</li>
+  <li>부하 분산에는 L4 Load Balancer와 L7 Load Balancer가 사용됩니다.</li>
+</ul>
+
+<h3 id="l4-load-balancer">L4 Load Balancer</h3>
+<ul>
+  <li>IP Port를 활용하여 서버부하분산을 하는 것을 의미합니다. 적합한 server IP와 Port를 목적지로 하는 요청에 따라 부하를 분산합니다.</li>
+  <li>로드밸런싱의 기준점이 IP와 Port이기 때문에, TCP/UDP의 Header를 분석하여 로드밸런싱에 활용하지는 않습니다. 따라서, 프로토콜들의 특성으로 인한 행동을 제어하는 편입니다.</li>
+  <li>클라이언트에서 로드밸런서로 요청을 보낼 때, 최적의 서버로 요청을 전송하고, 그 결과를 클라이언트에게 전달합니다.</li>
+  <li>요청 패킷에 대해 NAT도 수행하여 기록된 대상 IP 주소를 자체에서 선택한 컨텐츠 서버의 IP 주소로 변경합니다.</li>
+</ul>
+
+<h3 id="l7-load-balancer">L7 Load Balancer</h3>
+<ul>
+  <li>L7 Load Balancer는 URL, Payload, HTTP Header, Cookie 등의 내용을 기준으로 부하를 분산합니다. 따라서, 컨텐츠 기반 스위칭이라고도 말합니다.</li>
+  <li>해당 계층에서의 로드밸런싱은 전송되는 정보의 양이 더 많기 때문에, L4 에서보다 비용이 더 많이 들게 되지만, 전체 효율성은 더욱 높습니다.</li>
+  <li>클라이언트가 요청하는 데이터의 유형을 결정할 수 있기 때문입니다. 따라서, 모든 서버에 동일한 데이터를 복제할 필요가 없습니다.</li>
+  <li>L4에서와 같이 트래픽을 패킷단위로 관리하는 것이 아닌, 요청과 응답을 전체적으로 읽고 관리할 숫 있습니다.</li>
+</ul>
+
+<h2 id="osiopen-systems-interconnection-참조-모델">OSI(Open Systems Interconnection) 참조 모델</h2>
+<p><strong>7 계층 - Application Layer</strong></p>
+<ul>
+  <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
+  <li>애플리케이션 목적에 맞는 통신 방법을 제공합니다.</li>
+  <li>HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.</li>
+</ul>
+
+<p><strong>6 계층 - Presentation Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다.</li>
+  <li>데이터를 안전하게 전송하기 위해 암호화, 복호화하여 소통합니다.</li>
+</ul>
+
+<p><strong>5 게층 - Session Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신에서 세션을 관리하는 계층입니다.</li>
+  <li>예시로 RPC(remote procedure call)가 있습니다.</li>
+</ul>
+
+<p><strong>4 계층 - Transport Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신을 담당하며, 실제로 목적지 애필리케이션으로 데이터를 전송합니다.</li>
+  <li>TCP, UDP 프로토콜을 사용합니다.</li>
+  <li>TCP: 안정적이고 신뢰할 수 있는 데이터 전송을 보장합니다.</li>
+  <li>UDP: 데이터가 중간에 유실되거나 순서가 꼬일 수 있지만, 데이터를 무조건 전송합니다.</li>
+  <li>Network Layer의 기능을 사용하여 데이터를 전송합니다.</li>
+</ul>
+
+<p><strong>3 계층 - Network Layer</strong></p>
+<ul>
+  <li>호스트 간의 통신을 담당합니다. (IP 프로토콜)</li>
+  <li>목적지 호스트로 데이터를 전송합니다.</li>
+  <li>네트워크 간의 최적의 경로를 결정합니다.</li>
+  <li>Data Link Layer의 기능을 사용하여 기능을 구현합니다.</li>
+</ul>
+
+<p><strong>2 계층 - Data Link Layer</strong></p>
+<ul>
+  <li>IP 주소가 아닌 MAC 주소 기반으로 통신합니다.</li>
+  <li>ARP: IP 주소를 MAC 주소로 변환하는 프로토콜입니다.</li>
+</ul>
+
+<p><strong>1 계층 - Physical Layer</strong></p>
+<ul>
+  <li>
+    <p>bits 단위로 데이터를 전송합니다.</p>
+  </li>
+  <li>서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.</li>
+  <li>라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<h2 id="amazon-elb">Amazon ELB</h2>
+<ul>
+  <li>AWS가 제공하는 로드 밸런서로, 집중되는 트래픽을 서버/네트워크에 분배하는 부하 분산 장치입니다.</li>
+</ul>
+
+<p><strong>ALB</strong></p>
+<ul>
+  <li>HTTP/HTTPS 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 애플리케이션 계층(7계층)에서 동작합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호 + 패킷내용</code> 정보를 통해 스위칭합니다.</li>
+  <li>L7단에서 지원하기 때문에 인스턴스와 로드 밸런서 사이에서 SSL이 적용된 암호화 통신이 가능합니다.</li>
+  <li>IP 주소가 변동될 수 있기 때문에, Client는 DNS 주소로 접근하는 것이 좋습니다.<br />
+(따라서, EIP를 ALB에 설정해두는 것이 좋습니다.)</li>
+</ul>
+
+<p><strong>NLB</strong></p>
+<ul>
+  <li>TCP/IP 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 전송 계층(4계층)에서 동작합니다.<br />
+(ALB보다 낮은 계층에서 동작하기 때문에 속도가 빠릅니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호</code> 정보를 통해고 스위칭합니다.</li>
+  <li>EIP를 이용할 수 있으며, DNS와 IP 주소 모두 사용 가능합니다. (SSL은 사용 불가능)</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[작성 계기 면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Unittest</title><link href="http://localhost:4000/study/study-cleancode-unittest/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Unittest" /><published>2023-07-20T00:05:07+09:00</published><updated>2023-07-20T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-unittest</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-unittest/"><![CDATA[<h2 id="unit-test">Unit Test</h2>
+<ul>
+  <li>단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다.</li>
+  <li>단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다.</li>
+  <li>격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다.</li>
+  <li>성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다.</li>
+  <li>자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야합니다.</li>
+</ul>
+
+<p><strong>추가</strong></p>
+<ul>
+  <li>통합 테스트: 한 번에 여러 컴포넌트를 테스트하여, 종합적으로 예상대로 잘 동작하는지 검증합니다.</li>
+  <li>통합 테스트의 경우, 부작용이나 격리를 고려하지 않은 채로, HTTP 요청을 하거나 데이터베이스에 연결하는 등의 작업이 수행 가능합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">import</span> <span class="n">unittest</span>
+<span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
+<span class="kn">from</span> <span class="n">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="sh">"</span><span class="s">skeleton</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="nc">StreamHandler</span><span class="p">())</span>
+
+<span class="k">class</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="nb">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MergeRequestStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">APPROVED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">approved</span><span class="sh">"</span>
+    <span class="n">REJECTED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">rejected</span><span class="sh">"</span>
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="sh">"</span><span class="s">pending</span><span class="sh">"</span>
+    <span class="n">OPEN</span> <span class="o">=</span> <span class="sh">"</span><span class="s">open</span><span class="sh">"</span>
+    <span class="n">CLOSED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">closed</span><span class="sh">"</span>
+
+<span class="k">class</span> <span class="nc">MergeRequest</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
+            <span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">OPEN</span>
+    
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span>
+
+        <span class="k">return</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">_cannot_vote_if_closed</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">upvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">downvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>        
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">AcceptanceThreshold</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">merge_request_context</span>
+
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">'</span><span class="s">downvotes</span><span class="sh">'</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+        <span class="k">elif</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+        <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="p">.</span><span class="nf">main</span><span class="p">()</span>
+</code></pre></div></div>
+<ul>
+  <li>위의 클래스 및 테스터는 머지 상황에서, 두 명 이상의 개발자가 upvote를 하거나 한 명이라도 downvote를 하면 머지를 실패하는 경우에 대한 프로그램입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>를 최소 단위로 분리하여 테스트를 진행하고, <code class="language-plaintext highlighter-rouge">MergeRequest</code> 클래스에서 이를 사용하는 방식입니다. (리팩토링 전에 <code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>의 status 메서드가 <code class="language-plaintext highlighter-rouge">MergeRequest</code> 메서드였음)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용한 테스트 케이스</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">TestMergeRequestStatus</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="c1"># NOTE: 한 명이 downvote하여, 머지 리퀘스트가 거부된 상황입니다.
+</span>    <span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
+    
+    <span class="c1"># NOTE: 한 명만 upvote를 한 상황에서는 다음 투표를 대기합니다.
+</span>    <span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
+
+    <span class="c1"># NOTE: 두 명 이상이 upvote를 수행하면 승인됩니다.
+</span>    <span class="k">def</span> <span class="nf">test_approved</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span><span class="p">)</span>
+
+    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
+</span>    <span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaises</span><span class="p">(</span>
+            <span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
+</span>    <span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaisesRegex</span><span class="p">(</span>
+            <span class="n">MergeRequestException</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">merge_request</span><span class="p">.</span><span class="n">downvote</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">TestAcceptanceThreshold</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="c1"># NOTE: 테스트 전반에 걸쳐 사용될 데이터 픽스처를 정의합니다.
+</span>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
+            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_status_resolution</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">context</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span><span class="p">:</span>
+            <span class="c1"># NOTE: subTest: 호출되는 테스트 조건을 표시하는데 사용됩니다.
+</span>            <span class="c1">#       반복 중 하나가 실패하면, subTest에 전달된 변수의 값을 나타냅니다.
+</span>            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
+                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용하는 경우, <code class="language-plaintext highlighter-rouge">TestCase</code> 클래스를 상속받는 테스터 클래스를 생성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">Exception</code> 반환을 테스트하기 위해 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>, <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaisesRegex</code> 메서드를 사용할 수 있습니다.</li>
+  <li>for 루프를 이용하면, 테스트에서 오류가 발생한 시점에서 멈추게 되지만, <code class="language-plaintext highlighter-rouge">subTest</code> 메서드를 사용하면 모든 케이스에 대해 테스트를 마치고, 실패 케이스들을 모두 알 수 있습니다.</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">pytest</code> 모듈을 사용한 테스트 케이스</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: MergeRequestStatus
+</span><span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+
+<span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+<span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+
+<span class="k">def</span> <span class="nf">test_approved</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+
+<span class="k">def</span> <span class="nf">test_invalid_types</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="nb">TypeError</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="p">{</span><span class="sh">"</span><span class="s">invalid-object</span><span class="sh">"</span><span class="p">})</span>
+
+<span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">():</span>
+    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
+    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span>
+        <span class="n">MergeRequestException</span><span class="p">,</span>
+        <span class="n">match</span><span class="o">=</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span>
+    <span class="p">):</span>
+        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># NOTE: AcceptanceThreshold
+</span><span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="sh">"</span><span class="s">context, expected_status</span><span class="sh">"</span><span class="p">,</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
+        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
+    <span class="p">)</span>
+<span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_acceptance_threshold_status_resolution</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">expected_status</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected_status</span>
+</code></pre></div></div>
+<ul>
+  <li>pytest에서는 <code class="language-plaintext highlighter-rouge">assert</code> 비교만으로 단위 테스트를 식별하고 결과를 확인하는 것이 가능합니다.</li>
+  <li>또한, unittest로 작성한 테스트까지 실행하기 때문에 호환성이 좋습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">pytest.raises</code>는 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>와 동일합니다. <code class="language-plaintext highlighter-rouge">assertRaises</code>의 경우에는 위와 같이 <code class="language-plaintext highlighter-rouge">match</code> 파라미터를 사용하여 구현할 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">unittest.TestCase.subTest</code>에서 반복적으로 테스트했다면, pytest에서는 데코레이터를 통해 수행할 수 있습니다. 첫 번째 파라미터는 파라미터의 이름을, 두 번쨰 파라미터는 테스트하고자 하는 값들의 튜플입니다.</li>
+</ul>
+
+<h3 id="mock-객체">Mock 객체</h3>
+<ul>
+  <li>시스템이 서비스 되기 위해서는 외부 서비스(DB, Storage, 외부 API, 클라우드)를 사용하게 됩니다.</li>
+  <li>외부 서비스를 사용하며 발생하는 부작용을 최소화하기 위해 외부 요소를 분리하고, 인터페이스를 사용하여 추상화해야 합니다.</li>
+  <li>Mock 객체는 원하지 않는 부작용으로부터 테스트 코드를 보호하는 방법 중 하나입니다.</li>
+  <li>통햅테스트에서는 외부 서비스에 대한 테스트까지를 포함하지만, 단위 테스트에서는 모킹하는 것만으로 원하는 기능 위주로 테스트해야합니다.</li>
+</ul>
+
+<p><strong>Patch, Mock 사용시 주의사항</strong></p>
+<ul>
+  <li>간단한 테스트를 작성하기 위해 다양한 몽키패치(런타임 중 코드를 수정하는 것)과 모킹을 해야 한다면, 코드가 좋지 않다는 신호입니다.</li>
+  <li>Patch란 import 중에 경로를 지정했던 원본 코드를 Mock 객체로 대체하는 것으로, 런타임 중에 코드가 바뀌고 처음에 있던 원래 코드와의 연결이 끊어집니다.</li>
+</ul>
+
+<h3 id="mock-사용">Mock 사용</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="k">class</span> <span class="nc">GitBranch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_commits</span> <span class="o">=</span> <span class="p">{</span> <span class="n">c</span><span class="p">[</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">]:</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">commits</span> <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">[</span><span class="n">commit_id</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="n">commit_id</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">branch</span><span class="p">[</span><span class="n">commit_id</span><span class="p">][</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_find_commit</span><span class="p">():</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="nc">GitBranch</span><span class="p">([{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}])</span>
+    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
+
+<span class="k">def</span> <span class="nf">test_find_any</span><span class="p">():</span>
+    <span class="n">mbranch</span> <span class="o">=</span> <span class="nc">MagicMock</span><span class="p">()</span>
+    <span class="n">mbranch</span><span class="p">.</span><span class="n">__getitem__</span><span class="p">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">mbranch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">MagicMock</code>을 사용해서 <code class="language-plaintext highlighter-rouge">GitBranch</code> 객체를 모킹합니다. 이 떄, <code class="language-plaintext highlighter-rouge">GitBranch</code>는 매직메서드를 사용하기 때문에 <code class="language-plaintext highlighter-rouge">MagicMock</code>을 이용합니다.</li>
+  <li>이 때, <code class="language-plaintext highlighter-rouge">mbarnch</code>는 <code class="language-plaintext highlighter-rouge">__getitem__</code>에 대한 반환 값만 지정했기 때문에, <code class="language-plaintext highlighter-rouge">commit_id</code>에 상관없이 출력값만 테스트합니다.</li>
+</ul>
+
+<h3 id="테스트-더블-사용-예시">테스트 더블 사용 예시</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2.py
+</span><span class="kn">from</span> <span class="n">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="n">requests</span>
+<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
+
+<span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
+    <span class="sh">"""</span><span class="s">Continuous Integration  도구에서의 머지 리퀘스트 상태</span><span class="sh">"""</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
+    
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="n">build_status</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">cls</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">build_status</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span> <span class="c1"># 200이 아닐 경우에 예외 발생
+</span>        <span class="k">return</span> <span class="n">response</span>
+</code></pre></div></div>
+<ul>
+  <li>constants.py 모듈에는 <code class="language-plaintext highlighter-rouge">STATUS_ENDPOINT</code>를 test@example.com으로 설정해뒀습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드는 원하는 endpoint에 post 요청한 결과값을 받아옵니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
+<span class="kn">from</span> <span class="n">mock_2</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
+
+<span class="nd">@mock.patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.requests</span><span class="sh">"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">mock_requests</span><span class="p">):</span>
+    <span class="n">build_date</span> <span class="o">=</span> <span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span> <span class="c1"># 반환값으로 사용할 build_date
+</span>    <span class="k">with</span> <span class="n">mock</span><span class="p">.</span><span class="nf">patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.BuildStatus.build_date</span><span class="sh">"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">build_date</span><span class="p">):</span>
+        <span class="n">BuildStatus</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
+    
+    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_date</span><span class="p">}</span>
+    <span class="n">mock_requests</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
+        <span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>데코레이터는 테스트 함수 내에서 mock_2.requests를 호출하면 함수의 인자인 mock_requests라는 객체가 mock을 대신할 것이라고 알려줍니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">mock_2.BuildStatus.build_date</code> 메서드에 대한 반환값으로는 테스터 내에서 지정해준 <code class="language-plaintext highlighter-rouge">build_date</code>로 사용하도록 context를 구성하고, <code class="language-plaintext highlighter-rouge">notify</code> 메서드에 <code class="language-plaintext highlighter-rouge">id</code>와 <code class="language-plaintext highlighter-rouge">status</code>를 인자로 넣습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">mock_requests</code>는 post 요청이 될 때 어떤 인자로 호출되었는지 테스트합니다.</li>
+</ul>
+
+<h3 id="리팩토링">리팩토링</h3>
+<ul>
+  <li>위와 같이 설계하는 경우, <code class="language-plaintext highlighter-rouge">notify</code> 메서드가 request 모듈에 직접 의존하는 문제가 있습니다.</li>
+  <li>따라서, 테스터를 작성시에도 의존성을 고려해서 메서드와 객체에 대한 설정을 함께 생각하며 작성해야합니다.</li>
+  <li>함수의 간의 의존성을 줄이는 방식으로 아래와 같이 리팩토링 할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2_refactor.py
+</span><span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">STATUS_ENDPOINT</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">transport</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">transport</span> <span class="o">=</span> <span class="n">transport</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">compose_payload</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">compose_payload</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드를 <code class="language-plaintext highlighter-rouge">compose_payload</code>, <code class="language-plaintext highlighter-rouge">deliver</code> 메서드로 각각 분리하고 <code class="language-plaintext highlighter-rouge">requests</code> 모듈로 한정지어 구현하는 것이 아닌, 생성자 주입으로 처리합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># test_mock_2_refactor.py
+</span><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">import</span> <span class="n">pytest</span>
+<span class="kn">from</span> <span class="n">mock_2_refactor</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">build_status</span><span class="p">():</span>
+    <span class="c1"># NOTE: transport에 mock 객체를 주입합니다.
+</span>    <span class="n">bstatus</span> <span class="o">=</span> <span class="nc">BuildStatus</span><span class="p">(</span><span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">())</span>
+    <span class="n">bstatus</span><span class="p">.</span><span class="n">build_date</span> <span class="o">=</span> <span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bstatus</span>
+
+<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">build_status</span><span class="p">):</span>
+    <span class="n">build_status</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_status</span><span class="p">.</span><span class="nf">build_date</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1"># NOTE: transport 자리에 mock 객체가 주입되었기 때문에 아래와 같이 사용 가능합니다.
+</span>    <span class="n">build_status</span><span class="p">.</span><span class="n">transport</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
+        <span class="n">build_status</span><span class="p">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>requests 모듈 등 호출을 담당하는 <code class="language-plaintext highlighter-rouge">transport</code> 자리에 Mock 객체를 주입하여 처리합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">BuildStatus</code>에 모킹 처리를 한 <code class="language-plaintext highlighter-rouge">build_status</code> fixture를 사용해서 테스트를 보다 깔끔하게 진행할 수 있습니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Unit Test 단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다. 단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다. 격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다. 성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다. 자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야합니다.]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Descriptor</title><link href="http://localhost:4000/study/study-cleancode-descriptor/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Descriptor" /><published>2023-07-17T10:05:07+09:00</published><updated>2023-07-17T10:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-descriptor</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-descriptor/"><![CDATA[<h2 id="descriptor">Descriptor</h2>
+
+<ul>
+  <li>디스크립터를 구현하기 위해 두 가지 클래스(클라이언트 클래스, 디스크립터 클래스)가 필요합니다.</li>
+</ul>
+
+<p><strong>핵심 용어</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">client</code>: <code class="language-plaintext highlighter-rouge">ClientClass</code>의 인스턴스입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">descriptor</code>: <code class="language-plaintext highlighter-rouge">DescriptorClass</code>의 인스턴스입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">ClientClass</code>: 솔루션을 위해 생성한 일반적인 추상화 객체입니다. class attribute로 <code class="language-plaintext highlighter-rouge">discriptor</code>를 갖습니다. (필수)</li>
+  <li><code class="language-plaintext highlighter-rouge">DescriptorClass</code>: 디스크립터 로직의 구현체로, 디스크립터 프로토콜을 구현한 클래스의 인스턴스입니다. 매직메서드 <code class="language-plaintext highlighter-rouge">__get__</code>, <code class="language-plaintext highlighter-rouge">__set__</code>, <code class="language-plaintext highlighter-rouge">__delete__</code>, <code class="language-plaintext highlighter-rouge">__set_name</code> 중 최소 하나 이상을 포함해야합니다.</li>
+</ul>
+
+<p><strong>동작 원리</strong></p>
+<ul>
+  <li>클래스 속성을 객체로 선언하면 디스크립터로 인식되고, 클라이언트에서 해당 속성을 호출하면 <code class="language-plaintext highlighter-rouge">__get__</code>의 결과를 반환합니다.
+```python
+class DescriptorClass:
+  def <strong>get</strong>(self, instance, owner):
+      if instance is None:
+          return self
+      logger.info(
+          “Call: %s.<strong>get</strong>(%r, %r)”,
+          self.<strong>class</strong>.<strong>name</strong>, instance, owner
+      )</li>
+</ul>
+
+<p>class ClientClass:
+    desciptor = DescriptorClass()</p>
+
+<p>client = ClientClass()
+logger.info(client.desciptor)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-  `ClientClass` 인스턴스의 `descriptor`에 접근하면, `DescriptorClass` 인스턴스를 반환하지 않고, `__get__`의 반환 값을 사용합니다.
+- 이를 이용해, `__get__` 메서드 뒤쪽으로 모든 종류의 논리를 추상화하여 클라이언트에게 내용을 숨긴 채로 변환을 투명하게 실행할 수 있습니다. (캡슐화)
+
+### 디스크립터 프로토콜의 메서드 탐색
+- 디스크립터는 객체이기 때문에, self를 첫 번째 파라미터로 사용하며,  self는 객체 자신을 의미합니다.
+
+`__get__(self, instance, owner)`  
+- instance는 디스크립터를 호출한 객체입니다. (client 객체)
+- owner는 해당 객체의 클래스를 의미합니다. (ClientClass 클래스)
+- 즉, instance는 디스크립터가 행동을 취하려는 객체이며, owner는 인스턴스의 클래스입니다.
+
+```python
+class DescriptorClass:
+    def __get__(self, instance, owner):
+        if instance is None:
+            return f"{self.__class__.__name__}.{owner.__name__}"
+        return f"value for {instance}"
+
+class ClientClass:
+    descriptor = DescriptorClass()
+</code></pre></div></div>
+<ul>
+  <li>위의 예제에서, <code class="language-plaintext highlighter-rouge">ClientClass.descriptor</code>로 호출하면 instance가 있는 형태로 호출하는 것이지만,</li>
+  <li><code class="language-plaintext highlighter-rouge">ClientClass().descriptor</code>로 호출하면 instance를 None으로 인식하여 단순히 디스크립터 자체를 반한합니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">__set__(self, instance, value)</code></p>
+<ul>
+  <li>꼭 구현할 필요는 없으며, 구현한 디스크립터에 대해서만 활성화됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">instance</code> 파라미터는 <code class="language-plaintext highlighter-rouge">client</code>이며 <code class="language-plaintext highlighter-rouge">value</code> 인자는 문자열을 갖습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Validation</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validation_function</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">validation_function</span> <span class="o">=</span> <span class="n">validation_function</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="n">error_msg</span>
+    
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">self</span><span class="p">.</span><span class="nf">validation_function</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s"> </span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">error_msg</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">Field</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">validations</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">validations</span> <span class="o">=</span> <span class="n">validations</span>
+    
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+    
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">validation</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">validations</span><span class="p">:</span>
+            <span class="nf">validation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="k">class</span> <span class="nc">ClientClass</span><span class="p">:</span>
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="nc">Field</span><span class="p">(</span>
+        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="sh">"</span><span class="s">는 숫자가 아닙니다.</span><span class="sh">"</span><span class="p">),</span>
+        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="sh">"</span><span class="s">는 음수입니다.</span><span class="sh">"</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="c1"># 사용 예시
+</span><span class="n">client</span> <span class="o">=</span> <span class="nc">ClientClass</span><span class="p">()</span>
+<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">42</span> <span class="c1"># 음수이므로, Validation 에러 발생
+</span><span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="sh">"</span><span class="s">invalid value</span><span class="sh">"</span> <span class="c1"># 문자열이므로, Validation 발생
+</span></code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__set__()</code> 메서드가 @property.setter가 하던 일을 대신하게 됩니다.</li>
+  <li>위와 같이, 프로퍼티 자리에 놓일 수 있는 부분은 디스크립터로 추상화가 가능합니다.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">__delete__(self, instance)</code></p>
+<ul>
+  <li>
+    <p>self는 descriptor 속성을 나타내며, instance는 client를 나타냅니다.
+```python
+class ProtctedAttribute:
+  def <strong>init</strong>(self, requires_role=None) -&gt; None:
+      self.permission_required = requires_role
+      self._name = None</p>
+
+    <p>def <strong>set_name</strong>(self, owner, name):
+      self._name = name</p>
+
+    <p>def <strong>set</strong>(self, user, value):
+      if value is None:
+          raise ValueError(f”{self._name}를 None으로 설정할 수 없습니다.”)
+      user.<strong>dict</strong>[self._name] = value</p>
+
+    <p>def <strong>delete</strong>(self, user):
+      if self.permission_required in user.permissions:
+          user.<strong>dict</strong>[self._name] = None
+      else:
+          raise ValueError(
+              f”{user!s} 사용자는 {self.permission_required} 권한이 없습니다.”
+          )</p>
+  </li>
+</ul>
+
+<p>class User:
+    “"”admin 권한을 가진 사용자만 이메일 주소를 제거할 수 있습니다.”””</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>email = ProtctedAttribute(requires_role="admin")
+
+def __init__(self, username: str, email: str, permission_list: list = None) -&gt; None:
+    self.username = username
+    self.email = email
+    self.permissions = permission_list or []
+
+def __str__(self):
+    return self.username
+</code></pre></div></div>
+
+<p>admin = User(“root”, “root@example.com”, [“admin”])
+logger.info(admin.email)
+del admin.email
+logger.info(admin.email)</p>
+
+<p>user = User(“user”, “user@example.com”, [“email”, “helpdesk”])
+logger.info(user.email)
+del user.email</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- User 클래스는 username과 email 파라미터를 필수로 받습니다. 
+- email은 "admin" 권한이 있는 사용자만 제거할 수 있습니다.
+
+`__set_name__(self, owner, name)`
+- 디스크립터에 필요한 이름을 지정하기 위한 메서드입니다.
+- 속성의 이름은 `__dict__`에서 `__get__`과 `__set__` 메서드로 읽고 쓸 때 사용됩니다.
+```python
+class DescriptorWithName:
+    def __init__(self, name=None) -&gt; None:
+        self.name = name
+    
+    def __set_name__(self, owner, name):
+        self.name = name
+        print(f'__set_name__(owner: {owner}, name: {name})')
+
+class ClientClass:
+    descriptor1 = DescriptorWithName() #1
+    descriptor2 = DescriptorWithName() #2
+
+logger.info(ClientClass())
+</code></pre></div></div>
+<ul>
+  <li>위와 같이 사용하면, #1 Descriptor 이름은 <code class="language-plaintext highlighter-rouge">descriptor1</code>이 됩니다.</li>
+  <li>즉, 필드명을 descriptor명이 되도록 동작시키는 역할이라고 볼 수 있습니다.</li>
+</ul>
+
+<h3 id="디스크립터의-유형">디스크립터의 유형</h3>
+<p><strong>비데이터 디스크립터</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__get__</code> 메서드만을 구현한 디스크립터입니다.
+```python
+class NonDataDescriptor:
+  def <strong>get</strong>(self, instance, owner):
+      if instance is None:
+          return self
+      return 42</li>
+</ul>
+
+<p>class ClientClass:
+    descriptor = NonDataDescriptor()</p>
+
+<p>client = ClientClass()</p>
+<h1 id="vars-클래스의-__dict__를-반환합니다">vars(): 클래스의 __dict__를 반환합니다.</h1>
+<p>logger.info(vars(client)) #1</p>
+
+<p>client.descriptor = 43 #2
+logger.info(vars(client)) #3</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 비데이터 디스크립터의 경우, `__set__`과 `__delete__`를 구현하지 않기 때문에, #2와 같이 속성 값을 변경하는 경우, descriptor instance는 일반 정수로 변경됩니다.
+- 따라서, #1의 결과는 비어있는 딕셔너리지만, #3의 결과는 descriptor 속성이 일반 정수 43으로 갖는 것으로 출력됩니다.
+- 이 때, #2에서 지정한 descriptor를 `del client.descriptor`로 제거한다면, 원래 동작과(#1)과 같이 수행됩니다.
+
+**데이터 디스크립터**
+- `__set__`이나 `__delete__` 메서드를 구현한 경우입니다. 
+```python
+class DataDescriptor:
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return 42
+    
+    def __set__(self, instance, value):
+        logger.info("%s.descriptor를 %s 값으로 설정", instance, value)
+        instance.__dict__["descriptor"] = value
+
+class ClientClass:
+    descriptor = DataDescriptor()
+
+client = ClientClass()
+logger.info(vars(client)) #1
+
+client.descriptor = 43
+logger.info(client.descriptor) #2
+logger.info(vars(client)) #3
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__set__</code> 메서드를 구현한 데이터 디스크립터의 경우, #2에서 출력 결과가 변경되지 않고 42임을 알 수 있습니다.</li>
+  <li>하지만, <code class="language-plaintext highlighter-rouge">vars()</code> 메서드를 사용하여 속성을 분석하면, descriptor 속성이 추가되면서 값이 바뀌어 있게됩니다.</li>
+  <li>데이터 디스크립터에서 속성을 조회하면 객체의 <code class="language-plaintext highlighter-rouge">__dict__</code>에서 조회하는 대신 클래스의 <code class="language-plaintext highlighter-rouge">descriptor</code>를 먼저 조회합니다.</li>
+  <li>즉, 데이터 디스크립터는 인스턴스의 <code class="language-plaintext highlighter-rouge">__dict__</code>를 오버라이드하여 인스턴스 사전보다 높은 우선순위를 가지지만, 비데이터 디스크립터는 인스턴스 사전보다 낮은 우선순위를 가집니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Descriptor]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Decorator</title><link href="http://localhost:4000/study/study-cleancode-decorator/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Decorator" /><published>2023-07-16T10:05:07+09:00</published><updated>2023-07-16T10:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-decorator</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-decorator/"><![CDATA[<h2 id="decorator">Decorator</h2>
+<ul>
+  <li>원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다.</li>
+</ul>
+
+<h3 id="함수-데코레이터">함수 데코레이터</h3>
+<ul>
+  <li>아래와 같은 방식으로 데코레이터의 형태를 구현할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+  <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="n">RETRIES_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+      <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">RETRIES_LIMIT</span><span class="p">):</span>
+          <span class="k">try</span><span class="p">:</span>
+              <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="k">except</span> <span class="n">ControlledException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+              <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+      <span class="k">raise</span> <span class="n">last_raised</span>
+  <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div>    </div>
+  </li>
+  <li>특정 함수가 오류를 발생시킬 경우를 대비하여 정상적인 동작까지 3번은 무조건 실행시키는 방법입니다.</li>
+  <li>위의 <code class="language-plaintext highlighter-rouge">retry</code> 데코레이터는 파라미터가 필요없기 때문에 어떤 함수에도 쉽게 적용할 수 있습니다.</li>
+</ul>
+
+<h3 id="클래스-데코레이터">클래스 데코레이터</h3>
+<ul>
+  <li>데코레이터 함수의 파라미터로 함수가 아닌 클래스를 받는 형태입니다.</li>
+  <li>클래스 데코레이터를 사용하면 여러 클래스가 특정 기준을 따르도록 강제할 수 있으며, 단순한 클래스의 기능을 차차 보강해나갈 수 있습니다.</li>
+</ul>
+
+<h3 id="중첩-함수의-데코레이터">중첩 함수의 데코레이터</h3>
+<ul>
+  <li>다음과 같은 형식으로 구현할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nd">@retry</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="p">..)</span>
+
+  <span class="c1"># @ 구문은 데코레이팅 객체에 대한 연산결과를 반환합니다. 따라서 이는 위의 코드와 같습니다.
+</span>  <span class="o">&lt;</span><span class="n">original_function</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nf">retry</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="p">...)(</span><span class="o">&lt;</span><span class="n">original_function</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>앞선 예제에서, 원하는 횟수를 추가하여 변수로 사용하고 싶다면, 아래와 같이 변경할 수 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">with_retry</span><span class="p">(</span><span class="n">retries_limit</span><span class="o">=</span><span class="n">RETRIES_LIMIT</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+      <span class="n">allowed_exceptions</span> <span class="o">=</span> <span class="n">allowed_exceptions</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ControlledException</span><span class="p">,)</span>
+
+      <span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+          <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+          <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">retries_limit</span><span class="p">):</span>
+                  <span class="k">try</span><span class="p">:</span>
+                      <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                  <span class="k">except</span> <span class="n">ControlledException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+                      <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+              <span class="k">raise</span> <span class="n">last_raised</span>
+          <span class="k">return</span> <span class="n">wrapped</span>
+      <span class="k">return</span> <span class="n">retry</span>
+
+  <span class="c1"># 실행방식
+</span>  <span class="nd">@with_retry</span><span class="p">()</span>
+  <span class="k">def</span> <span class="nf">run_operation</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+
+  <span class="nd">@with_retry</span><span class="p">(</span><span class="n">retries_limit</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="p">(</span><span class="nb">ZeroDivisionError</span><span class="p">,</span> <span class="nb">AttributeError</span><span class="p">))</span>
+  <span class="k">def</span> <span class="nf">run_with_custom_parameters</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>반복 횟수 및 exception의 종류를 지정하여 원하는 함수를 여러 번 실행시킬 수 있습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터-객체">데코레이터 객체</h3>
+<ul>
+  <li>앞 선 예제에서는 세 단계나 되는 중첩함수가 필요합니다. 클래스를 사용하여 정의한다면, 더 깔끔하게 구현이 가능합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">WithRetry</span><span class="p">:</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">retries_limit</span><span class="o">=</span><span class="n">RETRIES_LIMIT</span><span class="p">,</span> <span class="n">allowed_exceptions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">retries_limit</span> <span class="o">=</span> <span class="n">retries_limit</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">allowed_exceptions</span> <span class="o">=</span> <span class="n">allowed_exceptions</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ControlledException</span><span class="p">,)</span>
+        
+      <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
+          <span class="nd">@wraps</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+          <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+              <span class="n">last_raised</span> <span class="o">=</span> <span class="bp">None</span>
+
+              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">retries_limit</span><span class="p">):</span>
+                  <span class="k">try</span><span class="p">:</span>
+                      <span class="k">return</span> <span class="nf">operation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                  <span class="k">except</span> <span class="n">self</span><span class="p">.</span><span class="n">allowed_exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">retrying %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">operation</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+                      <span class="n">last_raised</span> <span class="o">=</span> <span class="n">e</span>
+                  <span class="k">raise</span> <span class="n">last_raised</span>
+
+          <span class="k">return</span> <span class="n">wrapped</span>
+    
+  <span class="c1"># 사용 예시
+</span>  <span class="nd">@WithRetry</span><span class="p">(</span><span class="n">retry_limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">run_with_custom_retries_limit</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">task</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">__init__</code> 메서드에 파라미터를 전달한 후, <code class="language-plaintext highlighter-rouge">__call__</code> 메서드에서 데코레이션 로직을 구현하는 방식입니다.</li>
+      <li>@ 연산 전에 전달된 파라미터를 사용해 데코레이터 객체를 생성합니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">run_with_custom_retries_limit</code> 함수를 래핑하여 <code class="language-plaintext highlighter-rouge">__call__</code> 매직 메서드를 호출합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터-활용-우수-사례">데코레이터 활용 우수 사례</h3>
+<ul>
+  <li>원하는 API를 노출하기 위해 노출하고 싶지 않은 부분을 캡슐화하여 숨길 수 있습니다.</li>
+  <li>파라미터와 함께 함수의 실행을 로깅하려는 경우 코드 추적을 위해 사용할 수 있습니다. (실행 경로 추적 / CPU 사용률 및 메모리 사용량 모니터링 / 함수 실행 시간 / 전달되는 파라미터 종류)</li>
+  <li>파라미터의 유효성을 검사하는 경우</li>
+  <li>재시도 로직을 구현하는 경우 및 일부 반복작업을 단순화하고자하는 경우</li>
+</ul>
+
+<h3 id="데코레이터-자주-발생하는-실수">데코레이터 자주 발생하는 실수</h3>
+<ul>
+  <li>데코레이터는 원본 객체 데이터를 보존해야합니다. 즉, 원래 함수의 어떤 것도 변ㄴ경하지 않아야 합니다.</li>
+  <li>하지만, 코드에 결함이 있어서 이름이나 docstring을 변경하는 경우가 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">trace_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@trace_decorator</span>
+  <span class="k">def</span> <span class="nf">process_account</span><span class="p">(</span><span class="n">account_id</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">id별 계정 처리</span><span class="sh">"""</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 계정 처리</span><span class="sh">"</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">process_account</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>위와 같이 출력하면, 출력값은 <code class="language-plaintext highlighter-rouge">trace_decorator.&lt;locals&gt;.wrapped</code>가 되어, 어떤 함수를 호출했는지 알 수 없습니다.</li>
+    </ul>
+  </li>
+  <li>따라서, 이를 방지하기 위해, 데코레이터의 <code class="language-plaintext highlighter-rouge">wrapped</code> 함수 앞에 <code class="language-plaintext highlighter-rouge">@wraps</code> 데코레이터를 적용하여 실제로는 function 파라미터 함수를 래핑했음을 명시합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+  <span class="k">def</span> <span class="nf">trace_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@trace_decorator</span>
+  <span class="k">def</span> <span class="nf">process_account</span><span class="p">(</span><span class="n">account_id</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">id별 계정 처리</span><span class="sh">"""</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 계정 처리</span><span class="sh">"</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">process_account</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>위와 같이 <code class="language-plaintext highlighter-rouge">@wraps</code> 데코레이터를 추가하면 function 파라미터 함수를 래핑한 것임을 알려줄 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>아래와 같은 템플릿으로 데코레이터를 작성해야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">origin_function</span><span class="p">):</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">origin_function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="c1"># 데코레이터에 의한 수정 작업
+</span>          <span class="k">return</span> <span class="nf">origin_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">decorated_function</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="데코레이터-부작용-처리">데코레이터 부작용 처리</h3>
+<ul>
+  <li>데코레이터 함수로 사용하기 위한 조건은 가장 안쪽에 정의된 함수여야 한다는 것입니다.</li>
+  <li>다음 데코레이터는 문제가 있습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">traced_function_wrong</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+              <span class="sh">"</span><span class="s">함수 %s의 실행시간: %.2fs</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+          <span class="p">)</span>
+          <span class="k">return</span> <span class="n">result</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@traced_function_wrong</span>
+  <span class="k">def</span> <span class="nf">process_with_delay</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+      <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+      <span class="k">return</span> <span class="nf">callback</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>해당 모듈의 함수를 임포트만 하더라도, 함수가 호출됩니다.</li>
+      <li>함수를 여러번 호출하면, 처음 임포트하는 시점의 시간을 start_time으로 기억하게 되어, 누적된 시간이 결과가 되어 도출됩니다.</li>
+    </ul>
+  </li>
+  <li>데코레이션은 <code class="language-plaintext highlighter-rouge">process_with_delay = traced_function_wrong(process_with_delay)</code>와 동작이 같습니다. 따라서, 모듈이 임포트될 떄, 이 구문이 실행됩니다.</li>
+  <li>위 문제를 해결하기 위해, 아래와 같이 <code class="language-plaintext highlighter-rouge">start_time</code> 위치를 함수의 가장 안쪽에 넣어야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">traced_function_wrong</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+          <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+
+          <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+              <span class="sh">"</span><span class="s">함수 %s의 실행시간: %.2fs</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+          <span class="p">)</span>
+          <span class="k">return</span> <span class="n">result</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="어느-곳에서나-동작하는-데코레이터-만들기">어느 곳에서나 동작하는 데코레이터 만들기</h3>
+<ul>
+  <li>데코레이터를 만들 때는 일반적으로 재사용을 고려하여 함수뿐만 아니라 메서드에서도 동작하도록 하길 바랍니다.</li>
+  <li>다음은, DB Driver에 따라 쿼리를 수행하는 데코레이터 예제입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">DBDriver</span><span class="p">:</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">dbstring</span> <span class="o">=</span> <span class="n">dbstring</span>
+        
+      <span class="k">def</span> <span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+          <span class="k">return</span> <span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">dbstring</span><span class="si">}</span><span class="s">에서 쿼리 </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s"> 실행</span><span class="sh">"</span>
+        
+  <span class="k">def</span> <span class="nf">inject_db_driver</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">데이터베이스 dns 문자열을 받아서 DBDriver 인스턴스를 생성
+      </span><span class="sh">"""</span>
+      <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">dbstring</span><span class="p">):</span>
+          <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="nc">DBDriver</span><span class="p">(</span><span class="n">dbstring</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">wrapped</span>
+
+  <span class="nd">@inject_db_driver</span>
+  <span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span><span class="n">driver</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">driver</span><span class="p">.</span><span class="nf">excute</span><span class="p">(</span><span class="sh">"</span><span class="s">test_function</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>메서드는 DB 정보 문자열을 받아서 DBDriver 인스턴스를 생성하고, 함수에 전달합니다.</li>
+      <li>따라서, <code class="language-plaintext highlighter-rouge">run_query</code>를 호출할 때 DBDriver 인스턴스를 함께 대입해주지 않아도 됩니다.</li>
+    </ul>
+  </li>
+  <li>하지만, 위의 예시의 경우 아래와 같은 클래스를 생성하고 내부 메서드를 사용한다면 오류가 발생합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">DataHandler</span><span class="p">:</span>
+      <span class="nd">@inject_db_driver</span>
+      <span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">driver</span><span class="p">.</span><span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">__class__</span><span class="p">.</span><span class="n">__name__</span><span class="p">)</span>
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">DataHandler</span><span class="p">.</span><span class="nf">run_query</span><span class="p">(</span><span class="sh">"</span><span class="s">test_fails</span><span class="sh">"</span><span class="p">))</span> <span class="c1"># 오류 발생
+</span></code></pre></div>    </div>
+    <ul>
+      <li>하나의 파라미터만 받도록 설계된 <code class="language-plaintext highlighter-rouge">@inject_db_driver</code>는 문자열 자리에 self를 전달하고, 두 번쨰 파라미터에는 아무것도 전달하지 않아서 발생하는 에러입니다.</li>
+    </ul>
+  </li>
+  <li>따라서, 이와 같은 데코레이터를 사용할 때는 <code class="language-plaintext highlighter-rouge">__get__</code> 메서드를 구현한 디스크립터 객체를 만들어야 합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">inject_db_driver</span><span class="p">:</span>
+      <span class="sh">"""</span><span class="s">문자열을 DBDriver 인스턴스로 변환하여 래핑된 함수에 전달
+      </span><span class="sh">"""</span>
+      <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+          <span class="n">self</span><span class="p">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+          <span class="nf">wraps</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">function</span><span class="p">)(</span><span class="n">self</span><span class="p">)</span>
+        
+      <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">function</span><span class="p">(</span><span class="nc">DBDriver</span><span class="p">(</span><span class="n">dbstring</span><span class="p">))</span>
+
+      <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+              <span class="k">return</span> <span class="n">self</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">__class__</span><span class="p">(</span><span class="nc">MethodType</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">function</span><span class="p">,</span> <span class="n">instance</span><span class="p">))</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">inject_db_driver</code> 데코레이터를 함수가 아닌 클래스 형태로 변경하였습니다.</li>
+      <li>인스턴스에 <code class="language-plaintext highlighter-rouge">function</code>을 동적으로 bind하여 리턴한 결과를 <code class="language-plaintext highlighter-rouge">__class__</code>로 다시 래핑합니다.</li>
+      <li>이를 사용하려는 클래스에 클래스 변수로 넣어주면, 호출될 때 <code class="language-plaintext highlighter-rouge">__get__</code>을 호출합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데코레이터와-관심사-분리">데코레이터와 관심사 분리</h3>
+<ul>
+  <li>코드 재사용이란, 함수 및 클래스는 최소한의 책임을 가져서 오직 한 가지 일만 해야합니다. 컴포넌트가 작을수록 재사용성이 높아집니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">traced_function</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s 함수 실행</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">함수 %s 처리 소요시간 %.2fs</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">,</span>
+            <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+</code></pre></div></div>
+<ul>
+  <li>위 함수는 어떤 함수가 호출되었는지 기록할 뿐 아니라, 함수의 소요시간을 함께 측정합니다.</li>
+  <li>따라서, 한 가지 경우만 원할 때에도 두 가지 기능 모두를 사용해야합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">log_excution</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">started execution of %s.</span><span class="sh">"</span><span class="p">,</span> <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+
+<span class="k">def</span> <span class="nf">measure_time</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">function %s took %.2fs</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">,</span>
+            <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nf">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+
+<span class="nd">@measure_time</span>
+<span class="nd">@log_excution</span>
+<span class="k">def</span> <span class="nf">operation</span><span class="p">():</span>
+    <span class="bp">...</span>
+</code></pre></div></div>
+<ul>
+  <li>위와 같이 재사용성이 더 높은 두 가지 데코레이터로 나누어 구현할 수 있습니다.</li>
+  <li>이 때, 데코레이터가 적용되는 순서도 중요합니다.</li>
+</ul>
+
+<h3 id="좋은-데코레이터란">좋은 데코레이터란?</h3>
+<ul>
+  <li>캡슐화와 관심사의 분리: 실제로 하는 일과 데코레이팅하는 일의 책임이 명확히 구분됩니다. (데코레이터의 클라이언트는 데코레이터 함수를 블랙박스로 생각하게 됩니다.)</li>
+  <li>독립성: 데코레이터의 동작은 독립적이며, 데코레이팅되는 객체와 최대한 분리되어야 합니다.</li>
+  <li>재사용성: 데코레이터는 하나의 함수 인스턴스에만 적용되는 것이 아닌, 여러 유형에 적용 가능되도록 만들어야합니다.(데코레이터가 함수의 역할을 하는 경우도 있음)</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Decorator 원본 함수(외에도 메서드, 제너레이터, 클래스)를 직접 수정하지 않더라도, 간접적으로 기능을 수정할 수 있는 방법입니다.]]></summary></entry><entry><title type="html">[Study] Python Clean Code - OOP</title><link href="http://localhost:4000/study/study-osi-model/" rel="alternate" type="text/html" title="[Study] Python Clean Code - OOP" /><published>2023-07-10T10:05:07+09:00</published><updated>2023-07-10T10:05:07+09:00</updated><id>http://localhost:4000/study/study-osi-model</id><content type="html" xml:base="http://localhost:4000/study/study-osi-model/"><![CDATA[<h2 id="solid-원칙">SOLID 원칙</h2>
 <ul>
   <li>S: 단일 책임 원칙 (Single Responsibility Principle)</li>
   <li>O: 개방/폐쇄의 원칙</li>
@@ -947,647 +2021,4 @@
     <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/swagger/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularSwaggerView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">swagger-ui</span><span class="sh">"</span><span class="p">,),</span>
     <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">docs/redoc/</span><span class="sh">"</span><span class="p">,</span> <span class="n">SpectacularRedocView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(</span><span class="n">url_name</span><span class="o">=</span><span class="sh">"</span><span class="s">schema-json</span><span class="sh">"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">redoc</span><span class="sh">"</span><span class="p">,),</span>
 <span class="p">]</span>
-</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[Django custom user 생성을 위한 설정 추가]]></summary></entry><entry><title type="html">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?" /><published>2023-05-27T20:05:07+09:00</published><updated>2023-05-27T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-view</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-view/"><![CDATA[<p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
-<h3 id="generic-view의-동작방식">Generic view의 동작방식</h3>
-<ul>
-  <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
-  <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
-  <li>generic view는 네가지 속성을 통해 API 동작을 결정합니다.
-  ```
-    <ul>
-      <li>authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
-        <ul>
-          <li>.get_authenticators(self)</li>
-        </ul>
-      </li>
-      <li>permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
-        <ul>
-          <li>.get_permissions(self)</li>
-        </ul>
-      </li>
-      <li>queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
-        <ul>
-          <li>.get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.</li>
-          <li>.filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.</li>
-        </ul>
-      </li>
-      <li>serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
-        <ul>
-          <li>.get_serializer_class(self)</li>
-          <li>.get_serializer_context(self)</li>
-          <li>.get_serializer(self, …)
-  ```</li>
-        </ul>
-      </li>
-      <li><code class="language-plaintext highlighter-rouge">queryset</code>에서, soft-deleted 요소를 조회하면, <code class="language-plaintext highlighter-rouge">queryset = Item.objects.filter(is_deleted='N')</code>과 같이 처리합니다. (정적 필터 적용)</li>
-      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.</li>
-    </ul>
-  </li>
-  <li>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># items/views/ItemView.py
-</span>  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
-  <span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
-  <span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
-
-  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
-
-  <span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
-      <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
-      <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
-      <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
-
-      <span class="bp">...</span>
-</code></pre></div>    </div>
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># settings.py
-</span>  <span class="bp">...</span>
-
-  <span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
-          <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
-      <span class="p">),</span>
-      <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
-          <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
-      <span class="p">],</span>
-      <span class="sh">"</span><span class="s">DEFAULT_FILTER_BACKENDS</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
-          <span class="sh">'</span><span class="s">django_filters.rest_framework.DjangoFilterBackend</span><span class="sh">'</span><span class="p">,</span>
-      <span class="p">),</span>
-  <span class="p">}</span>
-</code></pre></div>    </div>
-  </li>
-  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해두고, 전역적으로 이를 사용할 수 있습니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
-</span>
-<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
-<span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
-<span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
-<span class="kn">from</span> <span class="n">items.models</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Category</span>
-<span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
-
-<span class="sh">'''</span><span class="s">
-# 요구사항
-아이템 생성
-- 아이템 이름, 가격, 브랜드가 모두 같은 경우 생성을 막습니다.
-- 상품의 금액이 10000원 이하인 경우 생성을 막습니다. 
-
-아이템 조회
-- soft deleted 되지 않은 상품들을 가져옵니다.
-</span><span class="sh">'''</span>
-
-<span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
-    <span class="n">allowed_method</span> <span class="o">=</span> <span class="p">[</span><span class="sh">"</span><span class="s">get</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">post</span><span class="sh">"</span><span class="p">]</span>
-    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
-    <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
-    <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_queryset</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ItemSerializer</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ItemCreateSerializer</span>
-    
-    <span class="k">def</span> <span class="nf">filter_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
-        <span class="k">if</span> <span class="sh">'</span><span class="s">name</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nc">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">queryset</span>
-    
-    <span class="k">def</span> <span class="nf">get_serializer_context</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
-            <span class="n">context</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_serializer_context</span><span class="p">()</span>
-            <span class="n">context</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">category</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">context</span>
-
-    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">reqData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">data</span>
-        <span class="k">if</span> <span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reqData</span><span class="p">:</span>
-            <span class="k">return</span> 
-        <span class="n">categoryObject</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">reqData</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">])</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">check_object_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">,</span> <span class="n">categoryObject</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">categoryObject</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
-  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다. .get_permissions(self) queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다. .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다. .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다. serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다. .get_serializer_class(self) .get_serializer_context(self) .get_serializer(self, …) ``` queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted='N')과 같이 처리합니다. (정적 필터 적용) filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.]]></summary></entry><entry><title type="html">[Django] API를 어떻게 명세하여 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-spectacular/" rel="alternate" type="text/html" title="[Django] API를 어떻게 명세하여 사용할까?" /><published>2023-05-27T20:05:07+09:00</published><updated>2023-05-27T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-spectacular</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-spectacular/"><![CDATA[<h3 id="open-api와-oas-swagger">Open API와 OAS, Swagger</h3>
-<p><strong>Open API란?</strong></p>
-<ul>
-  <li>Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다.</li>
-  <li>OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다.</li>
-  <li>직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.</li>
-</ul>
-
-<p><strong>Swagger란?</strong></p>
-<ul>
-  <li>2010년대 초 Tam Wordnik이 개발하기 시작하여, 그의 회사 자체 API용 UI로 개발되었다가 SmartBear에서 인수했습니다.</li>
-  <li>2015년대 말 Linux Foundation의 후원으로 OpenAPI Initiative에 Swagger를 기부하며 OpenAPI Specification으로 이름을 변경합니다.</li>
-  <li>현재, OpenAPI를 실행하기위한 도구로써의 의미로 사용됩니다.</li>
-  <li>Swagger Editor: 브라우저 기반의 편집기로, OpenAPI 스펙을 쉽게 작성할 수 있도록 돕습니다.</li>
-  <li>Swagger UI: API test가 가능한 OpenAPI 스펙 문서</li>
-  <li>Swagger Codegen: 서버나 클라이언트가 stub code를 OpenAPI 스펙에 맞게 생성</li>
-</ul>
-
-<p><strong>OpenAPI 2.0과 OpenAPI 3.0의 차이</strong></p>
-<ul>
-  <li>2.0에서는 endpoint url을 host, basePath, schemes로 정의했지만, 3.0에서는 멀티 URL을 지원하고, 각 url마다 username, port, basepath 필드를 가집니다.</li>
-  <li>2.0에서는 특정 Path에서 중복되는 값이 있더라도 일일이 서술해줘야하는 반면, 3.0에서는 Component로 처리하여 중복부분을 변수화 할 수 있습니다.</li>
-</ul>
-
-<p><strong>OAS의 궁극적인 목표</strong></p>
-<ul>
-  <li>API 문서와 API UI는 서로 다른 프로젝트입니다. 예를 들어, Swagger-UI는 Swagger 프로젝트 중 일부일 뿐이고, API 문서는 json/yaml로 나타낼 수 있는 데이터 덩어리에 불과합니다.</li>
-  <li>Swagger-UI와 Redoc은 보기 편하게 만들어진 API 문서 User Interface입니다.</li>
-  <li>OAS는 UI를 만드는 것만을 목표로 하지는 않습니다. Client Side와 Server Side 간 API Client SDK와 관련된 모든 것들을 자동화하는 것입니다.</li>
-  <li>API 문서를 명확하게 명세해야하는 이유는, 명세를 하는 것만으로도 Client Side에 필요한 소스코드를 역생성하기 위한 것입니다. 이를 위한 프로젝트가 <code class="language-plaintext highlighter-rouge">Swagger Codegen</code>입니다.</li>
-</ul>
-
-<p><strong>drf-spectacular를 사용하는 이유</strong></p>
-<ul>
-  <li>많이 사용되는 drf-yasg의 경우, OpenAPI3.0을 지원하지 않습니다.</li>
-  <li>swagger UI의 버전과 설정값들이 drf-spectacular의 버전에 의존하지 않습니다.</li>
-  <li>swagger UI 자체에서 제공하는 UI 커스터마이징 옵션들을 자유롭게 조절할 수 있습니다.</li>
-  <li>example object를 다양하게 선언할 수 있습니다.</li>
-</ul>
-
-<hr />
-
-<h3 id="drf-spectacular-사용방법">drf-spectacular 사용방법</h3>
-
-<p>공식문서: https://drf-spectacular.readthedocs.io/en/latest/</p>
-
-<p><code class="language-plaintext highlighter-rouge">@extend_schema_view</code></p>
-<ul>
-  <li>클래스 단위의 데코레이터로, 하나의 ViewSet에 속한 method들의 문서화를 커스터마이징 할 때 사용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">@extend_schema</code>보다 우선순위를 가집니다.</li>
-  <li>지정할 수 있는 <code class="language-plaintext highlighter-rouge">view_name</code>은 기본적으로 <code class="language-plaintext highlighter-rouge">list, retrieve, create, update, delete</code>가 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">@action</code>을 통해 생성한 커스텀 메서드의 메서드 또한 <code class="language-plaintext highlighter-rouge">view_name</code>에 등록 가능합니다.</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">@extend_schema</code></p>
-<ul>
-  <li>메서드 단위의 데코레이터로 가장 핵심이 되는 데코레이터입니다.</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">@extend_schema_serializer</code></p>
-<ul>
-  <li>serializer 자체의 커스텀 스키마를 원하는 경우에 사용할 수 있습니다.</li>
-  <li>적용 우선순위는 method -&gt; viewset -&gt; serializer 순서입니다.</li>
-</ul>
-
-<p><strong>사용 예시</strong></p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">views.py</code>에서 <code class="language-plaintext highlighter-rouge">@extend_schema_view</code>를 설정하여 공통적으로 적용할 수 있는 설정 항목들을 적용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">@extend_schema</code>를 통해 특정 메서드(예시에서는 create)에 대한 설정항목만 따로 적용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">@extend_schema_serializer</code> 항목을 통해 노출하지 않고자 하는 필드를 기입합니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
-</span><span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="n">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
-<span class="kn">from</span> <span class="n">drf_spectacular.types</span> <span class="kn">import</span> <span class="n">OpenApiTypes</span>
-<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
-<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">extend_schema</span>
-<span class="kn">from</span> <span class="n">rest_framework.decorators</span> <span class="kn">import</span> <span class="n">action</span>
-<span class="kn">from</span> <span class="n">rest_framework.request</span> <span class="kn">import</span> <span class="n">Request</span>
-<span class="kn">from</span> <span class="n">rest_framework.response</span> <span class="kn">import</span> <span class="n">Response</span>
-<span class="kn">from</span> <span class="n">rest_framework.viewsets</span> <span class="kn">import</span> <span class="n">ModelViewSet</span>
-<span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
-<span class="kn">from</span> <span class="n">test_app.serializers</span> <span class="kn">import</span> <span class="n">CustomUserSerializer</span><span class="p">,</span> <span class="n">UserSerializer</span>
-<span class="kn">from</span> <span class="n">test_app.schemas</span> <span class="kn">import</span> <span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span><span class="p">,</span> <span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span><span class="p">,</span> <span class="n">USER_CREATE_EXAMPLES</span>
-
-<span class="nd">@extend_schema_view</span><span class="p">(</span>
-    <span class="nb">list</span><span class="o">=</span><span class="nf">extend_schema</span><span class="p">(</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">사용자들 리스트를 조회합니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
-        <span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
-            <span class="nc">OpenApiParameter</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">,</span>
-                <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">Filter by username</span><span class="sh">"</span><span class="p">,</span>
-                <span class="nb">type</span><span class="o">=</span><span class="n">OpenApiTypes</span><span class="p">.</span><span class="n">STR</span><span class="p">,</span>
-                <span class="n">location</span><span class="o">=</span><span class="n">OpenApiParameter</span><span class="p">.</span><span class="n">QUERY</span><span class="p">,</span>
-                <span class="n">examples</span><span class="o">=</span> <span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span>
-            <span class="p">),</span>
-            <span class="nc">OpenApiParameter</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">date_joined</span><span class="sh">"</span><span class="p">,</span>
-                <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">Filter by release date</span><span class="sh">"</span><span class="p">,</span>
-                <span class="nb">type</span><span class="o">=</span><span class="n">OpenApiTypes</span><span class="p">.</span><span class="n">DATE</span><span class="p">,</span>
-                <span class="n">location</span><span class="o">=</span><span class="n">OpenApiParameter</span><span class="p">.</span><span class="n">QUERY</span><span class="p">,</span>
-                <span class="n">examples</span><span class="o">=</span> <span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span>
-            <span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="n">custom_api</span><span class="o">=</span><span class="nf">extend_schema</span><span class="p">(</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">@action 데코레이터로 생성한 커스텀 API</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
-        <span class="n">request</span><span class="o">=</span><span class="n">UserSerializer</span><span class="p">,</span>
-        <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">:</span> <span class="n">UserSerializer</span><span class="p">},</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<span class="k">class</span> <span class="nc">UserViewSet</span><span class="p">(</span><span class="n">ModelViewSet</span><span class="p">):</span>
-    <span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">UserSerializer</span>
-
-    <span class="nd">@extend_schema</span><span class="p">(</span>
-        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">사용자</span><span class="sh">"</span><span class="p">],</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">새로운 사용자를 추가합니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">examples</span> <span class="o">=</span> <span class="n">USER_CREATE_EXAMPLES</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
-        <span class="n">response</span><span class="p">:</span> <span class="n">HttpResponse</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">response</span>
-
-    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="sh">"</span><span class="s">action-api</span><span class="sh">"</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">custom_api</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="sh">"</span><span class="s">result</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">ok</span><span class="sh">"</span><span class="p">})</span>
-</code></pre></div></div>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># serializers.py
-</span><span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
-<span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">extend_schema_serializer</span>
-<span class="kn">from</span> <span class="n">rest_framework.serializers</span> <span class="kn">import</span> <span class="n">ModelSerializer</span>
-
-<span class="nd">@extend_schema_serializer</span><span class="p">(</span>
-    <span class="n">exclude_fields</span><span class="o">=</span><span class="p">(</span><span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,),</span>  
-    <span class="n">examples</span><span class="o">=</span><span class="p">[</span>
-        <span class="nc">OpenApiExample</span><span class="p">(</span>
-            <span class="sh">"</span><span class="s">Valid example 1</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">short summary</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">longer description</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="p">{</span>
-                <span class="sh">"</span><span class="s">is_superuser</span><span class="sh">"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">is_staff</span><span class="sh">"</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">is_active</span><span class="sh">"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">date_joined</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">2021-04-18 04:14:30</span><span class="sh">"</span><span class="p">,</span>
-                <span class="sh">"</span><span class="s">user_type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">customer</span><span class="sh">"</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-            <span class="n">response_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  
-        <span class="p">),</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-<span class="k">class</span> <span class="nc">UserSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
-        <span class="n">depth</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="sh">"</span><span class="s">__all__</span><span class="sh">"</span>
-</code></pre></div></div>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># schemas.py
-</span><span class="kn">from</span> <span class="n">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">OpenApiExample</span><span class="p">,</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema_view</span>
-
-<span class="n">USER_QUERY_PARAM_USERNAME_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="sh">"</span><span class="s">username 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example username 1</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">첫 번째 유저명입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">김예함</span><span class="sh">"</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="sh">"</span><span class="s">username 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example username 2</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">두 번째 유저명입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">김예함</span><span class="sh">"</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">]</span>
-
-<span class="n">USER_QUERY_PARAM_DATE_JOINED_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="sh">"</span><span class="s">date_joined 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example date_joined 1</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">첫 번째 가입일입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1995-07-08</span><span class="sh">"</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="sh">"</span><span class="s">date_joined 필드 필터링을 위한 query parameter 예시입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">example date_joined 2</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sh">"</span><span class="s">두 번째 가입일입니다.</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1995-07-09</span><span class="sh">"</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">]</span>
-
-<span class="n">USER_CREATE_EXAMPLES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">성공적으로 생성하는 경우</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">success_example</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
-            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">yamkim</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test123!</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">YEHAM</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="c1"># 요청시에만 사용가능한 예제로 명시한다.
-</span>        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">비밀번호 너무 쉬움</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">invalid_example_too_easy_password</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
-            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">yamkim</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">1234</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">YEHAM</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-    <span class="nc">OpenApiExample</span><span class="p">(</span>
-        <span class="n">request_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">이름 필수 입력</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">invalid_example_empty_name</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="p">{</span>
-            <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">root434</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test123!</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">first_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">""</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">last_name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">KIM</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">email</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">user@example.com</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-<span class="p">]</span>
-</code></pre></div></div>
-
-<h3 id="참고">참고</h3>
-<ul>
-  <li><a href="https://gruuuuu.github.io/programming/openapi/">gruuuuu님 블로그</a></li>
-  <li><a href="https://techblog.yogiyo.co.kr/django-rest-framework-api-document-generator-feat-drf-spectacular-585fcabec404">요기요 테크 블로그</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다.]]></summary></entry><entry><title type="html">Cs Database</title><link href="http://localhost:4000/cs-database/" rel="alternate" type="text/html" title="Cs Database" /><published>2023-05-26T00:00:00+09:00</published><updated>2023-05-26T00:00:00+09:00</updated><id>http://localhost:4000/cs-database</id><content type="html" xml:base="http://localhost:4000/cs-database/"><![CDATA[<h3 id="nosql">NoSQL</h3>
-<p><strong>RDB의 단점은 무엇일까?</strong></p>
-<ul>
-  <li>스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다.</li>
-  <li>스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다.</li>
-  <li>결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다.</li>
-  <li>RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 <code class="language-plaintext highlighter-rouge">JOIN</code>을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다.</li>
-  <li>RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다.</li>
-  <li>transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.</li>
-</ul>
-
-<p><strong>NoSQL의 배경과 특징</strong>
-<strong>배경</strong></p>
-<ul>
-  <li>인터넷 사용량이 늘어나고 글로벌 사용자가 늘어남에 따라, high-throughput이 요구되었습니다.</li>
-  <li>기존과 다른 비정형 데이터가 증가하게 됨에 따라, 새로운 형태의 데이터가 발생합니다.</li>
-  <li>Not only SQL: 기존의 SQL을 커버할 뿐만 아니라 그 외의 기능들도 커버합니다.
-<strong>특징</strong></li>
-  <li>flexible schema: 기존의 sql에서 지정된 스키마의 형식으로 데이터를 넣는 것이 아닌, JSON 객체 형식으로 데이터를 삽입합니다.</li>
-  <li>이 때, schema에 대한 관리는 SQL처럼 RDBMS에서 해주는 것이 아닌 application 레벨에서 해주어야합니다.</li>
-  <li>중복을 허용하므로써 <code class="language-plaintext highlighter-rouge">JOIN</code>을 회피합니다. 하지만, 중복된 데이터들이 모두 최신 데이터를 유지할 수 있도록 application 레벨에서 관리해야합니다.</li>
-  <li>scale-out이 쉽기 때문에, 여러대의 서버(각각의 서버에 데이터를 나누어 저장합니다.)를 사용하여 하나의 클러스터를 구성합니다.</li>
-  <li>RDB의 경우에는 서버가 나뉘게 되면 데이터도 분리되고, 각 데이터를 <code class="language-plaintext highlighter-rouge">JOIN</code>하기 위해 또한 추가적인 트래픽이 발생하게 될 것입니다.</li>
-  <li>ACID의 일부를 포기하고 high-throughput, low-latency를 추구합니다. 따라서 안정성을 확보하기에는 불리하므로 금융 시스템 처리와 같이 Consistency가 중요한 환경에서 사용하기 조심스럽습니다.</li>
-</ul>
-
-<p><strong>Redis의 특징</strong></p>
-<ul>
-  <li>in-memory key-value database: 메모리를 사용하여 key-value 형태로 값을 저장하는 DB입니다. 보통 DB보다 메모리나 캐시로 많이 사용합니다.</li>
-  <li>value의 data type: strings, lists, sets hashes, sorted sets 등 다양한 형태를 지원합니다.</li>
-  <li>hash-based sharded cluster</li>
-  <li>High Availability (replication, automatic failover)</li>
-  <li>보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.</li>
-  <li>memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이 때, 데이터들을 함꼐 가져오기 위해서는 JOIN을 사용해야하고, DB의 CPU와 메모리를 많이 사용하게 됩니다. RDB는 사실 scale-out 하는데 있어, 유연한 DB는 아닙니다. transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다.Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.]]></summary></entry><entry><title type="html">[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?</title><link href="http://localhost:4000/django%20strategy/django-auth/" rel="alternate" type="text/html" title="[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?" /><published>2023-05-25T20:05:07+09:00</published><updated>2023-05-25T20:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-auth</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-auth/"><![CDATA[<h1 id="custom-user-registration">Custom User Registration</h1>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># requirements.txt
-</span><span class="n">asgiref</span><span class="o">==</span><span class="mf">3.6</span><span class="p">.</span><span class="mi">0</span>
-<span class="n">Django</span><span class="o">==</span><span class="mf">4.2</span><span class="p">.</span><span class="mi">1</span>
-<span class="n">djangorestframework</span><span class="o">==</span><span class="mf">3.14</span><span class="p">.</span><span class="mi">0</span>
-<span class="n">djangorestframework</span><span class="o">-</span><span class="n">simplejwt</span><span class="o">==</span><span class="mf">5.2</span><span class="p">.</span><span class="mi">2</span>
-<span class="n">PyJWT</span><span class="o">==</span><span class="mf">2.7</span><span class="p">.</span><span class="mi">0</span>
-<span class="n">pytz</span><span class="o">==</span><span class="mf">2023.3</span>
-<span class="n">rest</span><span class="o">-</span><span class="n">framework</span><span class="o">-</span><span class="n">simplejwt</span><span class="o">==</span><span class="mf">0.0</span><span class="p">.</span><span class="mi">2</span>
-<span class="n">sqlparse</span><span class="o">==</span><span class="mf">0.4</span><span class="p">.</span><span class="mi">4</span>
-</code></pre></div></div>
-<ul>
-  <li>djangorestframework-simplejwt를 사용하여 개발합니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># settings.py
-</span>
-<span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="sh">'</span><span class="s">django.contrib.admin</span><span class="sh">'</span><span class="p">,</span>
-    <span class="sh">'</span><span class="s">django.contrib.auth</span><span class="sh">'</span><span class="p">,</span>
-    <span class="sh">'</span><span class="s">django.contrib.contenttypes</span><span class="sh">'</span><span class="p">,</span>
-    <span class="sh">'</span><span class="s">django.contrib.sessions</span><span class="sh">'</span><span class="p">,</span>
-    <span class="sh">'</span><span class="s">django.contrib.messages</span><span class="sh">'</span><span class="p">,</span>
-    <span class="sh">'</span><span class="s">django.contrib.staticfiles</span><span class="sh">'</span><span class="p">,</span>
-
-    <span class="c1"># restframework
-</span>    <span class="sh">"</span><span class="s">rest_framework</span><span class="sh">"</span><span class="p">,</span>
-    <span class="sh">"</span><span class="s">rest_framework_simplejwt</span><span class="sh">"</span><span class="p">,</span>
-    <span class="sh">"</span><span class="s">rest_framework_simplejwt.token_blacklist</span><span class="sh">"</span><span class="p">,</span>
-
-    <span class="c1"># custom apps
-</span>    <span class="sh">"</span><span class="s">members</span><span class="sh">"</span><span class="p">,</span>
-    <span class="sh">"</span><span class="s">core</span><span class="sh">"</span><span class="p">,</span>
-    <span class="sh">"</span><span class="s">mytest</span><span class="sh">"</span><span class="p">,</span>
-<span class="p">]</span>
-
-<span class="bp">...</span>
-
-<span class="c1"># Settings for JWT Authentication
-</span><span class="n">SIMPLE_JWT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="sh">"</span><span class="s">ACCESS_TOKEN_LIFETIME</span><span class="sh">"</span><span class="p">:</span> <span class="nf">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-    <span class="sh">"</span><span class="s">REFRESH_TOKEN_LIFETIME</span><span class="sh">"</span><span class="p">:</span> <span class="nf">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
-<span class="p">}</span>
-
-<span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
-        <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">}</span>
-
-<span class="n">AUTH_USER_MODEL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members.Member</span><span class="sh">'</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">AUTH_USER_MODEL</code>을 <code class="language-plaintext highlighter-rouge">members.Member</code>로 설정하여, 해당 모델이 Django 기본 user 모델인 <code class="language-plaintext highlighter-rouge">auth_user</code> 테이블을 대체하도록 합니다.</li>
-  <li>아래와 같이 django app을 구성하여 진행합니다.
-```
-code/
-    <ul>
-      <li>cores/
-        <ul>
-          <li>models.py</li>
-          <li>serializers.py
-…</li>
-        </ul>
-      </li>
-      <li>members/
-        <ul>
-          <li>models.py</li>
-          <li>urls/
-            <ul>
-              <li>auth.py</li>
-              <li>members.py</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li>myproject/
-        <ul>
-          <li>urls/
-```</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><code class="language-plaintext highlighter-rouge">cores</code> 앱은 다른 앱들이 상속 받아서 사용할 만한 핵심 기능을 담당합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">members</code> 앱은 클라이언트의 회원가입/인증 관련 작업을 위한 도메인입니다.</li>
-</ul>
-
-<p><strong>Custom user model setting</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/models.py
-</span><span class="kn">from</span> <span class="n">core.models</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span> <span class="n">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">AbstractUser</span><span class="p">,</span> <span class="n">BaseUserManager</span>
-<span class="kn">from</span> <span class="n">django.core.validators</span> <span class="kn">import</span> <span class="n">RegexValidator</span>
-<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
-
-<span class="k">class</span> <span class="nc">MemberManager</span><span class="p">(</span><span class="n">BaseUserManager</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">createMember</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
-        <span class="n">member</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">model</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="n">phone</span><span class="p">)</span>
-        <span class="n">member</span><span class="p">.</span><span class="nf">set_password</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
-        <span class="n">member</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">member</span>
-
-<span class="k">class</span> <span class="nc">Member</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">AbstractUser</span><span class="p">):</span>
-    <span class="n">username</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">phone</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span>
-        <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-        <span class="n">max_length</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-        <span class="n">validators</span><span class="o">=</span><span class="p">[</span>
-            <span class="nc">RegexValidator</span><span class="p">(</span>
-                <span class="sa">r</span><span class="sh">"</span><span class="s">^01[016789][0-9]{7,8}$</span><span class="sh">"</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="sh">"</span><span class="s">This phone number format is invalid.</span><span class="sh">"</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">objects</span> <span class="o">=</span> <span class="nc">MemberManager</span><span class="p">()</span>
-
-    <span class="n">USERNAME_FIELD</span> <span class="o">=</span> <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span>
-
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">managed</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="n">db_table</span> <span class="o">=</span> <span class="sh">'</span><span class="s">members</span><span class="sh">'</span>
-</code></pre></div></div>
-<ul>
-  <li>Django의 기본 user 모델은 <code class="language-plaintext highlighter-rouge">username</code> 필드가 아이디를 의미합니다. 구현할 간단한 커스텀 유저 모델에서는 핸드폰 번호가 아이디를 대체합니다.</li>
-</ul>
-
-<p><strong>Custom user serializer setting</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/serializers.py
-</span><span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="n">core.serializers</span> <span class="kn">import</span> <span class="n">CreateSerializer</span>
-
-<span class="kn">from</span> <span class="n">members.models</span> <span class="kn">import</span> <span class="n">Member</span>
-
-<span class="k">class</span> <span class="nc">MemberSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="n">fields</span>
-
-<span class="k">class</span> <span class="nc">MemberCreateSerializer</span><span class="p">(</span><span class="n">CreateSerializer</span><span class="p">):</span>
-    <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">MemberSerializer</span>
-    <span class="n">password2</span> <span class="o">=</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Member</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sh">"</span><span class="s">phone</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">password</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">password</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">password</span><span class="sh">'</span><span class="p">)</span>
-        <span class="n">password2</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">password</span> <span class="o">!=</span> <span class="n">password2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">serializers</span><span class="p">.</span><span class="nc">ValidationError</span><span class="p">({</span><span class="sh">"</span><span class="s">password2</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">This is different with password.</span><span class="sh">"</span><span class="p">})</span>
-        <span class="k">return</span> <span class="n">data</span>
-    
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
-        <span class="n">validated_data</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="sh">'</span><span class="s">password2</span><span class="sh">'</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Member</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">createMember</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">MemberCreateSerializer</code>은 회원가입을 위해 사용하는 serializer로, 비밀번호 확인 기능을 포함합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">MemberSerializer</code>에서 재사용 가능한 field를 가져오기 위해</li>
-  <li><code class="language-plaintext highlighter-rouge">core.serializer.CreateSerializer</code>의 역할은 다음과 같습니다.
-    <ul>
-      <li><code class="language-plaintext highlighter-rouge">to_representation</code> 메서드를 이용해, 데이터를 직렬화 하거나, customize하여 필드 값을 원하는 형태로 변환할 수 있습니다.</li>
-      <li><code class="language-plaintext highlighter-rouge">represntation_serializer_class</code>를 오버라이드 하여 <code class="language-plaintext highlighter-rouge">to_representation</code> 메서드에서 사용할 serializer를 선정할 수 있게 합니다.</li>
-      <li>MemberCreateSerializer.create() 작업을 마치고, 생성된 instance의 data 부분만 추출하여 serialize 후 반환합니다. 생성 후 추가 작업이 필요하다면,
-```python
-        <h1 id="coreserializerspy">core/serializers.py</h1>
-        <p>from rest_framework import serializers</p>
-      </li>
-    </ul>
-
-    <p>class CreateSerializer(serializers.ModelSerializer):
-    representation_serializer_class = None</p>
-
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def to_representation(self, instance):
-    return self.representation_serializer_class(instance=instance).data ```
-</code></pre></div>    </div>
-  </li>
-</ul>
-
-<p><strong>Custom user controller and router setting</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/views.py
-</span><span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
-
-<span class="c1"># Create your views here.
-</span><span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">CreateAPIView</span>
-<span class="kn">from</span> <span class="n">rest_framework.permissions</span> <span class="kn">import</span> <span class="n">AllowAny</span>
-<span class="kn">from</span> <span class="n">rest_framework_simplejwt</span> <span class="kn">import</span> <span class="n">views</span> <span class="k">as</span> <span class="n">jwt_views</span>
-
-<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
-
-<span class="k">class</span> <span class="nc">MemberCreateAPIView</span><span class="p">(</span><span class="n">CreateAPIView</span><span class="p">):</span>
-    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
-
-<span class="k">class</span> <span class="nc">TokenCreateAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenObtainPairView</span><span class="p">):</span>
-    <span class="k">pass</span>
-<span class="k">class</span> <span class="nc">TokenRefreshAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenRefreshView</span><span class="p">):</span>
-    <span class="k">pass</span>
-<span class="k">class</span> <span class="nc">TokenBlackListAPIView</span><span class="p">(</span><span class="n">jwt_views</span><span class="p">.</span><span class="n">TokenBlacklistView</span><span class="p">):</span>
-    <span class="k">pass</span>
-</code></pre></div></div>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/urls/members.py
-</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">MemberCreateAPIView</span>
-
-<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">members</span><span class="sh">"</span>
-
-<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nf">path</span><span class="p">(</span><span class="sh">""</span><span class="p">,</span> <span class="n">MemberCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">create</span><span class="sh">"</span><span class="p">),</span>
-<span class="p">]</span>
-</code></pre></div></div>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># members/urls/auth.py
-</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="n">members.views</span> <span class="kn">import</span> <span class="n">TokenBlackListAPIView</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span>
-
-<span class="n">app_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">auth</span><span class="sh">"</span>
-
-<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
-    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/refresh/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenRefreshAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
-    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tokens/blacklist/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TokenBlackListAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">()),</span>
-<span class="p">]</span>
-</code></pre></div></div>
-<ul>
-  <li>앞서 구축한 members.model과 members.serializer를 활용하여 새로운 멤버를 생성할 수 있도록 합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">rest_framework_simplejwt</code>에서 기본적으로 사용하는 controller를 통해 토큰 관련 API를 처리합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[Custom User Registration]]></summary></entry></feed>
+</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><summary type="html"><![CDATA[Django custom user 생성을 위한 설정 추가]]></summary></entry></feed>

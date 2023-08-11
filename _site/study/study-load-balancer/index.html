@@ -9,28 +9,32 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Django Deep - Yam’s Dev Logs</title>
-<meta name="description" content="An amazing website.">
+<!-- begin _includes/seo.html --><title>[Study] Load Balancer - Yam’s Dev Logs</title>
+<meta name="description" content="작성 계기    면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.">
 
 
   <meta name="author" content="Yeham Kim">
   
+  <meta property="article:author" content="Yeham Kim">
+  
 
 
-<meta property="og:type" content="website">
+<meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="Django Deep">
-<meta property="og:url" content="http://localhost:4000/categories/django-deep/">
+<meta property="og:title" content="[Study] Load Balancer">
+<meta property="og:url" content="http://localhost:4000/study/study-load-balancer/">
 
 
-  <meta property="og:description" content="An amazing website.">
-
-
-
+  <meta property="og:description" content="작성 계기    면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.">
 
 
 
+
+
+
+
+  <meta property="article:published_time" content="2023-08-11T00:05:07+09:00">
 
 
 
@@ -41,7 +45,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/categories/django-deep/">
+<link rel="canonical" href="http://localhost:4000/study/study-load-balancer/">
 
 
 
@@ -375,36 +379,110 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">Django Deep</h1>
+      <h1 id="page-title" class="page__title">[Study] Load Balancer</h1>
     
-    
-<div class=" list__item">
-    <article class="archive-item">
-        <div>
-            <span>
-                <a href="/django%20deep/django-orm-deep2/">[Django] ORM 사용시 주의사항</a>
-            </span>
-            <small>
-                <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i> 2023.04.11
-                
-            </small>
-        </div>
-    </article>
-</div>
+    <h2 id="작성-계기">작성 계기</h2>
+<ul>
+  <li>면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에<br />
+대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.</li>
+</ul>
 
-<div class=" list__item">
-    <article class="archive-item">
-        <div>
-            <span>
-                <a href="/django%20deep/django-orm-deep1/">[Django] ORM 사용 방법을 위한 기록</a>
-            </span>
-            <small>
-                <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i> 2023.04.11
-                
-            </small>
-        </div>
-    </article>
-</div>
+<h3 id="로드밸런서">로드밸런서</h3>
+<ul>
+  <li>트래픽을 받아서 여러 대의 서버에 분산시키는 하드웨어/소프트웨어를 의미합니다.</li>
+  <li>부하 분산에는 L4 Load Balancer와 L7 Load Balancer가 사용됩니다.</li>
+</ul>
+
+<h3 id="l4-load-balancer">L4 Load Balancer</h3>
+<ul>
+  <li>IP Port를 활용하여 서버부하분산을 하는 것을 의미합니다. 적합한 server IP와 Port를 목적지로 하는 요청에 따라 부하를 분산합니다.</li>
+  <li>로드밸런싱의 기준점이 IP와 Port이기 때문에, TCP/UDP의 Header를 분석하여 로드밸런싱에 활용하지는 않습니다. 따라서, 프로토콜들의 특성으로 인한 행동을 제어하는 편입니다.</li>
+  <li>클라이언트에서 로드밸런서로 요청을 보낼 때, 최적의 서버로 요청을 전송하고, 그 결과를 클라이언트에게 전달합니다.</li>
+  <li>요청 패킷에 대해 NAT도 수행하여 기록된 대상 IP 주소를 자체에서 선택한 컨텐츠 서버의 IP 주소로 변경합니다.</li>
+</ul>
+
+<h3 id="l7-load-balancer">L7 Load Balancer</h3>
+<ul>
+  <li>L7 Load Balancer는 URL, Payload, HTTP Header, Cookie 등의 내용을 기준으로 부하를 분산합니다. 따라서, 컨텐츠 기반 스위칭이라고도 말합니다.</li>
+  <li>해당 계층에서의 로드밸런싱은 전송되는 정보의 양이 더 많기 때문에, L4 에서보다 비용이 더 많이 들게 되지만, 전체 효율성은 더욱 높습니다.</li>
+  <li>클라이언트가 요청하는 데이터의 유형을 결정할 수 있기 때문입니다. 따라서, 모든 서버에 동일한 데이터를 복제할 필요가 없습니다.</li>
+  <li>L4에서와 같이 트래픽을 패킷단위로 관리하는 것이 아닌, 요청과 응답을 전체적으로 읽고 관리할 숫 있습니다.</li>
+</ul>
+
+<h2 id="osiopen-systems-interconnection-참조-모델">OSI(Open Systems Interconnection) 참조 모델</h2>
+<p><strong>7 계층 - Application Layer</strong></p>
+<ul>
+  <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
+  <li>애플리케이션 목적에 맞는 통신 방법을 제공합니다.</li>
+  <li>HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.</li>
+</ul>
+
+<p><strong>6 계층 - Presentation Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다.</li>
+  <li>데이터를 안전하게 전송하기 위해 암호화, 복호화하여 소통합니다.</li>
+</ul>
+
+<p><strong>5 게층 - Session Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신에서 세션을 관리하는 계층입니다.</li>
+  <li>예시로 RPC(remote procedure call)가 있습니다.</li>
+</ul>
+
+<p><strong>4 계층 - Transport Layer</strong></p>
+<ul>
+  <li>애플리케이션 통신을 담당하며, 실제로 목적지 애필리케이션으로 데이터를 전송합니다.</li>
+  <li>TCP, UDP 프로토콜을 사용합니다.</li>
+  <li>TCP: 안정적이고 신뢰할 수 있는 데이터 전송을 보장합니다.</li>
+  <li>UDP: 데이터가 중간에 유실되거나 순서가 꼬일 수 있지만, 데이터를 무조건 전송합니다.</li>
+  <li>Network Layer의 기능을 사용하여 데이터를 전송합니다.</li>
+</ul>
+
+<p><strong>3 계층 - Network Layer</strong></p>
+<ul>
+  <li>호스트 간의 통신을 담당합니다. (IP 프로토콜)</li>
+  <li>목적지 호스트로 데이터를 전송합니다.</li>
+  <li>네트워크 간의 최적의 경로를 결정합니다.</li>
+  <li>Data Link Layer의 기능을 사용하여 기능을 구현합니다.</li>
+</ul>
+
+<p><strong>2 계층 - Data Link Layer</strong></p>
+<ul>
+  <li>IP 주소가 아닌 MAC 주소 기반으로 통신합니다.</li>
+  <li>ARP: IP 주소를 MAC 주소로 변환하는 프로토콜입니다.</li>
+</ul>
+
+<p><strong>1 계층 - Physical Layer</strong></p>
+<ul>
+  <li>
+    <p>bits 단위로 데이터를 전송합니다.</p>
+  </li>
+  <li>서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.</li>
+  <li>라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<h2 id="amazon-elb">Amazon ELB</h2>
+<ul>
+  <li>AWS가 제공하는 로드 밸런서로, 집중되는 트래픽을 서버/네트워크에 분배하는 부하 분산 장치입니다.</li>
+</ul>
+
+<p><strong>ALB</strong></p>
+<ul>
+  <li>HTTP/HTTPS 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 애플리케이션 계층(7계층)에서 동작합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호 + 패킷내용</code> 정보를 통해 스위칭합니다.</li>
+  <li>L7단에서 지원하기 때문에 인스턴스와 로드 밸런서 사이에서 SSL이 적용된 암호화 통신이 가능합니다.</li>
+  <li>IP 주소가 변동될 수 있기 때문에, Client는 DNS 주소로 접근하는 것이 좋습니다.<br />
+(따라서, EIP를 ALB에 설정해두는 것이 좋습니다.)</li>
+</ul>
+
+<p><strong>NLB</strong></p>
+<ul>
+  <li>TCP/IP 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 전송 계층(4계층)에서 동작합니다.<br />
+(ALB보다 낮은 계층에서 동작하기 때문에 속도가 빠릅니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호</code> 정보를 통해고 스위칭합니다.</li>
+  <li>EIP를 이용할 수 있으며, DNS와 IP 주소 모두 사용 가능합니다. (SSL은 사용 불가능)</li>
+</ul>
 
   </div>
 </div>
