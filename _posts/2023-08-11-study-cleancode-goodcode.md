@@ -160,7 +160,7 @@ assert result > 0, "에러 {0}".format(result)
 - 소프트웨어의 관심사를 분리하는 목표는 파급 효과(한 지점의 변화가 전체로 전파되는 것)를 최소화하여 유지보수성을 향상시키는데 있습니다.
 
 ### 응집력
-- 객체는 작고 잘 정의된 목적을 가져야하며, 가능하면 작아야합니다.
+- 객체는 작고 잘 정의된 목적을 가져야 하며, 가능하면 작아야 합니다.
 - 객체의 응집력이 높을수록 더 유용하고 재사용성이 높아지므로, 더 좋은 디자인입니다.
 
 ### 결합력
@@ -169,3 +169,97 @@ assert result > 0, "에러 {0}".format(result)
 - 1. 낮은 재사용성: 어떤 함수가 특정 객체에 지나치게 의존하거나 너무 많은 파라미터를 가진다면, 해당 객체에 결합하게 됩니다.
 - 2. 파급효과: 너무 가깝게 붙어있게 되면, 두 부분 중 하나를 변경할 때 다른 부분에도 영향을 미칩니다.
 - 3. 낮은 수준의 추상화: 두 함수가 너무 가깝게 관련되어 있으면, 서로 다른 추상화 레벨에서 문제를 해결하기 어렵습니다.
+
+## 컴포지션과 상속
+
+### 상속의 좋은 예시
+- public 메서드와 속성 인터페이스를 정의한 컴포넌트를 그대로 물려받으면서 추가 기능을 더하려고 하는 경우 및 특정 기능을 수정하는 경우에 좋습니다.
+- 예를 들어, `http.server` 패키지에서 `BaseHTTPRequsetHandler` 기본 클래스와, 이를 변경한 `SimpleHTTPRequestHandler`가 있습니다.
+- 예외처리를 담당하는 `Exception` 클래스의 경우, 상속을 사용하는 것이 좋습니다.
+
+### 상속의 안티패턴
+- 도메인 문제를 해결하기 위해, 적절한 데이터 구조를 만든 후, 이를 사용하는 객체를 만들지 않고 데이터 구조(딕셔너리/셋/리스트 등) 자체를 객체로 만드는 경우입니다.
+- 또한, public 인터페이스를 통해 노출된 public 메서드를 사용하게 되기 때문에, 필요없는 메서드에도 접근할 수 있는 coupling에 대한 문제가 발생합니다.
+```python
+class TransactionPolicy(collections.UserDict):
+    """잘못된 상속 예시"""
+    def change_in_policy(self, customer_id, **new_policy_data):
+        self[customer_id].update(**new_policy_data)
+    
+```
+- 올바른 해결책은 컴포지션을 사용하는 것입니다. `TransactionalPolicy` 자체가 딕셔너리가 되는 것이 아니라 딕셔너리를 활용하는 것입니다.
+- 사전을 private 속성에 저장하고 `__getitem__()`으로 사전의 프록시를 만들고 나머지 필요한 public 메서드를 추가적으로 구현하는 것입니다.
+```python
+class TransactionPolicy:
+    """컴포지션을 사용한 리팩토링 예시"""
+    def __init__(self, policy_data, **extra_data):
+        self._data = {**policy_data, **extra_data}
+    
+    def change_in_policy(self, customer_id, **new_policy_data):
+        self._data[customer_id].update(**new_policy_data)
+
+    def __getitem__(self, customer_id):
+        return self._data[customer_id]
+    
+    def __len__(self):
+        return len(self._data)
+```
+- `TransacctionalPolicy` 자체가 딕셔너리가 되는 것이 아닌, 딕셔너리를 활용하는 것입니다. 즉, 딕셔너리를 private 속성에 저장하고 `__getitem__()`으로 딕셔너리의 프록시를 생성합니다.
+- 이 방법은 개념적으로 정확하며, 현재 딕셔너리의 데이터 구조를 변경하더라도 인터페이스만 유지하면, 사용자는 영향을 받지 않습니다.
+
+### 파이썬 다중상속
+- 파이썬은 다중상속을 지원하지만, 이를 잘못 사용하면 큰 문제를 초래할 수 있습니다.
+- 다중 상속의 올바른 해결책으로는 믹스인(mixin)을 활용한 디자인 패턴이 있습니다.
+
+**믹스인(mixin)**
+- 믹스인은 코드를 재사용하기 위해, 일반적인 행동을 캡슐화한 기본 클래스입니다.
+- 믹스인 클래스는 그 자체로는 유용하지 않으며, 대부분이 클래스에 정의된 메서드나 속성에 의존하기 때문에 확장에서는 동작하지 않습니다.
+```python
+class BaseTokenizer:
+    def __init__(self, str_token):
+        self.str_token = str_token
+    
+    def __iter__(self):
+        yield from self.str_token.split("-")
+
+class UpperIterableMixin:
+  def __iter__(self):
+      return map(str.upper, super().__iter__())
+
+class Tokenizer(UpperIterableMixin, BaseTokenizer):
+    pass
+
+>>> tk = BaseTokenizer("28a2320b-fd3f-4627-9792-a2b38e3c46b0")
+>>> list(tk)
+['28a2320b', 'fd3f', '4627', '9792', 'a2b38e3c46b0']
+```
+- 위에서 mixin과 함께 `BaseTokenizer`를 사용한 `Tokenizer` 클래스의 경우, 일종의 데코레이터 역할을 합니다.
+- 믹스인에서 `__iter__`를 호출하고 다시 `super()`를 호출하여 `BaseTokenizer`에 위임합니다.
+
+### 파이썬의 함수 인자 동작방식
+- 파이썬의 첫 번째 규칙은 모든 인자가 passed by a value 된다는 것입니다. 따라서, 함수 인자에 있는 변수를 할당하고 나중에 사용합니다.
+- 함수의 인자가 mutable한지 immutable한지에 따라서 함수 내부에서 값이 의도치 않게 변형되는 경우가 발생할 수 있습니다.
+**가변인자**
+- 파이썬에서 가변인자를 사용하려면 해당 인자를 packing할 변수 이름 앞에 `*`를 붙입니다.
+```python
+# packing 예시
+def f(first, second):
+    print(first, second)
+
+>>> l = [1, 2]
+>>> f(*l)
+1 2
+
+# unpacking 예시
+>>> a, b = [1, 2]
+>>> print(a, b)
+1 2
+```
+- 인자를 딕셔너리로 패킹하려면 변수 이름 앞에 `**`를 붙입니다.
+```python
+def function(**kwargs):
+    print(kwargs)
+
+>>> function(key="value")
+{'key': 'value'}
+```
