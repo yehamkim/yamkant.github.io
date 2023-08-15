@@ -10,7 +10,7 @@
     <meta charset="utf-8">
 
 <!-- begin _includes/seo.html --><title>[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까? - Yam’s Dev Logs</title>
-<meta name="description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
+<meta name="description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네 가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -26,7 +26,7 @@
 <meta property="og:url" content="http://localhost:4000/django%20strategy/django-view/">
 
 
-  <meta property="og:description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
+  <meta property="og:description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네 가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
 
 
 
@@ -263,7 +263,7 @@
     <ul class="nav__items" id="category_tag_menu">
         <!--전체 글 수-->
         <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-            📂 <span>Total Posts: 31</span>
+            📂 <span>Total Posts: 34</span>
         </li>
         <li>
             <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
@@ -289,6 +289,8 @@
                 
                 
                 
+                
+                
             </ul>
             <ul>
                 
@@ -296,6 +298,8 @@
                 
                 
                 <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
                 
                 
                 
@@ -328,12 +332,59 @@
                 
                 
                 
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (2)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (8)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
             </ul>
             <span class="nav__sub-title">Error Handle</span>
             <ul>
                 
                 
                 <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
                 
                 
                 
@@ -368,6 +419,8 @@
                 <li><a href="/categories/database" class="">SQL (1)</a></li>
                 
                 
+                
+                
             </ul>
         </li>
     </ul>
@@ -386,7 +439,7 @@
 <ul>
   <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
   <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
-  <li>generic view는 네가지 속성을 통해 API 동작을 결정합니다.
+  <li>generic view는 네 가지 속성을 통해 API 동작을 결정합니다.
   ```
     <ul>
       <li>authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
@@ -448,7 +501,7 @@
   <span class="p">}</span>
 </code></pre></div>    </div>
   </li>
-  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해두고, 전역적으로 이를 사용할 수 있습니다.</li>
+  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해 두고, 전역적으로 이를 사용할 수 있습니다.</li>
 </ul>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
@@ -506,7 +559,7 @@
 </code></pre></div></div>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
-  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing 하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
   <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
 </ul>
 

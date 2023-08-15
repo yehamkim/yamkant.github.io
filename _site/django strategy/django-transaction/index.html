@@ -10,7 +10,7 @@
     <meta charset="utf-8">
 
 <!-- begin _includes/seo.html --><title>[Django] Transaction은 어떻게 사용할까? - Yam’s Dev Logs</title>
-<meta name="description" content="Database transactions    Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다.   Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다.   transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화 하기 위해 가능한한 transaction을 짧게 유지하는 것이 좋습니다.">
+<meta name="description" content="Database transactions    Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다.   Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다.   transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -26,7 +26,7 @@
 <meta property="og:url" content="http://localhost:4000/django%20strategy/django-transaction/">
 
 
-  <meta property="og:description" content="Database transactions    Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다.   Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다.   transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화 하기 위해 가능한한 transaction을 짧게 유지하는 것이 좋습니다.">
+  <meta property="og:description" content="Database transactions    Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다.   Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다.   transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다.">
 
 
 
@@ -263,7 +263,7 @@
     <ul class="nav__items" id="category_tag_menu">
         <!--전체 글 수-->
         <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-            📂 <span>Total Posts: 31</span>
+            📂 <span>Total Posts: 34</span>
         </li>
         <li>
             <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
@@ -289,6 +289,8 @@
                 
                 
                 
+                
+                
             </ul>
             <ul>
                 
@@ -296,6 +298,8 @@
                 
                 
                 <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
                 
                 
                 
@@ -328,12 +332,59 @@
                 
                 
                 
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (2)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (8)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
             </ul>
             <span class="nav__sub-title">Error Handle</span>
             <ul>
                 
                 
                 <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
                 
                 
                 
@@ -368,6 +419,8 @@
                 <li><a href="/categories/database" class="">SQL (1)</a></li>
                 
                 
+                
+                
             </ul>
         </li>
     </ul>
@@ -385,16 +438,16 @@
 <ul>
   <li>Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다.</li>
   <li>Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다.</li>
-  <li>transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화 하기 위해 가능한한 transaction을 짧게 유지하는 것이 좋습니다.</li>
+  <li>transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다.</li>
 </ul>
 
 <h3 id="http-요청들에-transaction들-연결하기">HTTP 요청들에 transaction들 연결하기</h3>
 <ul>
   <li>연결을 위해 <a href="https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-DATABASE-ATOMIC_REQUESTS">ATOMIC_REQUESTS</a>를 True로 설정하면, view function을 호출하기 전에 Django는 먼저 transaction을 실행시킵니다.</li>
-  <li>응답이 문제없이 잘 생성된다면, Django는 transaction을 commit 하고, exception 발생시 transaction을 roll back 합니다.</li>
+  <li>응답이 문제없이 잘 생성된다면, Django는 transaction을 commit 하고, exception 발생 시 transaction을 roll back 합니다.</li>
   <li>[참고] 일반적으로 atomic() context manager를 사용하여 view code에서 savepoint들을 설정하면, subtransaction들을 수행할 수 있습니다.
     <blockquote>
-      <p>제대로 코드가 구성되어있지 않다면, 추천하지 않는 방법입니다. locking을 handle하는 방법을 확실하게 익힌 후에 사용해야합니다.</p>
+      <p>제대로 코드가 구성되어있지 않다면, 추천하지 않는 방법입니다. locking을 handle 하는 방법을 확실하게 익힌 후에 사용해야 합니다.</p>
     </blockquote>
   </li>
 </ul>
@@ -406,13 +459,13 @@
       <li>outermost atomic block에 들어올 때 transaction을 열어둡니다.</li>
       <li>inner atomic block에 들어올 때 savepoint를 생성합니다.</li>
       <li>inner block을 탈출할 때 savepoint를 해제하거나 rollback 합니다.</li>
-      <li>outermost atomic block을 탈출할 때 transaction을 commit하거나 rollback 합니다.</li>
+      <li>outermost atomic block을 탈출할 때 transaction을 commit 하거나 rollback 합니다.</li>
     </ol>
   </li>
   <li><code class="language-plaintext highlighter-rouge">atomic(using=None, savepoint=True, durable=False)</code>: atomic은 db의 원자성을 보장하며, 한 block의 code를 구성하여 성공하면 commit을, 실패하면 rollback을 처리합니다.</li>
   <li>atomic block들은 중첩될 수 있고, inner block이 성공적으로 처리되었더라도 outer block이 rollback되면 함께 rollback 됩니다.</li>
   <li>atomic block이 가장 바깥쪽에 있는지 확인하는 것은 매우 유용합니다. atomic block이 다른 atomic block에 중첩되어있다면 RuntimeError를 발생시킵니다.</li>
-  <li>아래 예시의 경우, @transaction.atomic Decorator를 사용하였기 때문에 <code class="language-plaintext highlighter-rouge">create_paraent()</code>, <code class="language-plaintext highlighter-rouge">generate_relationships()</code>, <code class="language-plaintext highlighter-rouge">add_children()</code> 모두 한 transaction에서 이루어지며 <code class="language-plaintext highlighter-rouge">generate_relationships()</code> error 발생시 handle_exception을 실행시키고 rollback 됩니다.</li>
+  <li>아래 예시의 경우, @transaction.atomic Decorator를 사용하였기 때문에 <code class="language-plaintext highlighter-rouge">create_paraent()</code>, <code class="language-plaintext highlighter-rouge">generate_relationships()</code>, <code class="language-plaintext highlighter-rouge">add_children()</code> 모두 한 transaction에서 이루어지며 <code class="language-plaintext highlighter-rouge">generate_relationships()</code> error 발생 시 handle_exception을 실행시키고 rollback 됩니다.</li>
 </ul>
 
 <h3 id="발생할-수-있는-exceptions">발생할 수 있는 Exceptions</h3>

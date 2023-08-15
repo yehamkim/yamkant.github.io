@@ -3,7 +3,7 @@ layout: archive
 title:  "[Study] Django - ORM Basic"
 date:   2023-08-12 00:05:07 +0900
 categories: 
-    - Study
+    - Django Study
 ---
 
 ## ORM이란 무엇인가?

@@ -3,7 +3,7 @@ layout: archive
 title:  "[Study] Django - 설계 철학"
 date:   2023-08-15 00:05:07 +0900
 categories: 
-    - Study
+    - Django Study
 ---
 
 ### 기본을 충실히 하자!

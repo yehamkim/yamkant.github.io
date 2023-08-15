@@ -263,7 +263,7 @@
     <ul class="nav__items" id="category_tag_menu">
         <!--전체 글 수-->
         <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-            📂 <span>Total Posts: 31</span>
+            📂 <span>Total Posts: 34</span>
         </li>
         <li>
             <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
@@ -289,6 +289,8 @@
                 
                 
                 
+                
+                
             </ul>
             <ul>
                 
@@ -296,6 +298,8 @@
                 
                 
                 <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
                 
                 
                 
@@ -328,12 +332,59 @@
                 
                 
                 
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (2)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (8)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
             </ul>
             <span class="nav__sub-title">Error Handle</span>
             <ul>
                 
                 
                 <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
                 
                 
                 
@@ -366,6 +417,8 @@
                 
                 
                 <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
                 
                 
             </ul>
@@ -415,14 +468,14 @@
   <li>옵티마이저: DBMS의 두뇌에 해당하는 부분으로, 쿼리를 최적화합니다.</li>
   <li>실행엔진: 핸들러에게 실행 계획 요청 하고, 요청에 대한 응답을 다른 핸들러에게 전달하는 역할을 수행합니다.</li>
   <li>핸들러(스토리지 엔진): 실행 엔진의 요청에 따라 데이터를 디스크로 저장하거나 읽어옵니다. 따라서 스토리지 엔진을 의미합니다.</li>
-  <li>복제: Replication 기능을 답당합니다.</li>
+  <li>복제: Replication 기능을 담당합니다.</li>
   <li>스레드풀
     <ul>
       <li>내부적으로 사용자 요청을 처리하는 스레드 개수를 줄여서, 제한된 개수의 스레드 처리에만 집중하도록 하여 서버의 자원 소모를 줄이는 것이 목적입니다.</li>
       <li>일반적으로 CPU코어의 개수와 맞추는 것이  CPU 프로세서 친화도를 높이는 데 좋습니다.</li>
       <li><code class="language-plaintext highlighter-rouge">thread_pool_stall_limit</code>: 주기적으로 그룹의 상태를 체크하여 정해진 시간 내(ms 단위)에 작업을 끝내지 못하는 경우, 새로운 스레드에 추가합니다.</li>
       <li><code class="language-plaintext highlighter-rouge">thread_pool_max_threads</code>: 해당 개수보다 스레드가 많아질 수 없도록 제한합니다.</li>
-      <li>트랜잭션 내에 속한 SQL을 빨리 처리하면, 해당 트랜잭션이 가지고 있던 잠금이 빨리 해제되고,잠금 경합을 낮춰 전체적인 쿼리 성능이 향상됩니다.</li>
+      <li>트랜잭션 내에 속한 SQL을 빨리 처리하면, 해당 트랜잭션이 가지고 있던 잠금이 빨리 해제되고, 잠금 경합을 낮춰 전체적인 쿼리 성능이 향상됩니다.</li>
     </ul>
   </li>
 </ul>
@@ -430,7 +483,7 @@
 <h3 id="42-innodb-스토리지-엔진-아키텍처">4.2 InnoDB 스토리지 엔진 아키텍처</h3>
 <p>CH 4.2.1 프라이머리 키에 의한 클러스터링</p>
 <ul>
-  <li>모든 테이블은 기본적으로 PK를 기준으로 클러스터링되어 저장됩니다.</li>
+  <li>모든 테이블은 기본적으로 PK를 기준으로 클러스터링 되어 저장됩니다.</li>
   <li>모든 세컨더리 인덱스는 레코드의 주소 대신 PK의 값을 논리적인 주소로 사용합니다.</li>
 </ul>
 
@@ -446,10 +499,10 @@
 <ul>
   <li>잠금을 사용하지 않는 일관된 읽기를 제공합니다.</li>
   <li>MySQL의 격리 수준(solation level)은 <code class="language-plaintext highlighter-rouge">READ_COMMITTED</code></li>
-  <li><code class="language-plaintext highlighter-rouge">UPDATE</code> 문장이 실행되면 커밋 실행 여부와 관계없이 InnoDB의 버퍼 풀은 새로운 값으로 업데이트 됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">UPDATE</code> 문장이 실행되면 커밋 실행 여부와 관계없이 InnoDB의 버퍼 풀은 새로운 값으로 업데이트됩니다.</li>
   <li>InnoDB 버퍼 풀의 변경 내용은 InnoDB 스토리지 엔진의 백그라운드 스레드에 의해서 기록되므로, 버퍼 풀의 변경 내용이 디스크의 데이터 파일에 기록됐는지 여부는 시점에 따라 다를 수 있습니다. 
 (InnoDB는 ACID를 보장하기 때문에 일반적으로 버퍼 풀과 데이터 파일은 동일한 상태로 가정해도 됩니다.)</li>
-  <li>MVCC: Undo log 혹은 버퍼풀, 데이터 파일 두 버전으로 부터 필요에 따른 데이터를 불러오는 구조를 의미합니다.
+  <li>MVCC: Undo log 혹은 버퍼풀, 데이터 파일 두 버전으로부터 필요에 따른 데이터를 불러오는 구조를 의미합니다.
     <ul>
       <li>격리 수준이 <code class="language-plaintext highlighter-rouge">READ_UNCOMMITTED</code>인 경우, 커밋 여부와 상관없이 변경된 상태의 데이터를 반환합니다.(버퍼 풀과 데이터 파일로부터 값 조회)</li>
       <li><code class="language-plaintext highlighter-rouge">READ_COMMITTED</code> 이상의 격리 수준에서는 아직 커밋이 되지 않았기 때문에, Undo log에서 값을 가져옵니다.</li>
@@ -462,7 +515,7 @@
   <li>InnoDB 스토리지 엔진은 MVCC를 이용해 잠금을 걸지 않고 읽기 작업을 수행합니다.</li>
   <li>SERIALIZABLE 외의 격리 수준에서는 순수한 읽기 작업을 사용할 때 다른 트랜잭션의 변경 작업과 관계없이 항상 잠금을 대기하지 않고 바로 실행됩니다.</li>
   <li>사용자가 UPDATE 후에 커밋하지 않더라도, 다른 사용자의 SELECT 요청을 방해하지 않는 것을 ‘잠금 없는 일관된 읽기’라고 말하며, 언두 로그에서 값을 읽습니다.</li>
-  <li>일관된 읽기를 위해 언두 로그를 계속 유지하려기 보다는 속도 문제가 발생할 수 있으므로, 트랜잭션이 시작됐다면 가능한 빨리 롤백이나 커밋을하여 완료해야합니다.</li>
+  <li>일관된 읽기를 위해 언두 로그를 계속 유지하려기 보다는 속도 문제가 발생할 수 있으므로, 트랜잭션이 시작됐다면 가능한 빨리 롤백이나 커밋을 하여 완료해야 합니다.</li>
 </ul>
 
 <p>CH 4.2.5 자동 데드락 감지</p>

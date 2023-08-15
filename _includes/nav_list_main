@@ -38,6 +38,21 @@
                 {% endif %}
                 {% endfor %}
             </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                {% for category in site.categories %}
+                {% if category[0] == "Django Study" %}
+                <li><a href="/categories/django-study" class="">Django Study ({{category[1].size}})</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
+                {% if category[0] == "Study" %}
+                <li><a href="/categories/study" class="">study ({{category[1].size}})</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
             <span class="nav__sub-title">Error Handle</span>
             <ul>
                 {% for category in site.categories %}

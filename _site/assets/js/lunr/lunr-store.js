@@ -24,7 +24,7 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] Logger는 어떻게 설정할까?",
-        "excerpt":"글을 작성하게 된 계기 퇴근 이후의 로그를 보는 것이 하루의 일과의 시작인 만큼, 로그가 구체적일 수록 어떻게 보다 나은 서비스를 만들 수 있을까 뚜렷하게 고민하게 되는 것 같습니다. 로거를 공부하며 장고 미들웨어에 대해 학습할 수 있었습니다. 이를 계기로, 커스텀 데코레이터 사용 방법 또한 정리해두면 좋을 것 같다고 생각했습니다. 로그 작성에...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하게 된 계기 퇴근 이후의 로그를 보는 것이 하루의 일과의 시작인 만큼, 로그가 구체적일수록 어떻게 보다 나은 서비스를 만들 수 있을까 뚜렷하게 고민하게 되는 것 같습니다. 로거를 공부하며 장고 미들웨어에 대해 학습할 수 있었습니다. 이를 계기로, 커스텀 데코레이터 사용 방법 또한 정리해 두면 좋을 것 같다고 생각했습니다. 로그 작성에...","categories": ["Django Strategy"],
         "tags": [],
         "url": "/django%20strategy/django-logger/",
         "teaser": null
@@ -48,13 +48,13 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] Transaction은 어떻게 사용할까?",
-        "excerpt":"Database transactions Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다. Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다. transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화 하기 위해 가능한한 transaction을 짧게 유지하는 것이 좋습니다. HTTP 요청들에 transaction들 연결하기 연결을 위해...","categories": ["Django Strategy"],
+        "excerpt":"Database transactions Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다. Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다. transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다. HTTP 요청들에 transaction들 연결하기 연결을 위해...","categories": ["Django Strategy"],
         "tags": [],
         "url": "/django%20strategy/django-transaction/",
         "teaser": null
       },{
         "title": "[Book] 가상 면접 사례로 배우는 대규모 시스템 설계 기초",
-        "excerpt":"가상 면접 사례로 배우는 대규모 시스템 설계 기초 4장 처리율 제한 장치 수용 가능한 트래픽 이상의 트래픽이 발생할 때 처리하는 방식을 생각합니다. 보통 API 서버 측에 트래픽 제한 장치 뿐 라니라, SSL 종단, 사용자 인증을 담당하는 클라우드 서비스를 사용합니다. 처리율 제한 알고리즘 검색해보기. http 규약에서 트래픽 관련 한도 제한이 걸리는...","categories": ["Book"],
+        "excerpt":"가상 면접 사례로 배우는 대규모 시스템 설계 기초 4장 처리율 제한 장치 수용 가능한 트래픽 이상의 트래픽이 발생할 때 처리하는 방식을 생각합니다. 보통 API 서버 측에 트래픽 제한 장치 뿐 라니라, SSL 종단, 사용자 인증을 담당하는 클라우드 서비스를 사용합니다. 처리율 제한 알고리즘 검색해 보기. http 규약에서 트래픽 관련 한도 제한이...","categories": ["Book"],
         "tags": [],
         "url": "/book/book-1/",
         "teaser": null
@@ -84,7 +84,7 @@ var store = [{
         "teaser": null
       },{
         "title": "[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?",
-        "excerpt":"DBCP (DB Connection Pool) 참고: https://youtu.be/zowzVqx3MQ4 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글 입니다. 통신방법 백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다. DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다. DBCP의 개념과 원리 백엔드...","categories": ["Database"],
+        "excerpt":"DBCP (DB Connection Pool) 참고: https://youtu.be/zowzVqx3MQ4 해당 글은 위의 쉬운코드 님의 영상을 토대로 요약한 글입니다. 통신방법 백엔드 서버와 DB 서버는 TCP 기반으로 통신합니다. 따라서, connection을 맺어 열거나 닫아서 연결하는 과정이 필요합니다. DB 서버를 열고 닫을 때마다 시간적인 비용이 발생하게 되고, 이는 서비스 성능에 좋지 않습니다. DBCP의 개념과 원리 백엔드 서버는...","categories": ["Database"],
         "tags": [],
         "url": "/database/database-dbcp/",
         "teaser": null
@@ -108,19 +108,19 @@ var store = [{
         "teaser": null
       },{
         "title": "Cs Database",
-        "excerpt":"NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야하여 스키마를 변경해야합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를 허용하지 않는 것이기...","categories": [],
+        "excerpt":"NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어 있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야 하여 스키마를 변경해야 합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를...","categories": [],
         "tags": [],
         "url": "/cs-database/",
         "teaser": null
       },{
         "title": "[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?",
-        "excerpt":"참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다. .get_permissions(self)...","categories": ["Django Strategy"],
+        "excerpt":"참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네 가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다....","categories": ["Django Strategy"],
         "tags": [],
         "url": "/django%20strategy/django-view/",
         "teaser": null
       },{
         "title": "[Django] API를 어떻게 명세하여 사용할까?",
-        "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)이 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Django Strategy"],
+        "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Django Strategy"],
         "tags": [],
         "url": "/django%20strategy/django-spectacular/",
         "teaser": null
@@ -138,7 +138,7 @@ var store = [{
         "teaser": null
       },{
         "title": "[Server] AWS ECS를 사용한 기본적인 배포환경 구성",
-        "excerpt":"최종 목표 ECS 내에서 nginx와 django를 사용한 서버 구성 참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다. 이 후 포스팅: VPC 구성 / ALB 구성 / Network Bridge 모드에서 Namespace 사용 순서 AWS ECS CLI 설치 및 계정 생성 Docker 구성 및 테스트 ECR 생성 및 업로드...","categories": ["Server"],
+        "excerpt":"최종 목표 ECS 내에서 nginx와 django를 사용한 서버 구성 참고: git repository - 구체적인 코드 및 이미지를 볼 수 있습니다. 이후 포스팅: VPC 구성 / ALB 구성 / Network Bridge 모드에서 Namespace 사용 순서 AWS ECS CLI 설치 및 계정 생성 Docker 구성 및 테스트 ECR 생성 및 업로드 ECS...","categories": ["Server"],
         "tags": [],
         "url": "/server/server-aws-ecs/",
         "teaser": null
@@ -174,7 +174,7 @@ var store = [{
         "teaser": null
       },{
         "title": "[Study] Python Clean Code - Unittest",
-        "excerpt":"Unit Test 단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다. 단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야합니다. 격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태에 관계없이 임의 순서로 실행될 수 있어야합니다. 성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야합니다. 자체 검증:...","categories": ["Study"],
+        "excerpt":"Unit Test 단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다. 단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야 합니다. 격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태와 관계없이 임의 순서로 실행될 수 있어야 합니다. 성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야...","categories": ["Study"],
         "tags": [],
         "url": "/study/study-cleancode-unittest/",
         "teaser": null
@@ -183,5 +183,23 @@ var store = [{
         "excerpt":"작성 계기 면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다. 로드밸런서 트래픽을 받아서 여러 대의 서버에 분산시키는 하드웨어/소프트웨어를 의미합니다. 부하 분산에는 L4 Load Balancer와 L7 Load Balancer가 사용됩니다. L4 Load Balancer IP Port를 활용하여 서버부하분산을 하는 것을 의미합니다. 적합한 server...","categories": ["Study"],
         "tags": [],
         "url": "/study/study-load-balancer/",
+        "teaser": null
+      },{
+        "title": "[Study] Python Clean Code - Good Code",
+        "excerpt":"계약에 의한 디자인 계약: 소프트웨어 컴포넌트 간의 통신 중에 반드시 지켜져야 하는 규칙을 강제하는 것입니다. 사전조건: 코드가 실행되기 전에 확인해야 할 조건들로, 유효성 검사, DB 및 파일 등에 대한 것들로, 서버가 담당할 부분입니다. 사후조건: 코드 실행 이후에 함수 반환 값의 유효성 검사로, 클라이언트가 담당할 부분입니다. 위의 두 가지 조건을 통해,...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cleancode-goodcode/",
+        "teaser": null
+      },{
+        "title": "[Study] Django - ORM Basic",
+        "excerpt":"ORM이란 무엇인가? 객체지향 프로그래밍은 클래스를 사용하지만, 관계형 데이터베이스는 테이블을 사용하기 때문에, 객체 모델과 관계형 모델 간에 불일치가 발생합니다. ORM은 SQL문을 자동으로 생성하여 이러한 불일치를 해결할 수 있습니다. ORM의 장단점 장점 완벽한 객체지향적인 코드 SQL문이 아닌 클래스의 메서드를 통한 데이터베이스 조작이 가능하기 때문에, 개발자가 객체 모델만을 이용해서 프로그래밍을하는데 집중할 수 있습니다....","categories": ["Django Study"],
+        "tags": [],
+        "url": "/django%20study/study-django-orm-basic/",
+        "teaser": null
+      },{
+        "title": "[Study] Django - 설계 철학",
+        "excerpt":"기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다. 설계 철학 일반 Django 스택의 근본적인 목표는, 느슨한 결합과 탄탄한 응집으로 프레임워크의 각 계층이 서로 알지 못하도록 하는 것이 기본...","categories": ["Django Study"],
+        "tags": [],
+        "url": "/django%20study/study-django-philosophy/",
         "teaser": null
       }]
