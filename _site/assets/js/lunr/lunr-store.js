@@ -198,8 +198,32 @@ var store = [{
         "teaser": null
       },{
         "title": "[Study] Django - 설계 철학",
-        "excerpt":"기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다. 설계 철학 일반 Django 스택의 근본적인 목표는, 느슨한 결합과 탄탄한 응집으로 프레임워크의 각 계층이 서로 알지 못하도록 하는 것이 기본...","categories": ["Django Study"],
+        "excerpt":"기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다. 설계 철학 Django를 선택하는 이유 개발이 빠릅니다. Django는 포괄적인 도구와 라이브러리를 제공하여 새로운 프로젝트를 신속하게 구축할 수 있도록 합니다. 확장성이...","categories": ["Django Study"],
         "tags": [],
         "url": "/django%20study/study-django-philosophy/",
+        "teaser": null
+      },{
+        "title": "[Study] Django - 코딩 스타일",
+        "excerpt":"Pre-commit checks flake8 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다. git hook: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다. pre-commit은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다. Python style 모든 파일은 black auto-fomatter를 사용하여 포맷되어야합니다. 프로젝트 레포지토리는...","categories": ["Django Study"],
+        "tags": [],
+        "url": "/django%20study/study-django-coding-style/",
+        "teaser": null
+      },{
+        "title": "[Study] Network - OSI 계층",
+        "excerpt":"OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다. 6 계층 - Presentation Layer 애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다. 데이터를 안전하게 전송하기 위해 암호화, 복호화하여...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-network-osi/",
+        "teaser": null
+      },{
+        "title": "[Study] Network - OSI 계층",
+        "excerpt":"OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다. 6 계층 - Presentation Layer 애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다. 데이터를 안전하게 전송하기 위해 암호화, 복호화하여...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-network-tcp/",
+        "teaser": null
+      },{
+        "title": "[Study] 개발 용어 정리",
+        "excerpt":"APM Application Performance Management의 줄임말로, 응용 소프트웨어의 성능과 서비스 이용성을 감시하고 관리하는 시스템 관리 방법론입니다. 운영 중인 시스템의 성능을 모니터링하고 분석하여, 시스템의 가용성 및 안정성을 돕습니다. 핀포인트 Feign Spring Boot 진영에서 사용하는 Netflix의 오픈소스입니다. 선언적 방식(어노테이션 사용)으로 외부 API를 RESTful하게 호출할 수 있도록 추상화하여 제공합니다. interface와 annotation만으로 HTTP API 클라이언트를...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-dev-term/",
         "teaser": null
       }]

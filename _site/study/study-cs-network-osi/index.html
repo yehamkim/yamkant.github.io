@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[Study] Load Balancer - Yam’s Dev Logs</title>
-<meta name="description" content="작성 계기    면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.">
+<!-- begin _includes/seo.html --><title>[Study] Network - OSI 계층 - Yam’s Dev Logs</title>
+<meta name="description" content="OSI 7계층 7 계층 - Application Layer    사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.   애플리케이션 목적에 맞는 통신 방법을 제공합니다.   HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -22,30 +22,30 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="[Study] Load Balancer">
-<meta property="og:url" content="http://localhost:4000/study/study-load-balancer/">
+<meta property="og:title" content="[Study] Network - OSI 계층">
+<meta property="og:url" content="http://localhost:4000/study/study-cs-network-osi/">
 
 
-  <meta property="og:description" content="작성 계기    면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.">
-
-
-
-
-
-
-
-  <meta property="article:published_time" content="2023-08-11T00:05:07+09:00">
+  <meta property="og:description" content="OSI 7계층 7 계층 - Application Layer    사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.   애플리케이션 목적에 맞는 통신 방법을 제공합니다.   HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.">
 
 
 
 
 
-  
+
+
+  <meta property="article:published_time" content="2023-08-16T00:05:07+09:00">
+
+
+
+
 
   
 
+  
 
-<link rel="canonical" href="http://localhost:4000/study/study-load-balancer/">
+
+<link rel="canonical" href="http://localhost:4000/study/study-cs-network-osi/">
 
 
 
@@ -432,37 +432,9 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">[Study] Load Balancer</h1>
+      <h1 id="page-title" class="page__title">[Study] Network - OSI 계층</h1>
     
-    <h2 id="작성-계기">작성 계기</h2>
-<ul>
-  <li>면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에<br />
-대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.</li>
-</ul>
-
-<h3 id="로드밸런서">로드밸런서</h3>
-<ul>
-  <li>트래픽을 받아서 여러 대의 서버에 분산시키는 하드웨어/소프트웨어를 의미합니다.</li>
-  <li>부하 분산에는 L4 Load Balancer와 L7 Load Balancer가 사용됩니다.</li>
-</ul>
-
-<h3 id="l4-load-balancer">L4 Load Balancer</h3>
-<ul>
-  <li>IP Port를 활용하여 서버부하분산을 하는 것을 의미합니다. 적합한 server IP와 Port를 목적지로 하는 요청에 따라 부하를 분산합니다.</li>
-  <li>로드밸런싱의 기준점이 IP와 Port이기 때문에, TCP/UDP의 Header를 분석하여 로드밸런싱에 활용하지는 않습니다. 따라서, 프로토콜들의 특성으로 인한 행동을 제어하는 편입니다.</li>
-  <li>클라이언트에서 로드밸런서로 요청을 보낼 때, 최적의 서버로 요청을 전송하고, 그 결과를 클라이언트에게 전달합니다.</li>
-  <li>요청 패킷에 대해 NAT도 수행하여 기록된 대상 IP 주소를 자체에서 선택한 컨텐츠 서버의 IP 주소로 변경합니다.</li>
-</ul>
-
-<h3 id="l7-load-balancer">L7 Load Balancer</h3>
-<ul>
-  <li>L7 Load Balancer는 URL, Payload, HTTP Header, Cookie 등의 내용을 기준으로 부하를 분산합니다. 따라서, 컨텐츠 기반 스위칭이라고도 말합니다.</li>
-  <li>해당 계층에서의 로드밸런싱은 전송되는 정보의 양이 더 많기 때문에, L4 에서보다 비용이 더 많이 들게 되지만, 전체 효율성은 더욱 높습니다.</li>
-  <li>클라이언트가 요청하는 데이터의 유형을 결정할 수 있기 때문입니다. 따라서, 모든 서버에 동일한 데이터를 복제할 필요가 없습니다.</li>
-  <li>L4에서와 같이 트래픽을 패킷단위로 관리하는 것이 아닌, 요청과 응답을 전체적으로 읽고 관리할 수 있습니다.</li>
-</ul>
-
-<h2 id="osiopen-systems-interconnection-참조-모델">OSI(Open Systems Interconnection) 참조 모델</h2>
+    <h3 id="osi-7계층">OSI 7계층</h3>
 <p><strong>7 계층 - Application Layer</strong></p>
 <ul>
   <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
@@ -512,34 +484,91 @@
   </li>
   <li>서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.</li>
   <li>라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.</li>
+  <li>유튜브 댓글 작성시 유튜브 서버까지 어떻게 전달되는지 살펴보기
+    <ol>
+      <li>애플리케이션 레이어에 메시지를 전송하기 위해 처리과정을 거칩니다. 부가적인 정보들을 애플리케이션 헤더에 담습니다.</li>
+      <li>presentation layer 관련 데이터들을 헤더에 담고, 담긴 정보를 Session Layer로 보냅니다.</li>
+    </ol>
+  </li>
 </ul>
 
-<h2 id="참고">참고</h2>
-<h2 id="amazon-elb">Amazon ELB</h2>
+<h2 id="구글을-주소창에서-입력하면-일어나는-일">구글을 주소창에서 입력하면 일어나는 일</h2>
 <ul>
-  <li>AWS가 제공하는 로드 밸런서로, 집중되는 트래픽을 서버/네트워크에 분배하는 부하 분산 장치입니다.</li>
+  <li>DNS (Domain Name System Servers): URL들의 이름과 IP 주소를 저장하고 있는 데이터 베이스로, 웹사이트를 위한 주소록입니다. 숫자로된 IP를 사용자가 편리한 주소로 맵핑합니다. 최종적으로 사용자를 어떤 서버에 연결할 것인지 제어하는 요청을 쿼리라고 부릅니다.</li>
+  <li>DNS query: DNS 서버들을 검색해서 해당 사이트의 IP 주소를 찾습니다. 재귀적으로 서로 다른 DNS 서버를 오가며 에러가 날 때까지 반복적으로 요청합니다. (recursive search)</li>
+  <li>TCIP/IP (Transmission Control Protocol / Internet Protocol): 이를 따른다는 것은, IP 주소 체계를 따르며 TCP의 특성을 활용해 송신자와 수신자의 논리적 연결을 생성하고 신뢰성을 유지할 수 있도록 하겠다는 의미입니다.</li>
+  <li>HTTP(Hypertext Transfer Protocol):</li>
 </ul>
 
-<p><strong>ALB</strong></p>
+<ol>
+  <li>사용자가 웹브라우저 검색창에 www.google.com을 입력</li>
+  <li>웹브라우저는 캐싱된 DNS 기록들을 통해 도메인 주소와 대응하는 IP 주소응답 (캐시에 없다면 3, 있다면 4로)</li>
+  <li>웹브라우저가 HTTP를 사용하여 DNS에 입력된 도메인 주소 요청 및 IP 주소 응답</li>
+  <li>웹브라우저가 웹서버에게 IP 주소를 통해 html 문서를 요청합니다. (TCP/IP)</li>
+  <li>웹어플리케이션서버(WAS)와 데이터베이스에서 우선적으로 웹페이지 작업을 처리합니다.</li>
+  <li>처리된 작업의 결과를 웹서버로 전송합니다.</li>
+  <li>웹서버는 브라우저에게 html 문셔 결과를 응답합니다.</li>
+  <li>웹브라우저는 화면에 웹페이지 내용을 출력합니다.</li>
+</ol>
+
+<h2 id="웹서버--어플리케이션-서버--웹컨테이너">웹서버 / 어플리케이션 서버 / 웹컨테이너</h2>
+<p><strong>웹서버</strong></p>
 <ul>
-  <li>HTTP/HTTPS 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 애플리케이션 계층(7계층)에서 동작합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호 + 패킷내용</code> 정보를 통해 스위칭합니다.</li>
-  <li>L7단에서 지원하기 때문에 인스턴스와 로드 밸런서 사이에서 SSL이 적용된 암호화 통신이 가능합니다.</li>
-  <li>IP 주소가 변동될 수 있기 때문에, Client는 DNS 주소로 접근하는 것이 좋습니다.<br />
-(따라서, EIP를 ALB에 설정해두는 것이 좋습니다.)</li>
+  <li>웹서버 소프트웨어와 HTML, CSS, JavaScript파일과 같은 정적 파일들을 저장하는 하드웨어</li>
+  <li>Client가 어떻게 호스트 파일들에 접근하는지 관리하는 소프트웨어</li>
+  <li>URI(Uniform Resource Identifier)와 HTTP(브라우저가 웹 페이지를 보여주기 위해 사용하는 프로토콜) 소프트웨어의 일부</li>
+  <li>HTTP를 통해 웹브라우저에서 요청하는 HTML 문서나 오브젝트들을 전송해주는 서비스 프로그램을 말합니다. 이 때, 다른 가공없이 파일을 그대로 전송하기만 하면 되기 때문에 정적(static)이라고 합니다.</li>
+  <li>단순히 데이터만 반환하면 되기 떄문에 처리 속도가 빠르며, 트래픽의 과부하를 잘 처리할 수 있습니다.
+<strong>애플리케이션 서버</strong></li>
+  <li>웹 서비스가 복잡해지고 기능이 다양함에 따라서 데이터를 가공해서 처리하는 비즈니스 로직이 필요하게 됩니다.</li>
+  <li>웹서버 하나에서 다른 로직까지 처리하기에 부하가 크기 때문에, 로직을 처리하는 서버가 필요하게 되어 만들어집니다.</li>
+  <li>애플리케이션 서버가 HTTP 서버를 통해 브라우저에게 요청된 데이터를 전송하기 전에, 애플리케이션 서버가 데이터를 가공하기 때문에 동적이라고 부릅니다.
+<strong>웹 컨테이너</strong></li>
+  <li>웹 서버에서 동적인 데이터를 반환하려면 요청에 알맞는 프로그램이 필요합니다. 또한, 그 프로그램에 인자를 전달하기 위한 규약이 필요합니다.</li>
+  <li>CGI(Common Gateway Interface)는 프로그램 사이에 데이터를 전달하는 중간자 역할에 필요한 통신규약을 의미합니다.</li>
+  <li></li>
 </ul>
 
-<p><strong>NLB</strong></p>
+<h3 id="django에서의-wsgi-cgi">Django에서의 wsgi, cgi</h3>
+<p><strong>CGI(Common Gateway Interface)</strong></p>
 <ul>
-  <li>TCP/IP 프로토콜의 헤더를 보고 적절한 패킷으로 전송하므로, OSI 모형의 전송 계층(4계층)에서 동작합니다.<br />
-(ALB보다 낮은 계층에서 동작하기 때문에 속도가 빠릅니다.)</li>
-  <li><code class="language-plaintext highlighter-rouge">IP 주소 + 포트번호</code> 정보를 통해고 스위칭합니다.</li>
-  <li>EIP를 이용할 수 있으며, DNS와 IP 주소 모두 사용 가능합니다. (SSL은 사용 불가능)</li>
+  <li>www 서버와 서버 상에 등장하는 다른 프로그램등 HTML에서는 불가능한 동적인 요소를 홈페이지에 받아들여 쓸 수 있도록하는 웹서버와 웹어플리케이션 사이를 이어주는 미들웨어입니다.</li>
+  <li>CGI는 요청이 들어올 때마다 스레드를 생성하여 웹 어플리케이션을 동작시키게 됩니다. 이는 부하가 너무 크고, 10000개 이상의 동시 요청을 처리할 수 없다는 단점이 있습니다.</li>
 </ul>
 
-<h3 id="reference">reference</h3>
+<p><strong>WSGI(Web Server Gateway Interface)</strong></p>
 <ul>
-  <li><a href="https://www.nginx.com/resources/glossary/layer-4-load-balancing/">Nginx 공식 홈페이지</a></li>
+  <li>웹 서버 소프트웨어와 파이썬으로 작성된 스크립트(웹 응용 프로그램) 간 통신을 위한 표준 인터페이스입니다.</li>
+  <li>즉, Nginx로 들어오는 http request를 파이썬이 이해할 수 있도록 통역합니다.</li>
+  <li>CGI의 단점을 보완하여 클라이언트 요청에 대해 멀티 스레드를 생성하여 효율적으로 처리합니다.</li>
+  <li>Django 진영에서는 uwsgi, gunicon 등을 사용하고 있습니다.</li>
+  <li>동작 과정: 클라이언트 요청 -&gt; server side에서 middleware component 호출 -&gt; middleware component가 application side의 application 호출</li>
+</ul>
+
+<p><strong>uWSGI와 Gunicorn</strong><br />
+uWSGI</p>
+<ul>
+  <li>C 언어로 작성된 웹서버이며, 파이썬 애플리케이션을 외부 웹서버와 연결하여 오청을 처리하는 방식입니다.</li>
+  <li>다양한 프로그래밍 언어를 지원하며 고성능 및 확장성이 뛰어납니다.</li>
+  <li>여러 프로세스 또는 스레드를 사용하여 동시에 여러 요청을 처리할 수 있습니다.</li>
+  <li>초기설정 옵션이 다양하지만 복잡합니다. 유연성과 강력한 기능을 제공합니다.</li>
+  <li>다양한 플러그인과 확장 기능을 제공하여 다양한 요구 사항에 대응할 수 있습니다.</li>
+</ul>
+
+<p>Gunicorn</p>
+<ul>
+  <li>Python으로 작성된 웹서버이며, 독자적으로 애플리케이션을 실행하고 관리하는 단일서버로, 프론트엔드 웹서버와 직접 연결하여 사용합니다.</li>
+  <li>단일 프로세스에서 동작하며, 작은 규모의 애플리케이션을 처리하는데 적합합니다.</li>
+  <li>간단하고 설정이 쉽습니다. 추가설정 없이도 동작합니다.</li>
+  <li>파이썬 애플리케이션에 초점을 맞춘 경량 웹서버입니다.</li>
+</ul>
+
+<p>참고 블로그</p>
+<ul>
+  <li>biunx님: <a href="https://binux.tistory.com/32">웹서버와 웹어플리케이션서버</a></li>
+  <li>waonderboy님: <a href="https://velog.io/@waoderboy/%EC%9B%B9-%EC%84%9C%EB%B2%84-WAS-%EC%9B%B9-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88">웹 서버, WAS, 웹 컨테이너</a></li>
+  <li>stg0123님: <a href="https://stg0123.github.io/study/41/">uwsgi를 django와 연결하기</a></li>
+  <li>elastic7327님: <a href="https://elastic7327.medium.com/python%EA%B0%9C%EB%B0%9C%EC%9E%90-uwsgi%EB%A5%BC-%EB%B2%84%EB%A6%AC%EA%B3%A0-gunicorn%EC%9C%BC%EB%A1%9C-%EA%B0%88%EC%95%84%ED%83%80%EB%8B%A4-df1c95f220c5">uwsgi를 버린 이유</a></li>
 </ul>
 
   </div>

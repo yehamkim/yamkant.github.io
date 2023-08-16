@@ -1,3 +1,11 @@
+---
+layout: archive
+title:  "[Study] Network - OSI 계층"
+date:   2023-08-16 00:05:07 +0900
+categories: 
+    - Study
+---
+
 ### OSI 7계층
 **7 계층 - Application Layer**  
 - 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.
