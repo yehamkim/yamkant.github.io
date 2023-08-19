@@ -103,7 +103,7 @@ analytics:
 author:
   name             : "Yeham Kim"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an Product Maker."
+  bio              : "제품을 만드는 개발자입니다."
   location         : "Seoul"
   email            :
   links:
