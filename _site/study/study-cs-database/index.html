@@ -1,0 +1,675 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Database - Yam’s Dev Logs</title>
+<meta name="description" content="SQL과 NoSQL">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Database">
+<meta property="og:url" content="http://localhost:4000/study/study-cs-database/">
+
+
+  <meta property="og:description" content="SQL과 NoSQL">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-08-16T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cs-database/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 40</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (13)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (12)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Database</h1>
+    
+    <h2 id="sql과-nosql">SQL과 NoSQL</h2>
+
+<h3 id="sql">SQL</h3>
+<ul>
+  <li>데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다.</li>
+  <li>데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다.</li>
+  <li>관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>스키마가 정의되어 있기 때문에 덜 유연하며 스키마를 변경하려면 데이터들을 수정해야하는 문제가 발생할 수 있습니다.</li>
+  <li>테이블 간에 관계를 맺고 있기 때문에, JOIN이 많은 복잡한 쿼리가 만들어지게 될 수 있습니다.</li>
+  <li>대체적으로 수평적 확장이 힘들기 떄문에, 수직적 확장이 많습니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>관계를 맺고 있는 데이터가 자주 변경되는 애플리케이션인 경우입니다.
+(NoSQL은 중복된 값을 변경하려면 모든 컬렉션에서 수행해야하기 때문입니다.)</li>
+  <li>변경될 여지가 없고, 명확한 스키마가 사용자와 데이터에게 중요한 경우입니다.</li>
+</ul>
+
+<h3 id="nosql">NoSQL</h3>
+<ul>
+  <li>NoSQL에서는 레코드를 도큐멘트라고 부릅니다.</li>
+  <li>정해진 스키마를 따르지 않으면 데이터를 추가할 수 없는 SQL과 달리, 다른 구조의 데이터를 같은 컬렉션에 추가할 수 있습니다.</li>
+  <li>도큐멘트는 Json과 비슷한 형태로 가지며, RDB와 같이 여러 테이블에 나누어 담는 것이 아닌, 동일한 컬렉션에 넣게 됩니다. 즉, JOIN할 필요 없이 이미 모든 것을 갖춘 문서를 작성하는 것이 기본 철학입니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>스키마가 없기 때문에 유연하며, 언제든지 저장된 데이터를 조정하고 새로운 필드를 추가할 수 있습니다.</li>
+  <li>데이터는 애플리케이션이 필요로 하는 형식으로 저장되며, 읽는 속도가 빨라집니다.</li>
+  <li>수직 및 수평 확장이 가능하기 때문에 애플리케이션이 발생시키는 모든 읽기/쓰기 
+요청을 처리할 수 있습니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>너무 유연한 나머지, 데이터 구조를 결정하지 않고 사용하게 될 수 있습니다.</li>
+  <li>데이터가 여러 컬렉션에 중복되어 있기 때문에 중복된 값 수정 시 모든 컬렉션에서 수행해야 합니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>정확한 데이터 구조를 알 수 없거나 변경/확장이 될 수 있는 경우입니다.</li>
+  <li>데이터 조회를 자주 하지만, 데이터 수정은 적은 경우입니다.</li>
+  <li>막대한 양의 데이터를 다루기 위해 데이터베이스를 수평적으로 확장해야하는 경우입니다.</li>
+</ul>
+
+<h3 id="데이터베이스의-확장">데이터베이스의 확장</h3>
+<p><strong>수직적 확장 (Scale up)</strong></p>
+<ul>
+  <li>단일 서버의 스펙(성능)을 단순히 향상시키는 것으로, CPU를 업그레이드하는 것입니다.</li>
+  <li>서버의 스펙을 업그레이드 하는 동안 발생하는 다운타임(시스템 이용불가 시간)을 피할 수 없습니다.</li>
+  <li>하나의 서버로 부하가 집중된다는 문제가 발생하며, 단일 장애점(Single Point of Failure, SPOF)을 갖게 됩니다.</li>
+</ul>
+
+<p><strong>수평적 확장 (Scale out)</strong></p>
+<ul>
+  <li>하나의 서버가 처리하는 일을 여러대의 서버가 처리하도록 만듭니다.</li>
+  <li>한 서버처럼 사용하기 위한 클러스터링 작업에 추가비용이 발생하게 됩니다.
+(예를 들어, 로드밸런스 등 네트워크 구축이 있습니다.)</li>
+  <li>기술적으로나 관리적으로나 수직확장에 비해 까다롭습니다.</li>
+  <li>수직적 확장과 다르게 단일 장애점을 가지고 있지 않기 때문에 장애상황에 치명적이지 않습니다.</li>
+  <li>이론적으로 확장에 제한이 없기 때문에 무한대로 확장해나갈 수 있습니다.</li>
+</ul>
+
+<h2 id="transaction">Transaction</h2>
+<ul>
+  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
+  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
+  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
+  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
+</ul>
+
+<p><strong>특징</strong></p>
+<ul>
+  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
+  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
+  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
+  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다.</li>
+  <li>추가: 일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
+</ul>
+
+<h3 id="isolation-level-격리수준">Isolation Level (격리수준)</h3>
+<p><strong>Read Uncommitted (Level 0)</strong></p>
+<ul>
+  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
+  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
+  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
+</ul>
+
+<p><strong>Read Committed (Level 1)</strong></p>
+<ul>
+  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
+  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
+  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
+</ul>
+
+<p><strong>Repeatable Read (Level 2)</strong></p>
+<ul>
+  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
+  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
+(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
+  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
+  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
+  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
+  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
+</ul>
+
+<p><strong>Serializable (Level 3)</strong></p>
+<ul>
+  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
+  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
+  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
+</ul>
+
+<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
+
+<p><strong>Dirty Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Uncommitted</li>
+  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
+  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
+</ul>
+
+<p><strong>Non-Repeatable Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
+  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
+</ul>
+
+<p><strong>Phantom Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
+  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
+  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
+</ul>
+
+<h3 id="dbms의-구조">DBMS의 구조</h3>
+<ul>
+  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
+  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
+  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
+</ul>
+
+<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
+<ul>
+  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
+  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
+</ul>
+
+<h3 id="undo">UNDO</h3>
+<ul>
+  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
+  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="redo">REDO</h3>
+<ul>
+  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="참고자료">참고자료</h3>
+<ul>
+  <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
+  <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
+  <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

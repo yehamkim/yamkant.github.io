@@ -1,18 +1,327 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-16T21:30:36+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] 개발 용어 정리</title><link href="http://localhost:4000/study/study-dev-term/" rel="alternate" type="text/html" title="[Study] 개발 용어 정리" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-dev-term</id><content type="html" xml:base="http://localhost:4000/study/study-dev-term/"><![CDATA[<h3 id="apm">APM</h3>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-21T15:14:00+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django Strategy] permissions</title><link href="http://localhost:4000/django%20strategy/study-django-strategy-permissions/" rel="alternate" type="text/html" title="[Django Strategy] permissions" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/study-django-strategy-permissions</id><content type="html" xml:base="http://localhost:4000/django%20strategy/study-django-strategy-permissions/"><![CDATA[<h3 id="글을-작성한-계기">글을 작성한 계기</h3>
 <ul>
-  <li>Application Performance Management의 줄임말로, 응용 소프트웨어의 성능과 서비스 이용성을 감시하고 관리하는 시스템 관리 방법론입니다.</li>
-  <li>운영 중인 시스템의 성능을 모니터링하고 분석하여, 시스템의 가용성 및 안정성을 돕습니다.</li>
+  <li>최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다.</li>
+  <li>ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다.</li>
+  <li>아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.</li>
 </ul>
 
-<p>핀포인트</p>
-
-<h3 id="feign">Feign</h3>
+<h2 id="django-permissions">Django Permissions</h2>
 <ul>
-  <li>Spring Boot 진영에서 사용하는 Netflix의 오픈소스입니다.</li>
-  <li>선언적 방식(어노테이션 사용)으로 외부 API를 RESTful하게 호출할 수 있도록 추상화하여 제공합니다.</li>
-  <li>interface와 annotation만으로 HTTP API 클라이언트를 구현합니다.</li>
-  <li>세부적인 내용 없이 사용할 수 있기 때문에, 코드 복잡도가 낮습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[APM Application Performance Management의 줄임말로, 응용 소프트웨어의 성능과 서비스 이용성을 감시하고 관리하는 시스템 관리 방법론입니다. 운영 중인 시스템의 성능을 모니터링하고 분석하여, 시스템의 가용성 및 안정성을 돕습니다.]]></summary></entry><entry><title type="html">[Study] Network - OSI 계층</title><link href="http://localhost:4000/study/study-cs-network-osi/" rel="alternate" type="text/html" title="[Study] Network - OSI 계층" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-osi</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-osi/"><![CDATA[<h3 id="osi-7계층">OSI 7계층</h3>
+  <li>ModelViewSet등 APIView 기반의 뷰를 사용하기 위해 권한이 있는 사용자만 사용할 수 있도록 제한해야하는 경우가 있습니다.</li>
+</ul>
+
+<h3 id="기본적인-형태">기본적인 형태</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">UserViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="p">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">UserSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
+    <span class="c1"># permission_classes = [IsAccountAdminOrReadOnly]
+</span>
+    <span class="k">def</span> <span class="nf">get_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="sh">'</span><span class="s">list</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAuthenticated</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAdminUser</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nf">permission</span><span class="p">()</span> <span class="k">for</span> <span class="n">permission</span> <span class="ow">in</span> <span class="n">permission_classes</span><span class="p">]</span>
+</code></pre></div></div>
+<ul>
+  <li>ViewSet 내의 모든 메서드에 공통적인 Permission Class를 적용하기 위해서는 ViewSet의 클래스 변수로 처리합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">permission_classes</code>에 custom permission 클래스들을 추가하여 원하는 권한에 해당하는 사용자만 메서드를 이용할 수 있도록 전처리할 수 있습니다.</li>
+  <li>이 때, ViewSet의 클래스 메서드인 <code class="language-plaintext highlighter-rouge">get_queryset</code>는 필수적입니다.</li>
+  <li>method에 따라 적용하는 권한이 변경된다면, <code class="language-plaintext highlighter-rouge">get_permissions</code> 메서드를 이용합니다.</li>
+</ul>
+
+<h3 id="custom-permission-class">Custom Permission Class</h3>
+<ul>
+  <li>DRF에서 제공하는 <code class="language-plaintext highlighter-rouge">BasePermission</code>를 상속받는 커스텀 Permission은 아래와 같은 형태를 가지며, <code class="language-plaintext highlighter-rouge">has_permission</code> 또는 <code class="language-plaintext highlighter-rouge">has_object_permission</code>를 override하여 사용합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">BasePermission</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">BasePermissionMetaclass</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="bp">True</span>
+
+      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+          <span class="k">return</span> <span class="bp">True</span>
+
+  <span class="n">SAFE_METHODS</span> <span class="o">=</span> <span class="p">(</span><span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">HEAD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">OPTIONS</span><span class="sh">'</span><span class="p">)</span>
+  <span class="k">class</span> <span class="nc">ReadOnly</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+
+  <span class="k">class</span> <span class="nc">IsOwner</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+
+      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">obj</span><span class="p">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">request</span><span class="p">.</span><span class="n">user</span>
+</code></pre></div>    </div>
+  </li>
+  <li>권한이 있으면 True를, 아니면 False를 반환하도록 설계합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">has_object_permission</code>는 <code class="language-plaintext highlighter-rouge">has_permission</code> 검사를 통과한 이 후에 실행됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 상속받는 <code class="language-plaintext highlighter-rouge">GenericAPIView</code>에 <code class="language-plaintext highlighter-rouge">get_object</code> 메서드 내부에 <code class="language-plaintext highlighter-rouge">self.check_object_permissions</code>는 해당 object가 지정해둔 permission에 따라 권한을 갖는지를 판단합니다.</li>
+  <li>Django의 mixins 모듈을 살펴보면, <code class="language-plaintext highlighter-rouge">get_object</code> 메서드를 사용하는 믹스인은 detail 관련 <code class="language-plaintext highlighter-rouge">Retrieve</code>(조회), <code class="language-plaintext highlighter-rouge">Update</code>(수정), <code class="language-plaintext highlighter-rouge">Destroy</code>(삭제) 모듈에서 사용하게 되며, 이 때 object-level Permission을 확인합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Study] Database</title><link href="http://localhost:4000/study/study-cs-database/" rel="alternate" type="text/html" title="[Study] Database" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-database</id><content type="html" xml:base="http://localhost:4000/study/study-cs-database/"><![CDATA[<h2 id="sql과-nosql">SQL과 NoSQL</h2>
+
+<h3 id="sql">SQL</h3>
+<ul>
+  <li>데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다.</li>
+  <li>데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다.</li>
+  <li>관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>스키마가 정의되어 있기 때문에 덜 유연하며 스키마를 변경하려면 데이터들을 수정해야하는 문제가 발생할 수 있습니다.</li>
+  <li>테이블 간에 관계를 맺고 있기 때문에, JOIN이 많은 복잡한 쿼리가 만들어지게 될 수 있습니다.</li>
+  <li>대체적으로 수평적 확장이 힘들기 떄문에, 수직적 확장이 많습니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>관계를 맺고 있는 데이터가 자주 변경되는 애플리케이션인 경우입니다.
+(NoSQL은 중복된 값을 변경하려면 모든 컬렉션에서 수행해야하기 때문입니다.)</li>
+  <li>변경될 여지가 없고, 명확한 스키마가 사용자와 데이터에게 중요한 경우입니다.</li>
+</ul>
+
+<h3 id="nosql">NoSQL</h3>
+<ul>
+  <li>NoSQL에서는 레코드를 도큐멘트라고 부릅니다.</li>
+  <li>정해진 스키마를 따르지 않으면 데이터를 추가할 수 없는 SQL과 달리, 다른 구조의 데이터를 같은 컬렉션에 추가할 수 있습니다.</li>
+  <li>도큐멘트는 Json과 비슷한 형태로 가지며, RDB와 같이 여러 테이블에 나누어 담는 것이 아닌, 동일한 컬렉션에 넣게 됩니다. 즉, JOIN할 필요 없이 이미 모든 것을 갖춘 문서를 작성하는 것이 기본 철학입니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>스키마가 없기 때문에 유연하며, 언제든지 저장된 데이터를 조정하고 새로운 필드를 추가할 수 있습니다.</li>
+  <li>데이터는 애플리케이션이 필요로 하는 형식으로 저장되며, 읽는 속도가 빨라집니다.</li>
+  <li>수직 및 수평 확장이 가능하기 때문에 애플리케이션이 발생시키는 모든 읽기/쓰기 
+요청을 처리할 수 있습니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>너무 유연한 나머지, 데이터 구조를 결정하지 않고 사용하게 될 수 있습니다.</li>
+  <li>데이터가 여러 컬렉션에 중복되어 있기 때문에 중복된 값 수정 시 모든 컬렉션에서 수행해야 합니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>정확한 데이터 구조를 알 수 없거나 변경/확장이 될 수 있는 경우입니다.</li>
+  <li>데이터 조회를 자주 하지만, 데이터 수정은 적은 경우입니다.</li>
+  <li>막대한 양의 데이터를 다루기 위해 데이터베이스를 수평적으로 확장해야하는 경우입니다.</li>
+</ul>
+
+<h3 id="데이터베이스의-확장">데이터베이스의 확장</h3>
+<p><strong>수직적 확장 (Scale up)</strong></p>
+<ul>
+  <li>단일 서버의 스펙(성능)을 단순히 향상시키는 것으로, CPU를 업그레이드하는 것입니다.</li>
+  <li>서버의 스펙을 업그레이드 하는 동안 발생하는 다운타임(시스템 이용불가 시간)을 피할 수 없습니다.</li>
+  <li>하나의 서버로 부하가 집중된다는 문제가 발생하며, 단일 장애점(Single Point of Failure, SPOF)을 갖게 됩니다.</li>
+</ul>
+
+<p><strong>수평적 확장 (Scale out)</strong></p>
+<ul>
+  <li>하나의 서버가 처리하는 일을 여러대의 서버가 처리하도록 만듭니다.</li>
+  <li>한 서버처럼 사용하기 위한 클러스터링 작업에 추가비용이 발생하게 됩니다.
+(예를 들어, 로드밸런스 등 네트워크 구축이 있습니다.)</li>
+  <li>기술적으로나 관리적으로나 수직확장에 비해 까다롭습니다.</li>
+  <li>수직적 확장과 다르게 단일 장애점을 가지고 있지 않기 때문에 장애상황에 치명적이지 않습니다.</li>
+  <li>이론적으로 확장에 제한이 없기 때문에 무한대로 확장해나갈 수 있습니다.</li>
+</ul>
+
+<h2 id="transaction">Transaction</h2>
+<ul>
+  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
+  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
+  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
+  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
+</ul>
+
+<p><strong>특징</strong></p>
+<ul>
+  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
+  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
+  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
+  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다.</li>
+  <li>추가: 일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
+</ul>
+
+<h3 id="isolation-level-격리수준">Isolation Level (격리수준)</h3>
+<p><strong>Read Uncommitted (Level 0)</strong></p>
+<ul>
+  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
+  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
+  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
+</ul>
+
+<p><strong>Read Committed (Level 1)</strong></p>
+<ul>
+  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
+  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
+  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
+</ul>
+
+<p><strong>Repeatable Read (Level 2)</strong></p>
+<ul>
+  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
+  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
+(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
+  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
+  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
+  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
+  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
+</ul>
+
+<p><strong>Serializable (Level 3)</strong></p>
+<ul>
+  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
+  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
+  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
+</ul>
+
+<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
+
+<p><strong>Dirty Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Uncommitted</li>
+  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
+  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
+</ul>
+
+<p><strong>Non-Repeatable Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
+  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
+</ul>
+
+<p><strong>Phantom Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
+  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
+  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
+</ul>
+
+<h3 id="dbms의-구조">DBMS의 구조</h3>
+<ul>
+  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
+  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
+  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
+</ul>
+
+<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
+<ul>
+  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
+  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
+</ul>
+
+<h3 id="undo">UNDO</h3>
+<ul>
+  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
+  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="redo">REDO</h3>
+<ul>
+  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="참고자료">참고자료</h3>
+<ul>
+  <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
+  <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
+  <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Network - TCP</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - TCP" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="tcp-통신이란">TCP 통신이란?</h3>
+<ul>
+  <li>네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다.</li>
+  <li>unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다.</li>
+  <li>network congetion avoidance algorithm을 사용합니다.</li>
+</ul>
+
+<p><strong>reliable network를 보장한다? 아래 문제들을 해결하는 것</strong></p>
+<ul>
+  <li>packet이 손실될 수 있는 문제</li>
+  <li>packet의 순서가 바뀌는 문제</li>
+  <li>네트워크가 혼잡하게(congestion) 되는 문제</li>
+  <li>receiver가 과부화(overload) 되는 문제</li>
+</ul>
+
+<h3 id="흐름제어">흐름제어</h3>
+<ul>
+  <li>송신측과 수신측의 데이터 처리 속도 차이를 해결하는 것</li>
+  <li>송신측이 수신측보다 데이터 처리 속도가 빠르게 되면 문제가 발생합니다.</li>
+  <li>수신측에서 제한된 저장 용량을 초과한 이후에 도착하는 데이터(packet)는 손실될 수 있습니다. 이를 위해 송신 측의 데이터 전송량을 조절해야 합니다.</li>
+  <li>receiver가 sender에게 상태를 feedback 합니다.</li>
+</ul>
+
+<p><strong>전송의 전체 과정</strong></p>
+<ol>
+  <li>Application Layer에서 데이터 전송 시, sender의 애플리케이션은 소켓에 데이터를 씁니다.</li>
+  <li>이 데이터는 Transport Layer로 전달되어 세그먼트(Segment)라는 단위로 나뉩니다.</li>
+  <li>전송 계층은 이 세그먼트를 Network Layer에 넘깁니다.</li>
+  <li>전송된 데이터는 수신자 쪽으로 전달되고 수신자는 수신 버퍼에 데이터를 저장합니다.<br />
+(이때, 수신자 쪽에서는 수신 버퍼의 용량을 넘치지 않도록 조절해야 합니다.)</li>
+  <li>수신자 쪽에서는 자신의 수신 버퍼의 남은 용량을 송신자에게 알려주는데, 이를 수신 윈도우(receive window)라고 합니다.</li>
+  <li>송신자는 수신자의 수신 윈도우를 확인하여 수신자의 수신 버퍼 용량을 초과하지 않도록 데이터를 전송합니다.</li>
+  <li>데이터 전송 중에 수신 버퍼가 넘치는 현상을 방지하면서, 안정적인 데이터 전송을 보장하며, 이를 흐름제어(Flow Control)이라고 합니다.</li>
+</ol>
+
+<p><strong>해결방법</strong></p>
+<ul>
+  <li>Stop and Wait: 매번 전송한 패킷에 대해 확인 응답을 받은 후에만 그다음 패킷을 전송하는 방법입니다.</li>
+  <li>Sliding Window(Go Back N ARQ): 수신측에서 설정한 윈도우 크기만큼 송신측에서 확인/응답 없이 세그먼트를 전송할 수 있도록 데이터 흐름을 동적으로 조절하는 제어 방법입니다.</li>
+</ul>
+
+<p><strong>Sliding Window</strong></p>
+<ul>
+  <li>목적: 전송은 되었지만, ACK 패킷을 받지 못한 byte의 숫자를 파악하기 위해 사용하는 프로토콜입니다.</li>
+  <li>동작방식: 윈도우에 포함되는 모든 패킷을 전송 후, 그 패킷들의 전달이 확인되는 대로 윈도우를 이동시키며 그다음 패킷을 전송합니다.</li>
+</ul>
+
+<h3 id="혼잡제어">혼잡제어</h3>
+<ul>
+  <li>송신측의 데이터 전달과 네트워크의 데이터 처리 속도 차이를 해결하기 위한 방법입니다.</li>
+  <li>송신측의 데이터는 지역망이나 인터넷으로 연결된 대형 네트워크를 통해 전달됩니다. 따라서, 만약 한 라우터에 데이터가 몰리면, 자신에게 온 데이터를 모두 처리할 수 없게 됩니다.</li>
+  <li>따라서, 이러한 네트워크의 혼잡을 피하기 위해 송신측에서 보내는 데이터의 전송속도를 강제로 줄이게 되며, 이를 혼잡제어라고 합니다.</li>
+</ul>
+
+<p><strong>해결방법</strong></p>
+
+<p>참고: window size는 단위시간당 전송 패킷 수</p>
+
+<p>AMID(Additive Increase / Multiplicate Decrease)</p>
+<ul>
+  <li>처음에 패킷을 하나씩 보내다 문제가 없으면, window size를 1씩 증가시키며 전송하는 방법입니다.</li>
+  <li>패킷 전송에 실패하거나 일정 시간을 넘으면, 패킷의 전송 속도를 절반으로 줄입니다.</li>
+  <li>시간이 흐르면 평형상태로 수렴하게 되는 공평한 방식입니다. (여러 호스트가 한 네트워크를 공유하면 나중에 진입하는 쪽이 불리)</li>
+  <li>초기에 높은 대역폭을 사용하지 못하기 때문에, 오랜 시간이 걸리며, 네트워크 혼잡 상황을 미리 파악하기 힘듭니다.</li>
+  <li>따라서, 네트워크가 혼잡해진 후에야 대역폭을 줄일 수 있습니다.</li>
+</ul>
+
+<p>Slow Start</p>
+<ul>
+  <li>AIMD와 마찬가지로 패킷을 하나씩 보내면서 시작하고, 패킷이 문제없이 도착하면 각각의 ACK 패킷마다 window size를 늘립니다. 한 주기가 지나면 window size가 2배가 됩니다.</li>
+  <li>따라서, 전송속도는 AIMD에 비해 지수 함수 꼴로 증가하지만, 혼잡 현상이 발생하면 window size를 1로 떨어뜨립니다.</li>
+  <li>한 번 혼잡 현상이 발생하고 나면 네트워크의 수용량을 어느 정도 예상할 수 있습니다.</li>
+  <li>그래서, 혼잡 현상이 발생하였던 window size의 절반까지는 이전처럼 지수함수 꼴로 증가시키고, 그 이후부터는 완만하게 1씩 증가시킵니다.</li>
+</ul>
+
+<p>Fast Retransmit</p>
+<ul>
+  <li>패킷을 받는 쪽에서 먼저 도착해야 할 패킷이 도착하지 않고 다음 패킷이 도착한 경우에도 ACK 패킷을 보냅니다.</li>
+  <li>순서대로 잘 도착한 마지막 패킷의 다음 패킷 순번을 ACK 패킷에 실어서 보내므로, 중간에 하나가 손실되면 송신 측에서는 순번이 중복된 ACK를 받게 됩니다.</li>
+  <li>이를 감지하는 순간, 문제가 되는 순번의 패킷을 재전송합니다.</li>
+  <li>중복된 순번의 패킷 3개를 받으면 재전송을 하게 되고, 혼잡 상황이라 판단 후, window size를 줄입니다.</li>
+</ul>
+
+<p>Fast Recovery</p>
+<ul>
+  <li>혼잡 상태가 되면 window size를 1로 줄이지 않고 반으로 줄이고 선형 증가시키는 방법입니다.</li>
+  <li>이를 적용하면 혼잡 상황을 한 번 겪은 후 AIMD 방식으로 동작합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[TCP 통신이란? 네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다. unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다. network congetion avoidance algorithm을 사용합니다.]]></summary></entry><entry><title type="html">[Study] Network - OSI 계층</title><link href="http://localhost:4000/study/study-cs-network-osi/" rel="alternate" type="text/html" title="[Study] Network - OSI 계층" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-osi</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-osi/"><![CDATA[<h3 id="osi-7계층">OSI 7계층</h3>
 <p><strong>7 계층 - Application Layer</strong></p>
 <ul>
   <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
@@ -147,142 +456,201 @@ uWSGI</p>
   <li>waonderboy님: <a href="https://velog.io/@waoderboy/%EC%9B%B9-%EC%84%9C%EB%B2%84-WAS-%EC%9B%B9-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88">웹 서버, WAS, 웹 컨테이너</a></li>
   <li>stg0123님: <a href="https://stg0123.github.io/study/41/">uwsgi를 django와 연결하기</a></li>
   <li>elastic7327님: <a href="https://elastic7327.medium.com/python%EA%B0%9C%EB%B0%9C%EC%9E%90-uwsgi%EB%A5%BC-%EB%B2%84%EB%A6%AC%EA%B3%A0-gunicorn%EC%9C%BC%EB%A1%9C-%EA%B0%88%EC%95%84%ED%83%80%EB%8B%A4-df1c95f220c5">uwsgi를 버린 이유</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.]]></summary></entry><entry><title type="html">[Study] Network - OSI 계층</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - OSI 계층" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="osi-7계층">OSI 7계층</h3>
-<p><strong>7 계층 - Application Layer</strong></p>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread/"><![CDATA[<h2 id="프로세스">프로세스</h2>
 <ul>
-  <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
-  <li>애플리케이션 목적에 맞는 통신 방법을 제공합니다.</li>
-  <li>HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.</li>
+  <li>메모리 상에서 실행 중인 프로그램입니다.</li>
+  <li>디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다.</li>
+  <li>코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역</li>
+  <li>데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장)</li>
+  <li>Heap 영역: 동적 할당 시 사용하는 (<code class="language-plaintext highlighter-rouge">new()</code>, <code class="language-plaintext highlighter-rouge">malloc()</code>) 영역입니다.</li>
+  <li>Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역)</li>
+  <li>함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다.</li>
+  <li>하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.</li>
 </ul>
 
-<p><strong>6 계층 - Presentation Layer</strong></p>
+<h3 id="프로세스의-5가지-상태">프로세스의 5가지 상태</h3>
 <ul>
-  <li>애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다.</li>
-  <li>데이터를 안전하게 전송하기 위해 암호화, 복호화하여 소통합니다.</li>
+  <li>생성 (New): 프로세스의 생성 상태</li>
+  <li>실행 (Running): 프로세스가 CPU에 할당되어 실행 중인 상태</li>
+  <li>준비 (Ready): 프로세스가 CPU에 할당되는 것을 기다리는 상태</li>
+  <li>대기 (Waiting): 보류(Block) 상태라고도 하며, 프로세스가 입출력이나 이벤트를 기다리는 상태</li>
+  <li>종료 (Terminated): 프로세스 종료 상태</li>
 </ul>
 
-<p><strong>5 게층 - Session Layer</strong></p>
+<h3 id="멀티프로세스">멀티프로세스</h3>
 <ul>
-  <li>애플리케이션 통신에서 세션을 관리하는 계층입니다.</li>
-  <li>예시로 RPC(remote procedure call)가 있습니다.</li>
+  <li>하나의 프로그램을 여러 개의 프로세스로 구성하여 각 프로세스가 병렬적으로 작업을 수행하도록 하는 것입니다.</li>
+  <li>장점: 메모리 침법 문제를 OS 차원에서 해결하기 때문에 안전성이 높습니다.</li>
+  <li>단점: 각각의 독립된 메모리 영역을 가지고 있기 때문에, 작업량이 많을수록 오버헤드가 발생합니다. Context Switching으로 인한 성능 저하가 발생합니다.</li>
 </ul>
 
-<p><strong>4 계층 - Transport Layer</strong></p>
+<h2 id="스레드">스레드</h2>
 <ul>
-  <li>애플리케이션 통신을 담당하며, 실제로 목적지 애필리케이션으로 데이터를 전송합니다.</li>
-  <li>TCP, UDP 프로토콜을 사용합니다.</li>
-  <li>TCP: 안정적이고 신뢰할 수 있는 데이터 전송을 보장합니다.</li>
-  <li>UDP: 데이터가 중간에 유실되거나 순서가 꼬일 수 있지만, 데이터를 무조건 전송합니다.</li>
-  <li>Network Layer의 기능을 사용하여 데이터를 전송합니다.</li>
+  <li>프로세스의 실행 단위로, 한 프로세스 내에서 동작되는 여러 실행 흐름입니다. 프로세스 내의 주소 공간이나 자원을 스레드 간에 공유할 수 있습니다.</li>
+  <li>스레드는 독립적인 동작을 수행하기 위해 존재하며, 독립적인 실행 흐름을 추가하기 위한 최소 조건으로 독립된 Stack 영역만 따로 할당받습니다.</li>
+  <li>스레드는 스레드 ID, 프로그램 카운터, 레지스터 집합, 스택으로 구성됩니다.</li>
+  <li>같은 프로세스에 속한 다른 스레드와 코드, 데이터 섹션, 열린 파일, 신호 등의 운영체제 자원들을 공유합니다.</li>
+  <li>멀티 스레딩: 하나의 프로세스를 다수의 실행 단위로 구분하여 자원을 공유하고, 자원의 생성과 관리의 중복성을 최소화하여 수행능력을 향상시킵니다.</li>
 </ul>
 
-<p><strong>3 계층 - Network Layer</strong></p>
+<h3 id="스택을-스레드마다-독립적으로-할당하는-이유">스택을 스레드마다 독립적으로 할당하는 이유</h3>
 <ul>
-  <li>호스트 간의 통신을 담당합니다. (IP 프로토콜)</li>
-  <li>목적지 호스트로 데이터를 전송합니다.</li>
-  <li>네트워크 간의 최적의 경로를 결정합니다.</li>
-  <li>Data Link Layer의 기능을 사용하여 기능을 구현합니다.</li>
+  <li>스택은 함수 호출 시 전달되는 인자이며, 되돌아갈 주소값 및 함수 내 변수를 저장하기 위해 사용되는 메모리 공간입니다.</li>
+  <li>스택 메모리 공간이 독립적이라는 것은, 독립적인 함수 호출이 가능하다는 것이며 이는 독립적인 실행 흐름이 가능하다는 것입니다.</li>
+  <li>따라서, 독립적인 실행 흐름을 위한 최소 조건으로 독립된 스택을 할당하는 것입니다.</li>
 </ul>
 
-<p><strong>2 계층 - Data Link Layer</strong></p>
+<h3 id="pc-레지스터를-스레드마다-독립적으로-할당하는-이유">PC 레지스터를 스레드마다 독립적으로 할당하는 이유</h3>
 <ul>
-  <li>IP 주소가 아닌 MAC 주소 기반으로 통신합니다.</li>
-  <li>ARP: IP 주소를 MAC 주소로 변환하는 프로토콜입니다.</li>
+  <li>PC 값은 스레드의 명령어 수행 위치값을 나타냅니다. 스레드는 CPU를 할당받았다가, 스케줄러에 의해 다시 선점당합니다.</li>
+  <li>따라서, 명령어가 연속적으로 수행되지 못하고 어느 부분까지 수행했는지 기억할 필요가 있으므로, PC 레지스터를 독립적으로 할당합니다.</li>
 </ul>
 
-<p><strong>1 계층 - Physical Layer</strong></p>
+<h3 id="멀티-스레드">멀티 스레드</h3>
 <ul>
+  <li>장점: 공유 메모리만큼의 시간, 메모리 공간과 시스템 자원 소모가 절약되고, 전역변수와 정적 변수에 대한 자료를 공유할 수 있습니다.</li>
+  <li>단점: 하나의 스레드가 데이터 공간을 망가뜨리면 모든 스레드가 작동 불능 상태가 되기 때문에 안전성에 문제가 있습니다. (공유 메모리를 갖기 때문)
+(이는 뮤텍스와 세마포어를 통해 대비할 수 있습니다.)</li>
+  <li>스레드 간의 통신이 필요한 경우에도 별도의 자원을 이용하지 않고, Heap 영역을 통해 데이터를 주고받습니다.</li>
+  <li>프로세스 간 통신 방법에 비해 훨씬 간단하다는 장점이 있습니다.</li>
+  <li>스레드의 context switch는 캐시 메모리를 비울 필요가 없기 때문에, 프로세스 context switch보다 더 빠릅니다.</li>
+  <li>시스템의 throughput이 향상되고 자원 소모가 줄어들며 자연스럽게 프로그램 응답 시간이 단축됩니다.</li>
+</ul>
+
+<h3 id="멀티-스레딩의-문제">멀티 스레딩의 문제</h3>
+<ul>
+  <li>스레드 간 공유하는 자원에 동시에 접근하는 일이 발생하게 됩니다.</li>
+  <li>따라서, 동기화 작업이 필요하고, 동기화를 위해 작업 처리 순서를 컨트롤하고 공유 자원에 대한 접근을 컨트롤 해야합니다.</li>
+  <li>병목현상이 발생할 수 있으며, 성능이 저하될 가능성이 높습니다. 따라서, 과도한 락으로 인한 병목현상을 줄여야 합니다.</li>
+  <li>멀티 프로세스 방식은 하나의 프로세스가 죽더라도 다른 프로세스에는 영향을 끼치지 않지만, 멀티 스레드는 하나의 스레드가 종료될 때, 전체 스레드도 이에 대한 영향을 받을 수 있습니다.</li>
+</ul>
+
+<h2 id="프로세스-제어-블록-process-control-block">프로세스 제어 블록 (Process Control Block)</h2>
+<ul>
+  <li>PCB는 특정 프로세스에 대한 중요한 정보를 저장하는 운영체제의 자료구조입니다.
+(관련 저장 정보 아래에 서술)</li>
+  <li>운영체제는 프로세스를 관리하기 위해 프로세스의 생성과 동시에 PCB를 생성합니다.</li>
+  <li>CPU를 할당받아 작업을 처리하다가 프로세스 전환이 발생하면, 작업을 저장하고 CPU를 반환해야 하는데, 이때 진행상황을 PCB에 저장합니다.
+(즉, 앞으로 다시 수행할 대기 중인 프로세스에 대한 저장 값을 PCB에 저장합니다.)</li>
+  <li>다시 CPU를 할당받게 되면 이전에 종료됐던 시점부터 다시 작업을 수행합니다.</li>
+  <li>PCB는 Linked List 방식으로 관리되어, List Head에 PCB들이 생성될 때마다 노드가 추가됩니다. 주소값으로 연결이 이루어진 연결리스트이기 때문에 삽입, 삭제가 용이합니다.</li>
+  <li>프로세스가 생성되면 해당 PCB가 생성되고 프로세스 완료 시 제거됩니다.</li>
+</ul>
+
+<p><strong>PCB에 저장되는 정보</strong></p>
+<ul>
+  <li>PID, 프로세스의 상태(new, ready, running, waiting, terminated)</li>
+  <li>프로그램 카운터: 프로세스가 다음에 실행할 명령어의 주소</li>
+  <li>CPU 레지스터</li>
+  <li>CPU 스케쥴링 정보: 프로세스의 우선순위, 스케줄 큐에 대한 포인터</li>
+  <li>메모리 관리 정보: 페이지 테이블 또는 세그먼트 테이블 등과 같은 정보 포함</li>
+  <li>입출력 상태 정보: 프로세스에 할당된 입출력 장치들과 열린 파일 목록</li>
+  <li>어카운팅 정보: 사용된 CPU 시간, 시간제한, 계정번호 등</li>
+</ul>
+
+<h3 id="context-switching">Context Switching</h3>
+<ul>
+  <li>프로세스의 상태 정보를 저장하고 복원하는 일련의 과정으로, 동작 중인 프로세스가 대기하며 해당 프로세스의 상태를 보관하고, 대기하고 있던 다음 순번의 프로세스가 동작하며 이전에 보관했던 프로세스 상태를 복구하는 과정입니다.</li>
   <li>
-    <p>bits 단위로 데이터를 전송합니다.</p>
+    <p>프로세스는 각 독립된 메모리 영역을 할당받아 사용되므로, 캐시 메모리 초기화와 같은 무거운 작업이 진행될 때 오버헤드가 발생하는 문제가 있습니다. 따라서, 프로세스의 컨텍스트 스위칭이 스레드의 컨텍스트 스위칭보다 늦습니다.</p>
   </li>
-  <li>서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.</li>
-  <li>라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.</li>
-  <li>유튜브 댓글 작성시 유튜브 서버까지 어떻게 전달되는지 살펴보기
+  <li>CPU가 이전의 프로세스 상태를 PCB에 보관하고, 또 다른 프로세스의 정보를 PCB에서 읽어 레지스터에 적재하는 과정입니다.</li>
+</ul>
+
+<p><strong>발생하는 경우</strong></p>
+<ul>
+  <li>인터럽트가 발생하는 경우</li>
+  <li>실행 중인 CPU의 사용 허가 시간을 모두 소모하는 경우</li>
+  <li>입출력을 위해 대기해야 하는 경우</li>
+</ul>
+
+<h2 id="cpu-scheduling">CPU Scheduling</h2>
+<ul>
+  <li>CPU를 잘 사용하기 위해 프로세스를 잘 배정하기 위한 방법입니다.</li>
+  <li>프로세스가 작업을 수행하려면, 스케줄러로부터 CPU를 할당 받아야하므로, 순서와 처리 시간을 효율적으로 정하기 위한 정책입니다.</li>
+  <li>조건: 오버헤드는 낮게, 사용률은 높게, 기아 현상은 낮게</li>
+  <li>목표
     <ol>
-      <li>애플리케이션 레이어에 메시지를 전송하기 위해 처리과정을 거칩니다. 부가적인 정보들을 애플리케이션 헤더에 담습니다.</li>
-      <li>presentation layer 관련 데이터들을 헤더에 담고, 담긴 정보를 Session Layer로 보냅니다.</li>
+      <li>Batch System: 한 번에 하나의 프로그램만 수행하는 것을 말합니다. 따라서, 가능하면 많은 일을 수행하며, 시간보다 처리량이 중요합니다. CPU Utilization과 같은 측면을 극대화하는 것이 배치 시스템에 더 좋습니다.</li>
+      <li>Interactive System: 사용자가 컴퓨터와 대화형으로 동작하기 때문에, 응답시간이 중요합니다. 응답시간을 빠르게, 대기시간은 적게 합니다.</li>
+      <li>Real-time System: 일반적으로 시간이라는 제약 조건이 추가된 시스템이기 때문에, 주어진 인풋에 대한 아웃풋의 처리 시간이 중요합니다. 따라서, 시간제약 조건(Deadline)을 맞추는 것입니다.</li>
     </ol>
   </li>
 </ul>
 
-<h2 id="구글을-주소창에서-입력하면-일어나는-일">구글을 주소창에서 입력하면 일어나는 일</h2>
+<h3 id="프로세스의-상태-전이">프로세스의 상태 전이</h3>
 <ul>
-  <li>DNS (Domain Name System Servers): URL들의 이름과 IP 주소를 저장하고 있는 데이터 베이스로, 웹사이트를 위한 주소록입니다. 숫자로된 IP를 사용자가 편리한 주소로 맵핑합니다. 최종적으로 사용자를 어떤 서버에 연결할 것인지 제어하는 요청을 쿼리라고 부릅니다.</li>
-  <li>DNS query: DNS 서버들을 검색해서 해당 사이트의 IP 주소를 찾습니다. 재귀적으로 서로 다른 DNS 서버를 오가며 에러가 날 때까지 반복적으로 요청합니다. (recursive search)</li>
-  <li>TCIP/IP (Transmission Control Protocol / Internet Protocol): 이를 따른다는 것은, IP 주소 체계를 따르며 TCP의 특성을 활용해 송신자와 수신자의 논리적 연결을 생성하고 신뢰성을 유지할 수 있도록 하겠다는 의미입니다.</li>
-  <li>HTTP(Hypertext Transfer Protocol):</li>
+  <li>승인 (Admitted): 프로세스 생성이 가능하여 승인.</li>
+  <li>스케줄러 디스패치(Scheduler Dispatch): 준비 상태에 있는 프로세스 중 하나를 선택하여 실행시키는 것.</li>
+  <li>인터럽트(interrupt): 예외, 입출력, 이벤트 등이 발생하여 현재 실행 중인 프로세스를 준비 상태로 바꾸고, 해당 작업을 먼저 처리하는 것.</li>
+  <li>입출력 또는 이벤트 대기 (I/O or Event wait): 실행 중인 프로세스가 입출력이나 이벤트를 처리해야 하는 경우, 입출력/이벤트가 모두 끝날 때까지 대기 상태로 만드는 것.</li>
+  <li>입출력 또는 이벤트 완료 (I/O or Event Completion): 입출력/이벤트가 끝난 프로세스를 준비 상태로 전환하여 스케줄러에 의해 선택될 수 있도록 만드는 것.</li>
 </ul>
 
-<ol>
-  <li>사용자가 웹브라우저 검색창에 www.google.com을 입력</li>
-  <li>웹브라우저는 캐싱된 DNS 기록들을 통해 도메인 주소와 대응하는 IP 주소응답 (캐시에 없다면 3, 있다면 4로)</li>
-  <li>웹브라우저가 HTTP를 사용하여 DNS에 입력된 도메인 주소 요청 및 IP 주소 응답</li>
-  <li>웹브라우저가 웹서버에게 IP 주소를 통해 html 문서를 요청합니다. (TCP/IP)</li>
-  <li>웹어플리케이션서버(WAS)와 데이터베이스에서 우선적으로 웹페이지 작업을 처리합니다.</li>
-  <li>처리된 작업의 결과를 웹서버로 전송합니다.</li>
-  <li>웹서버는 브라우저에게 html 문셔 결과를 응답합니다.</li>
-  <li>웹브라우저는 화면에 웹페이지 내용을 출력합니다.</li>
-</ol>
-
-<h2 id="웹서버--어플리케이션-서버--웹컨테이너">웹서버 / 어플리케이션 서버 / 웹컨테이너</h2>
-<p><strong>웹서버</strong></p>
+<h3 id="선점-스케줄링">선점 스케줄링</h3>
 <ul>
-  <li>웹서버 소프트웨어와 HTML, CSS, JavaScript파일과 같은 정적 파일들을 저장하는 하드웨어</li>
-  <li>Client가 어떻게 호스트 파일들에 접근하는지 관리하는 소프트웨어</li>
-  <li>URI(Uniform Resource Identifier)와 HTTP(브라우저가 웹 페이지를 보여주기 위해 사용하는 프로토콜) 소프트웨어의 일부</li>
-  <li>HTTP를 통해 웹브라우저에서 요청하는 HTML 문서나 오브젝트들을 전송해주는 서비스 프로그램을 말합니다. 이 때, 다른 가공없이 파일을 그대로 전송하기만 하면 되기 때문에 정적(static)이라고 합니다.</li>
-  <li>단순히 데이터만 반환하면 되기 떄문에 처리 속도가 빠르며, 트래픽의 과부하를 잘 처리할 수 있습니다.
-<strong>애플리케이션 서버</strong></li>
-  <li>웹 서비스가 복잡해지고 기능이 다양함에 따라서 데이터를 가공해서 처리하는 비즈니스 로직이 필요하게 됩니다.</li>
-  <li>웹서버 하나에서 다른 로직까지 처리하기에 부하가 크기 때문에, 로직을 처리하는 서버가 필요하게 되어 만들어집니다.</li>
-  <li>애플리케이션 서버가 HTTP 서버를 통해 브라우저에게 요청된 데이터를 전송하기 전에, 애플리케이션 서버가 데이터를 가공하기 때문에 동적이라고 부릅니다.
-<strong>웹 컨테이너</strong></li>
-  <li>웹 서버에서 동적인 데이터를 반환하려면 요청에 알맞는 프로그램이 필요합니다. 또한, 그 프로그램에 인자를 전달하기 위한 규약이 필요합니다.</li>
-  <li>CGI(Common Gateway Interface)는 프로그램 사이에 데이터를 전달하는 중간자 역할에 필요한 통신규약을 의미합니다.</li>
-  <li></li>
+  <li>한 프로세스가 CPU를 할당받아 실행하고 있을 때, 다른 프로세스가 CPU를 사용하고 있는 프로세스를 중지시키고 CPU를 차지할 수 있는 스케줄링 기법입니다.<br />
+(처리시간에 대한 예측이 어렵습니다.)</li>
+  <li>우선순위가 높은 프로세스를 먼저 수행할 때 유리하며, 빠른 응답 시간을 요구하는 대화식 시분할 시스템에 유용합니다.</li>
+  <li>많은 오버헤드를 초래합니다.</li>
+  <li>Interrupt, I/O or Event Completion, I/O or Event Wait, Exit</li>
 </ul>
 
-<h3 id="django에서의-wsgi-cgi">Django에서의 wsgi, cgi</h3>
-<p><strong>CGI(Common Gateway Interface)</strong></p>
+<p>Priority Scheduling</p>
 <ul>
-  <li>www 서버와 서버 상에 등장하는 다른 프로그램등 HTML에서는 불가능한 동적인 요소를 홈페이지에 받아들여 쓸 수 있도록하는 웹서버와 웹어플리케이션 사이를 이어주는 미들웨어입니다.</li>
-  <li>CGI는 요청이 들어올 때마다 스레드를 생성하여 웹 어플리케이션을 동작시키게 됩니다. 이는 부하가 너무 크고, 10000개 이상의 동시 요청을 처리할 수 없다는 단점이 있습니다.</li>
+  <li>정적/동적으로 우선순위를 부여하여 우선순위가 높은 순서대로 처리합니다.</li>
+  <li>우선순위가 낮은 프로세스가 무한정 기다리는 Starvation이 발생할 수 있습니다.<br />
+(Aging 방법으로 Starvation 문제를 해결할 수 있음)</li>
 </ul>
 
-<p><strong>WSGI(Web Server Gateway Interface)</strong></p>
+<p>Round Robin</p>
 <ul>
-  <li>웹 서버 소프트웨어와 파이썬으로 작성된 스크립트(웹 응용 프로그램) 간 통신을 위한 표준 인터페이스입니다.</li>
-  <li>즉, Nginx로 들어오는 http request를 파이썬이 이해할 수 있도록 통역합니다.</li>
-  <li>CGI의 단점을 보완하여 클라이언트 요청에 대해 멀티 스레드를 생성하여 효율적으로 처리합니다.</li>
-  <li>Django 진영에서는 uwsgi, gunicon 등을 사용하고 있습니다.</li>
-  <li>동작 과정: 클라이언트 요청 -&gt; server side에서 middleware component 호출 -&gt; middleware component가 application side의 application 호출</li>
+  <li>FCFS에 의해 프로세스들이 보내지면 각 프로세스는 동일한 시간의 Time Quantum만큼 CPU를 할당받습니다.<br />
+(time quantum, time slice: 실행의 최소 단위 시간)</li>
+  <li>할당 시간(time quantum)이 크면 FCFS와 같게 되고, 작으면 컨텍스트 스위칭이 잦아져서 오버헤드가 증가합니다.</li>
 </ul>
 
-<p><strong>uWSGI와 Gunicorn</strong><br />
-uWSGI</p>
+<p>Multilevel-Queue</p>
 <ul>
-  <li>C 언어로 작성된 웹서버이며, 파이썬 애플리케이션을 외부 웹서버와 연결하여 오청을 처리하는 방식입니다.</li>
-  <li>다양한 프로그래밍 언어를 지원하며 고성능 및 확장성이 뛰어납니다.</li>
-  <li>여러 프로세스 또는 스레드를 사용하여 동시에 여러 요청을 처리할 수 있습니다.</li>
-  <li>초기설정 옵션이 다양하지만 복잡합니다. 유연성과 강력한 기능을 제공합니다.</li>
-  <li>다양한 플러그인과 확장 기능을 제공하여 다양한 요구 사항에 대응할 수 있습니다.</li>
+  <li>작업들을 여러 종류의 그룹으로 나누어 여러 개의 큐를 이용하는 기법입니다.</li>
+  <li>우선순위가 낮은 큐들이 실행하지 못하는 것을 방지하고자 각 큐마다 다른 <code class="language-plaintext highlighter-rouge">time quantum</code>을 설정해 주는 방식이 사용됩니다.</li>
+  <li>우선순위가 높은 큐는 작은 <code class="language-plaintext highlighter-rouge">time quantum</code>을, 우선순위가 낮은 큐는 큰 <code class="language-plaintext highlighter-rouge">time quantum</code>을 할당합니다.</li>
 </ul>
 
-<p>Gunicorn</p>
+<p>Multilevel-Feedback-Queue</p>
 <ul>
-  <li>Python으로 작성된 웹서버이며, 독자적으로 애플리케이션을 실행하고 관리하는 단일서버로, 프론트엔드 웹서버와 직접 연결하여 사용합니다.</li>
-  <li>단일 프로세스에서 동작하며, 작은 규모의 애플리케이션을 처리하는데 적합합니다.</li>
-  <li>간단하고 설정이 쉽습니다. 추가설정 없이도 동작합니다.</li>
-  <li>파이썬 애플리케이션에 초점을 맞춘 경량 웹서버입니다.</li>
+  <li>Multilevel-Queue에서 자신의 <code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 밑으로 내려가고, <code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 원래 큐에 그대로 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 CPU burst 프로세스로 판단됩니다.</li>
+  <li>짧은 작업에 유리하며, interrupt가 잦은 입출력 위주의 작업에 우선권을 줍니다.</li>
+  <li>처리 시간이 짧은 프로세스를 먼저 처리하기 때문에 turn around 평균 시간을 줄여줍니다.</li>
 </ul>
 
-<p>참고 블로그</p>
+<h3 id="비선점-스케줄링">비선점 스케줄링</h3>
 <ul>
-  <li>biunx님: <a href="https://binux.tistory.com/32">웹서버와 웹어플리케이션서버</a></li>
-  <li>waonderboy님: <a href="https://velog.io/@waoderboy/%EC%9B%B9-%EC%84%9C%EB%B2%84-WAS-%EC%9B%B9-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88">웹 서버, WAS, 웹 컨테이너</a></li>
-  <li>stg0123님: <a href="https://stg0123.github.io/study/41/">uwsgi를 django와 연결하기</a></li>
-  <li>elastic7327님: <a href="https://elastic7327.medium.com/python%EA%B0%9C%EB%B0%9C%EC%9E%90-uwsgi%EB%A5%BC-%EB%B2%84%EB%A6%AC%EA%B3%A0-gunicorn%EC%9C%BC%EB%A1%9C-%EA%B0%88%EC%95%84%ED%83%80%EB%8B%A4-df1c95f220c5">uwsgi를 버린 이유</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.]]></summary></entry><entry><title type="html">[Study] Django - 코딩 스타일</title><link href="http://localhost:4000/django%20study/study-django-coding-style/" rel="alternate" type="text/html" title="[Study] Django - 코딩 스타일" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-coding-style</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-coding-style/"><![CDATA[<h3 id="pre-commit-checks">Pre-commit checks</h3>
+  <li>이미 사용되는 CPU를 회수하지는 못하고, 끝날 때까지 기다리는 스케줄링 기법입니다.</li>
+  <li>따라서, 프로세스 종료 또는 I/O 이벤트가 있을 때까지 실행이 보장됩니다. 처리시간 예측이 용이합니다.</li>
+  <li>일괄 처리방식이 적합합니다.</li>
+  <li>모든 프로세스 요구에 대해 공정하며, 중요도가 높은 작업이 낮은 작업을 기다리는 경우가 발생할 수도 있습니다.</li>
+  <li>I/O or Event Wait, Exit</li>
+</ul>
+
+<p>FCFS (First Come First Served)</p>
+<ul>
+  <li>큐에 도착한 순서대로 CPU를 할당합니다.</li>
+  <li>실행 시간이 짧은 작업이 뒤로 가면 평균 대기시간이 길어집니다.</li>
+</ul>
+
+<p>SJF (Shortest Job First)</p>
+<ul>
+  <li>수행시간이 가장 짧다고 판단되는 작업을 먼저 수행합니다.</li>
+  <li>FCFS 보다 평균 대기 시간이 감소하고, 짧은 작업에 유리합니다.</li>
+</ul>
+
+<p>HRN (Highest Response-ratio Next)</p>
+<ul>
+  <li>우선순위를 계산하여 점유 불평등을 보완하는 방법으로, SJF의 단점을 보완합니다.</li>
+  <li>우선순위 = (대기시간 + 실행시간) / 실행시간</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적 할당 시 사용하는 (new(), malloc()) 영역입니다. Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역) 함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다. 하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.]]></summary></entry><entry><title type="html">[Study] Django - 코딩 스타일</title><link href="http://localhost:4000/django%20study/study-django-coding-style/" rel="alternate" type="text/html" title="[Study] Django - 코딩 스타일" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-coding-style</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-coding-style/"><![CDATA[<h3 id="pre-commit-checks">Pre-commit checks</h3>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">flake8</code> 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다.</li>
   <li><code class="language-plaintext highlighter-rouge">git hook</code>: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다.</li>
@@ -1012,636 +1380,4 @@ def function(**kwargs):
 <h3 id="reference">reference</h3>
 <ul>
   <li><a href="https://www.nginx.com/resources/glossary/layer-4-load-balancing/">Nginx 공식 홈페이지</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[작성 계기 면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Unittest</title><link href="http://localhost:4000/study/study-cleancode-unittest/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Unittest" /><published>2023-07-20T00:05:07+09:00</published><updated>2023-07-20T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-unittest</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-unittest/"><![CDATA[<h2 id="unit-test">Unit Test</h2>
-<ul>
-  <li>단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다.</li>
-  <li>단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야 합니다.</li>
-  <li>격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태와 관계없이 임의 순서로 실행될 수 있어야 합니다.</li>
-  <li>성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야 합니다.</li>
-  <li>자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야 합니다.</li>
-</ul>
-
-<p><strong>추가</strong></p>
-<ul>
-  <li>통합 테스트: 한 번에 여러 컴포넌트를 테스트하여, 종합적으로 예상대로 잘 동작하는지 검증합니다.</li>
-  <li>통합 테스트의 경우, 부작용이나 격리를 고려하지 않은 채로, HTTP 요청을 하거나 데이터베이스에 연결하는 등의 작업이 수행 가능합니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">logging</span>
-<span class="kn">import</span> <span class="n">unittest</span>
-<span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
-<span class="kn">from</span> <span class="n">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="sh">"</span><span class="s">skeleton</span><span class="sh">"</span><span class="p">)</span>
-<span class="n">logger</span><span class="p">.</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
-<span class="n">logger</span><span class="p">.</span><span class="nf">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="nc">StreamHandler</span><span class="p">())</span>
-
-<span class="k">class</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="nb">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">MergeRequestStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">APPROVED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">approved</span><span class="sh">"</span>
-    <span class="n">REJECTED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">rejected</span><span class="sh">"</span>
-    <span class="n">PENDING</span> <span class="o">=</span> <span class="sh">"</span><span class="s">pending</span><span class="sh">"</span>
-    <span class="n">OPEN</span> <span class="o">=</span> <span class="sh">"</span><span class="s">open</span><span class="sh">"</span>
-    <span class="n">CLOSED</span> <span class="o">=</span> <span class="sh">"</span><span class="s">closed</span><span class="sh">"</span>
-
-<span class="k">class</span> <span class="nc">MergeRequest</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
-            <span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span>
-        <span class="p">}</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">OPEN</span>
-    
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span>
-    
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span>
-
-        <span class="k">return</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
-    
-    <span class="k">def</span> <span class="nf">_cannot_vote_if_closed</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">CLOSED</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="nc">MergeRequestException</span><span class="p">(</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">upvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">downvote</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">by_user</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">_cannot_vote_if_closed</span><span class="p">()</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">discard</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>        
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">].</span><span class="nf">add</span><span class="p">(</span><span class="n">by_user</span><span class="p">)</span>
-    
-<span class="k">class</span> <span class="nc">AcceptanceThreshold</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">merge_request_context</span>
-
-    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">'</span><span class="s">downvotes</span><span class="sh">'</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
-        <span class="k">elif</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_context</span><span class="p">[</span><span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
-        <span class="k">return</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="p">.</span><span class="nf">main</span><span class="p">()</span>
-</code></pre></div></div>
-<ul>
-  <li>위의 클래스 및 테스터는 머지 상황에서, 두 명 이상의 개발자가 upvote를 하거나 한 명이라도 downvote를 하면 머지를 실패하는 경우에 대한 프로그램입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>를 최소 단위로 분리하여 테스트를 진행하고, <code class="language-plaintext highlighter-rouge">MergeRequest</code> 클래스에서 이를 사용하는 방식입니다. (리팩토링 전에 <code class="language-plaintext highlighter-rouge">AcceptanceThreshold</code>의 status 메서드가 <code class="language-plaintext highlighter-rouge">MergeRequest</code> 메서드였음)</li>
-</ul>
-
-<p><strong><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용한 테스트 케이스</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">TestMergeRequestStatus</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="c1"># NOTE: 한 명이 downvote하여, 머지 리퀘스트가 거부된 상황입니다.
-</span>    <span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
-    
-    <span class="c1"># NOTE: 한 명만 upvote를 한 상황에서는 다음 투표를 대기합니다.
-</span>    <span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span><span class="p">)</span>
-
-    <span class="c1"># NOTE: 두 명 이상이 upvote를 수행하면 승인됩니다.
-</span>    <span class="k">def</span> <span class="nf">test_approved</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">merge_request</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span><span class="p">)</span>
-
-    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
-</span>    <span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaises</span><span class="p">(</span>
-            <span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
-        <span class="p">)</span>
-    
-    <span class="c1"># NOTE: 투표함이 닫히면, 더이상 투표를 할 수 없습니다.
-</span>    <span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertRaisesRegex</span><span class="p">(</span>
-            <span class="n">MergeRequestException</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">merge_request</span><span class="p">.</span><span class="n">downvote</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">TestAcceptanceThreshold</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="c1"># NOTE: 테스트 전반에 걸쳐 사용될 데이터 픽스처를 정의합니다.
-</span>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
-            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-        <span class="p">),</span> <span class="p">(</span>
-            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
-            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-        <span class="p">),</span> <span class="p">(</span>
-            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
-            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
-        <span class="p">),</span> <span class="p">(</span>
-            <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
-            <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">test_status_resolution</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">context</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">fixture_data</span><span class="p">:</span>
-            <span class="c1"># NOTE: subTest: 호출되는 테스트 조건을 표시하는데 사용됩니다.
-</span>            <span class="c1">#       반복 중 하나가 실패하면, subTest에 전달된 변수의 값을 나타냅니다.
-</span>            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span>
-                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">unittest</code> 모듈을 사용하는 경우, <code class="language-plaintext highlighter-rouge">TestCase</code> 클래스를 상속받는 테스터 클래스를 생성합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">Exception</code> 반환을 테스트하기 위해 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>, <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaisesRegex</code> 메서드를 사용할 수 있습니다.</li>
-  <li>for 루프를 이용하면, 테스트에서 오류가 발생한 시점에서 멈추게 되지만, <code class="language-plaintext highlighter-rouge">subTest</code> 메서드를 사용하면 모든 케이스에 대해 테스트를 마치고, 실패 케이스들을 모두 알 수 있습니다.</li>
-</ul>
-
-<p><strong><code class="language-plaintext highlighter-rouge">pytest</code> 모듈을 사용한 테스트 케이스</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: MergeRequestStatus
-</span><span class="k">def</span> <span class="nf">test_simple_rejected</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">maintainer</span><span class="sh">"</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
-
-<span class="k">def</span> <span class="nf">test_just_created_is_pending</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="nc">MergeRequest</span><span class="p">().</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-
-<span class="k">def</span> <span class="nf">test_pending_awaiting_review</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">core-dev</span><span class="sh">"</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-
-<span class="k">def</span> <span class="nf">test_approved</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">upvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
-
-<span class="k">def</span> <span class="nf">test_invalid_types</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="nb">TypeError</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="p">{</span><span class="sh">"</span><span class="s">invalid-object</span><span class="sh">"</span><span class="p">})</span>
-
-<span class="k">def</span> <span class="nf">test_cannot_upvote_on_closed_merge_request</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
-    <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span><span class="n">MergeRequestException</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">.</span><span class="n">upvote</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">test_cannot_downvote_on_closed_merge_request</span><span class="p">():</span>
-    <span class="n">merge_request</span> <span class="o">=</span> <span class="nc">MergeRequest</span><span class="p">()</span>
-    <span class="n">merge_request</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="nf">raises</span><span class="p">(</span>
-        <span class="n">MergeRequestException</span><span class="p">,</span>
-        <span class="n">match</span><span class="o">=</span><span class="sh">"</span><span class="s">종료된 머지 리퀘스트에 투표할 수 없음</span><span class="sh">"</span>
-    <span class="p">):</span>
-        <span class="n">merge_request</span><span class="p">.</span><span class="nf">downvote</span><span class="p">(</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">)</span>
-
-<span class="c1"># NOTE: AcceptanceThreshold
-</span><span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="sh">"</span><span class="s">context, expected_status</span><span class="sh">"</span><span class="p">,</span> <span class="p">(</span>
-    <span class="p">(</span>
-        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
-        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-    <span class="p">),</span> <span class="p">(</span>
-        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}},</span>
-        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">PENDING</span>
-    <span class="p">),</span> <span class="p">(</span>
-        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">()},</span>
-        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">REJECTED</span>
-    <span class="p">),</span> <span class="p">(</span>
-        <span class="p">{</span><span class="sh">"</span><span class="s">downvotes</span><span class="sh">"</span><span class="p">:</span> <span class="nf">set</span><span class="p">(),</span> <span class="sh">"</span><span class="s">upvotes</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">dev2</span><span class="sh">"</span><span class="p">}},</span>
-        <span class="n">MergeRequestStatus</span><span class="p">.</span><span class="n">APPROVED</span>
-    <span class="p">)</span>
-<span class="p">))</span>
-<span class="k">def</span> <span class="nf">test_acceptance_threshold_status_resolution</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">expected_status</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="nc">AcceptanceThreshold</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="nf">status</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected_status</span>
-</code></pre></div></div>
-<ul>
-  <li>pytest에서는 <code class="language-plaintext highlighter-rouge">assert</code> 비교만으로 단위 테스트를 식별하고 결과를 확인하는 것이 가능합니다.</li>
-  <li>또한, unittest로 작성한 테스트까지 실행하기 때문에 호환성이 좋습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">pytest.raises</code>는 <code class="language-plaintext highlighter-rouge">unittest.TestCase.assertRaises</code>와 동일합니다. <code class="language-plaintext highlighter-rouge">assertRaises</code>의 경우에는 위와 같이 <code class="language-plaintext highlighter-rouge">match</code> 파라미터를 사용하여 구현할 수 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">unittest.TestCase.subTest</code>에서 반복적으로 테스트했다면, pytest에서는 데코레이터를 통해 수행할 수 있습니다. 첫 번째 파라미터는 파라미터의 이름을, 두 번째 파라미터는 테스트하고자 하는 값들의 튜플입니다.</li>
-</ul>
-
-<h3 id="mock-객체">Mock 객체</h3>
-<ul>
-  <li>시스템이 서비스 되기 위해서는 외부 서비스(DB, Storage, 외부 API, 클라우드)를 사용하게 됩니다.</li>
-  <li>외부 서비스를 사용하며 발생하는 부작용을 최소화하기 위해 외부 요소를 분리하고, 인터페이스를 사용하여 추상화해야 합니다.</li>
-  <li>Mock 객체는 원하지 않는 부작용으로부터 테스트 코드를 보호하는 방법 중 하나입니다.</li>
-  <li>통햅테스트에서는 외부 서비스에 대한 테스트까지를 포함하지만, 단위 테스트에서는 모킹하는 것만으로 원하는 기능 위주로 테스트해야합니다.</li>
-</ul>
-
-<p><strong>Patch, Mock 사용 시 주의사항</strong></p>
-<ul>
-  <li>간단한 테스트를 작성하기 위해 다양한 몽키패치(런타임 중 코드를 수정하는 것)과 모킹을 해야 한다면, 코드가 좋지 않다는 신호입니다.</li>
-  <li>Patch란 import 중에 경로를 지정했던 원본 코드를 Mock 객체로 대체하는 것으로, 런타임 중에 코드가 바뀌고 처음에 있던 원래 코드와의 연결이 끊어집니다.</li>
-</ul>
-
-<h3 id="mock-사용">Mock 사용</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
-<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
-
-<span class="k">class</span> <span class="nc">GitBranch</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_commits</span> <span class="o">=</span> <span class="p">{</span> <span class="n">c</span><span class="p">[</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">]:</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">commits</span> <span class="p">}</span>
-    
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">[</span><span class="n">commit_id</span><span class="p">]</span>
-    
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_commits</span><span class="p">)</span>
-    
-<span class="k">def</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="n">commit_id</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">branch</span><span class="p">[</span><span class="n">commit_id</span><span class="p">][</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">]</span>
-
-<span class="k">def</span> <span class="nf">test_find_commit</span><span class="p">():</span>
-    <span class="n">branch</span> <span class="o">=</span> <span class="nc">GitBranch</span><span class="p">([{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span><span class="p">}])</span>
-    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">dev1</span><span class="sh">"</span>
-
-<span class="k">def</span> <span class="nf">test_find_any</span><span class="p">():</span>
-    <span class="n">mbranch</span> <span class="o">=</span> <span class="nc">MagicMock</span><span class="p">()</span>
-    <span class="n">mbranch</span><span class="p">.</span><span class="n">__getitem__</span><span class="p">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">author</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span><span class="p">}</span>
-    <span class="k">assert</span> <span class="nf">author_by_id</span><span class="p">(</span><span class="sh">"</span><span class="s">123</span><span class="sh">"</span><span class="p">,</span> <span class="n">mbranch</span><span class="p">)</span> <span class="o">==</span> <span class="sh">"</span><span class="s">test</span><span class="sh">"</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">MagicMock</code>을 사용해서 <code class="language-plaintext highlighter-rouge">GitBranch</code> 객체를 모킹합니다. 이 떄, <code class="language-plaintext highlighter-rouge">GitBranch</code>는 매직메서드를 사용하기 때문에 <code class="language-plaintext highlighter-rouge">MagicMock</code>을 이용합니다.</li>
-  <li>이 때, <code class="language-plaintext highlighter-rouge">mbarnch</code>는 <code class="language-plaintext highlighter-rouge">__getitem__</code>에 대한 반환 값만 지정했기 때문에, <code class="language-plaintext highlighter-rouge">commit_id</code>에 상관없이 출력값만 테스트합니다.</li>
-</ul>
-
-<h3 id="테스트-더블-사용-예시">테스트 더블 사용 예시</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2.py
-</span><span class="kn">from</span> <span class="n">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-
-<span class="kn">import</span> <span class="n">requests</span>
-<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
-
-<span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
-    <span class="sh">"""</span><span class="s">Continuous Integration  도구에서의 머지 리퀘스트 상태</span><span class="sh">"""</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
-    
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
-        <span class="n">build_status</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">cls</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
-        <span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">build_status</span><span class="p">)</span>
-        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span> <span class="c1"># 200이 아닐 경우에 예외 발생
-</span>        <span class="k">return</span> <span class="n">response</span>
-</code></pre></div></div>
-<ul>
-  <li>constants.py 모듈에는 <code class="language-plaintext highlighter-rouge">STATUS_ENDPOINT</code>를 test@example.com으로 설정해뒀습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드는 원하는 endpoint에 post 요청한 결과값을 받아옵니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
-
-<span class="kn">from</span> <span class="n">constants</span> <span class="kn">import</span> <span class="n">STATUS_ENDPOINT</span>
-<span class="kn">from</span> <span class="n">mock_2</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
-
-<span class="nd">@mock.patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.requests</span><span class="sh">"</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">mock_requests</span><span class="p">):</span>
-    <span class="n">build_date</span> <span class="o">=</span> <span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span> <span class="c1"># 반환값으로 사용할 build_date
-</span>    <span class="k">with</span> <span class="n">mock</span><span class="p">.</span><span class="nf">patch</span><span class="p">(</span><span class="sh">"</span><span class="s">mock_2.BuildStatus.build_date</span><span class="sh">"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">build_date</span><span class="p">):</span>
-        <span class="n">BuildStatus</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
-    
-    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span><span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_date</span><span class="p">}</span>
-    <span class="n">mock_requests</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
-        <span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
-    <span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li>데코레이터는 테스트 함수 내에서 mock_2.requests를 호출하면 함수의 인자인 mock_requests라는 객체가 mock을 대신할 것이라고 알려줍니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">mock_2.BuildStatus.build_date</code> 메서드에 대한 반환값으로는 테스터 내에서 지정해준 <code class="language-plaintext highlighter-rouge">build_date</code>로 사용하도록 context를 구성하고, <code class="language-plaintext highlighter-rouge">notify</code> 메서드에 <code class="language-plaintext highlighter-rouge">id</code>와 <code class="language-plaintext highlighter-rouge">status</code>를 인자로 넣습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">mock_requests</code>는 post 요청이 될 때 어떤 인자로 호출되었는지 테스트합니다.</li>
-</ul>
-
-<h3 id="리팩토링">리팩토링</h3>
-<ul>
-  <li>위와 같이 설계하는 경우, <code class="language-plaintext highlighter-rouge">notify</code> 메서드가 request 모듈에 직접 의존하는 문제가 있습니다.</li>
-  <li>따라서, 테스터를 작성시에도 의존성을 고려해서 메서드와 객체에 대한 설정을 함께 생각하며 작성해야합니다.</li>
-  <li>함수의 간의 의존성을 줄이는 방식으로 아래와 같이 리팩토링 할 수 있습니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># mock_2_refactor.py
-</span><span class="k">class</span> <span class="nc">BuildStatus</span><span class="p">:</span>
-    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">STATUS_ENDPOINT</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">transport</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">transport</span> <span class="o">=</span> <span class="n">transport</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">build_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">utcnow</span><span class="p">().</span><span class="nf">isoformat</span><span class="p">()</span>
-    
-    <span class="k">def</span> <span class="nf">compose_payload</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="n">merge_request_id</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">build_date</span><span class="p">(),</span>
-        <span class="p">}</span>
-    
-    <span class="k">def</span> <span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="n">STATUS_ENDPOINT</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
-        <span class="n">response</span><span class="p">.</span><span class="nf">raise_for_status</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">response</span>
-    
-    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">deliver</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">compose_payload</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">notify</code> 메서드를 <code class="language-plaintext highlighter-rouge">compose_payload</code>, <code class="language-plaintext highlighter-rouge">deliver</code> 메서드로 각각 분리하고 <code class="language-plaintext highlighter-rouge">requests</code> 모듈로 한정 지어 구현하는 것이 아닌, 생성자 주입으로 처리합니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># test_mock_2_refactor.py
-</span><span class="kn">from</span> <span class="n">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
-<span class="kn">import</span> <span class="n">pytest</span>
-<span class="kn">from</span> <span class="n">mock_2_refactor</span> <span class="kn">import</span> <span class="n">BuildStatus</span>
-
-
-<span class="nd">@pytest.fixture</span>
-<span class="k">def</span> <span class="nf">build_status</span><span class="p">():</span>
-    <span class="c1"># NOTE: transport에 mock 객체를 주입합니다.
-</span>    <span class="n">bstatus</span> <span class="o">=</span> <span class="nc">BuildStatus</span><span class="p">(</span><span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">())</span>
-    <span class="n">bstatus</span><span class="p">.</span><span class="n">build_date</span> <span class="o">=</span> <span class="n">mock</span><span class="p">.</span><span class="nc">Mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="sh">"</span><span class="s">2023-01-01T00:00:01</span><span class="sh">"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">bstatus</span>
-
-<span class="k">def</span> <span class="nf">test_build_notification_sent</span><span class="p">(</span><span class="n">build_status</span><span class="p">):</span>
-    <span class="n">build_status</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">)</span>
-
-    <span class="n">expected_payload</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="sh">"</span><span class="s">id</span><span class="sh">"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
-        <span class="sh">"</span><span class="s">status</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span>
-        <span class="sh">"</span><span class="s">built_at</span><span class="sh">"</span><span class="p">:</span> <span class="n">build_status</span><span class="p">.</span><span class="nf">build_date</span><span class="p">()</span>
-    <span class="p">}</span>
-
-    <span class="c1"># NOTE: transport 자리에 mock 객체가 주입되었기 때문에 아래와 같이 사용 가능합니다.
-</span>    <span class="n">build_status</span><span class="p">.</span><span class="n">transport</span><span class="p">.</span><span class="n">post</span><span class="p">.</span><span class="nf">assert_called_with</span><span class="p">(</span>
-        <span class="n">build_status</span><span class="p">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">expected_payload</span>
-    <span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li>requests 모듈 등 호출을 담당하는 <code class="language-plaintext highlighter-rouge">transport</code> 자리에 Mock 객체를 주입하여 처리합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">BuildStatus</code>에 모킹 처리를 한 <code class="language-plaintext highlighter-rouge">build_status</code> fixture를 사용해서 테스트를 보다 깔끔하게 진행할 수 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Unit Test 단위 테스트란, 다른 코드의 일부분이 유효한지를 검사하는 코드입니다. 단위 테스트는 소프트웨어의 핵심이 되는 필수적인 기능으로서 일반 비즈니스 로직과 동일한 수준으로 다루어져야 합니다. 격리: 단위 테스트는 독립적이며, 비즈니스 로직에만 집중합니다. 이전 상태와 관계없이 임의 순서로 실행될 수 있어야 합니다. 성능: 신속하게 실행되어야 하며, 반복적으로 여러 번 실행될 수 있어야 합니다. 자체 검증: 실행만으로 결과를 결정할 수 있어야 하며, 이를 위한 추가 단계(종속성)가 없어야 합니다.]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Descriptor</title><link href="http://localhost:4000/study/study-cleancode-descriptor/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Descriptor" /><published>2023-07-17T10:05:07+09:00</published><updated>2023-07-17T10:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-descriptor</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-descriptor/"><![CDATA[<h2 id="descriptor">Descriptor</h2>
-
-<ul>
-  <li>디스크립터를 구현하기 위해 두 가지 클래스(클라이언트 클래스, 디스크립터 클래스)가 필요합니다.</li>
-</ul>
-
-<p><strong>핵심 용어</strong></p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">client</code>: <code class="language-plaintext highlighter-rouge">ClientClass</code>의 인스턴스입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">descriptor</code>: <code class="language-plaintext highlighter-rouge">DescriptorClass</code>의 인스턴스입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">ClientClass</code>: 솔루션을 위해 생성한 일반적인 추상화 객체입니다. class attribute로 <code class="language-plaintext highlighter-rouge">discriptor</code>를 갖습니다. (필수)</li>
-  <li><code class="language-plaintext highlighter-rouge">DescriptorClass</code>: 디스크립터 로직의 구현체로, 디스크립터 프로토콜을 구현한 클래스의 인스턴스입니다. 매직메서드 <code class="language-plaintext highlighter-rouge">__get__</code>, <code class="language-plaintext highlighter-rouge">__set__</code>, <code class="language-plaintext highlighter-rouge">__delete__</code>, <code class="language-plaintext highlighter-rouge">__set_name</code> 중 최소 하나 이상을 포함해야합니다.</li>
-</ul>
-
-<p><strong>동작 원리</strong></p>
-<ul>
-  <li>클래스 속성을 객체로 선언하면 디스크립터로 인식되고, 클라이언트에서 해당 속성을 호출하면 <code class="language-plaintext highlighter-rouge">__get__</code>의 결과를 반환합니다.
-```python
-class DescriptorClass:
-  def <strong>get</strong>(self, instance, owner):
-      if instance is None:
-          return self
-      logger.info(
-          “Call: %s.<strong>get</strong>(%r, %r)”,
-          self.<strong>class</strong>.<strong>name</strong>, instance, owner
-      )</li>
-</ul>
-
-<p>class ClientClass:
-    desciptor = DescriptorClass()</p>
-
-<p>client = ClientClass()
-logger.info(client.desciptor)</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-  `ClientClass` 인스턴스의 `descriptor`에 접근하면, `DescriptorClass` 인스턴스를 반환하지 않고, `__get__`의 반환 값을 사용합니다.
-- 이를 이용해, `__get__` 메서드 뒤쪽으로 모든 종류의 논리를 추상화하여 클라이언트에게 내용을 숨긴 채로 변환을 투명하게 실행할 수 있습니다. (캡슐화)
-
-### 디스크립터 프로토콜의 메서드 탐색
-- 디스크립터는 객체이기 때문에, self를 첫 번째 파라미터로 사용하며,  self는 객체 자신을 의미합니다.
-
-`__get__(self, instance, owner)`  
-- instance는 디스크립터를 호출한 객체입니다. (client 객체)
-- owner는 해당 객체의 클래스를 의미합니다. (ClientClass 클래스)
-- 즉, instance는 디스크립터가 행동을 취하려는 객체이며, owner는 인스턴스의 클래스입니다.
-
-```python
-class DescriptorClass:
-    def __get__(self, instance, owner):
-        if instance is None:
-            return f"{self.__class__.__name__}.{owner.__name__}"
-        return f"value for {instance}"
-
-class ClientClass:
-    descriptor = DescriptorClass()
-</code></pre></div></div>
-<ul>
-  <li>위의 예제에서, <code class="language-plaintext highlighter-rouge">ClientClass.descriptor</code>로 호출하면 instance가 있는 형태로 호출하는 것이지만,</li>
-  <li><code class="language-plaintext highlighter-rouge">ClientClass().descriptor</code>로 호출하면 instance를 None으로 인식하여 단순히 디스크립터 자체를 반한합니다.</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">__set__(self, instance, value)</code></p>
-<ul>
-  <li>꼭 구현할 필요는 없으며, 구현한 디스크립터에 대해서만 활성화됩니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">instance</code> 파라미터는 <code class="language-plaintext highlighter-rouge">client</code>이며 <code class="language-plaintext highlighter-rouge">value</code> 인자는 문자열을 갖습니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Validation</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">validation_function</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">validation_function</span> <span class="o">=</span> <span class="n">validation_function</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="n">error_msg</span>
-    
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">self</span><span class="p">.</span><span class="nf">validation_function</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s"> </span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">error_msg</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
-    
-<span class="k">class</span> <span class="nc">Field</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">validations</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">validations</span> <span class="o">=</span> <span class="n">validations</span>
-    
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
-    
-    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">self</span>
-        <span class="k">return</span> <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span>
-    
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">validation</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">validations</span><span class="p">:</span>
-            <span class="nf">validation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="n">instance</span><span class="p">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-<span class="k">class</span> <span class="nc">ClientClass</span><span class="p">:</span>
-    <span class="n">descriptor</span> <span class="o">=</span> <span class="nc">Field</span><span class="p">(</span>
-        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="sh">"</span><span class="s">는 숫자가 아닙니다.</span><span class="sh">"</span><span class="p">),</span>
-        <span class="nc">Validation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="sh">"</span><span class="s">는 음수입니다.</span><span class="sh">"</span><span class="p">),</span>
-    <span class="p">)</span>
-
-<span class="c1"># 사용 예시
-</span><span class="n">client</span> <span class="o">=</span> <span class="nc">ClientClass</span><span class="p">()</span>
-<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="mi">42</span>
-<span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">42</span> <span class="c1"># 음수이므로, Validation 에러 발생
-</span><span class="n">client</span><span class="p">.</span><span class="n">descriptor</span> <span class="o">=</span> <span class="sh">"</span><span class="s">invalid value</span><span class="sh">"</span> <span class="c1"># 문자열이므로, Validation 발생
-</span></code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">__set__()</code> 메서드가 @property.setter가 하던 일을 대신하게 됩니다.</li>
-  <li>위와 같이, 프로퍼티 자리에 놓일 수 있는 부분은 디스크립터로 추상화가 가능합니다.</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">__delete__(self, instance)</code></p>
-<ul>
-  <li>
-    <p>self는 descriptor 속성을 나타내며, instance는 client를 나타냅니다.
-```python
-class ProtctedAttribute:
-  def <strong>init</strong>(self, requires_role=None) -&gt; None:
-      self.permission_required = requires_role
-      self._name = None</p>
-
-    <p>def <strong>set_name</strong>(self, owner, name):
-      self._name = name</p>
-
-    <p>def <strong>set</strong>(self, user, value):
-      if value is None:
-          raise ValueError(f”{self._name}를 None으로 설정할 수 없습니다.”)
-      user.<strong>dict</strong>[self._name] = value</p>
-
-    <p>def <strong>delete</strong>(self, user):
-      if self.permission_required in user.permissions:
-          user.<strong>dict</strong>[self._name] = None
-      else:
-          raise ValueError(
-              f”{user!s} 사용자는 {self.permission_required} 권한이 없습니다.”
-          )</p>
-  </li>
-</ul>
-
-<p>class User:
-    “"”admin 권한을 가진 사용자만 이메일 주소를 제거할 수 있습니다.”””</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>email = ProtctedAttribute(requires_role="admin")
-
-def __init__(self, username: str, email: str, permission_list: list = None) -&gt; None:
-    self.username = username
-    self.email = email
-    self.permissions = permission_list or []
-
-def __str__(self):
-    return self.username
-</code></pre></div></div>
-
-<p>admin = User(“root”, “root@example.com”, [“admin”])
-logger.info(admin.email)
-del admin.email
-logger.info(admin.email)</p>
-
-<p>user = User(“user”, “user@example.com”, [“email”, “helpdesk”])
-logger.info(user.email)
-del user.email</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- User 클래스는 username과 email 파라미터를 필수로 받습니다. 
-- email은 "admin" 권한이 있는 사용자만 제거할 수 있습니다.
-
-`__set_name__(self, owner, name)`
-- 디스크립터에 필요한 이름을 지정하기 위한 메서드입니다.
-- 속성의 이름은 `__dict__`에서 `__get__`과 `__set__` 메서드로 읽고 쓸 때 사용됩니다.
-```python
-class DescriptorWithName:
-    def __init__(self, name=None) -&gt; None:
-        self.name = name
-    
-    def __set_name__(self, owner, name):
-        self.name = name
-        print(f'__set_name__(owner: {owner}, name: {name})')
-
-class ClientClass:
-    descriptor1 = DescriptorWithName() #1
-    descriptor2 = DescriptorWithName() #2
-
-logger.info(ClientClass())
-</code></pre></div></div>
-<ul>
-  <li>위와 같이 사용하면, #1 Descriptor 이름은 <code class="language-plaintext highlighter-rouge">descriptor1</code>이 됩니다.</li>
-  <li>즉, 필드명을 descriptor명이 되도록 동작시키는 역할이라고 볼 수 있습니다.</li>
-</ul>
-
-<h3 id="디스크립터의-유형">디스크립터의 유형</h3>
-<p><strong>비데이터 디스크립터</strong></p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">__get__</code> 메서드만을 구현한 디스크립터입니다.
-```python
-class NonDataDescriptor:
-  def <strong>get</strong>(self, instance, owner):
-      if instance is None:
-          return self
-      return 42</li>
-</ul>
-
-<p>class ClientClass:
-    descriptor = NonDataDescriptor()</p>
-
-<p>client = ClientClass()</p>
-<h1 id="vars-클래스의-__dict__를-반환합니다">vars(): 클래스의 __dict__를 반환합니다.</h1>
-<p>logger.info(vars(client)) #1</p>
-
-<p>client.descriptor = 43 #2
-logger.info(vars(client)) #3</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 비데이터 디스크립터의 경우, `__set__`과 `__delete__`를 구현하지 않기 때문에, #2와 같이 속성 값을 변경하는 경우, descriptor instance는 일반 정수로 변경됩니다.
-- 따라서, #1의 결과는 비어있는 딕셔너리지만, #3의 결과는 descriptor 속성이 일반 정수 43으로 갖는 것으로 출력됩니다.
-- 이 때, #2에서 지정한 descriptor를 `del client.descriptor`로 제거한다면, 원래 동작과(#1)과 같이 수행됩니다.
-
-**데이터 디스크립터**
-- `__set__`이나 `__delete__` 메서드를 구현한 경우입니다. 
-```python
-class DataDescriptor:
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return 42
-    
-    def __set__(self, instance, value):
-        logger.info("%s.descriptor를 %s 값으로 설정", instance, value)
-        instance.__dict__["descriptor"] = value
-
-class ClientClass:
-    descriptor = DataDescriptor()
-
-client = ClientClass()
-logger.info(vars(client)) #1
-
-client.descriptor = 43
-logger.info(client.descriptor) #2
-logger.info(vars(client)) #3
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">__set__</code> 메서드를 구현한 데이터 디스크립터의 경우, #2에서 출력 결과가 변경되지 않고 42임을 알 수 있습니다.</li>
-  <li>하지만, <code class="language-plaintext highlighter-rouge">vars()</code> 메서드를 사용하여 속성을 분석하면, descriptor 속성이 추가되면서 값이 바뀌어 있게됩니다.</li>
-  <li>데이터 디스크립터에서 속성을 조회하면 객체의 <code class="language-plaintext highlighter-rouge">__dict__</code>에서 조회하는 대신 클래스의 <code class="language-plaintext highlighter-rouge">descriptor</code>를 먼저 조회합니다.</li>
-  <li>즉, 데이터 디스크립터는 인스턴스의 <code class="language-plaintext highlighter-rouge">__dict__</code>를 오버라이드하여 인스턴스 사전보다 높은 우선순위를 가지지만, 비데이터 디스크립터는 인스턴스 사전보다 낮은 우선순위를 가집니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Descriptor]]></summary></entry></feed>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[작성 계기 면접질문 중, nginx를 사용한 로드밸런싱이 OSI Layer의 어떤 계층에서 일어나는지에 대한 질문에 대해 대답하지 못해, 공부를 시작하게 되었습니다.]]></summary></entry></feed>

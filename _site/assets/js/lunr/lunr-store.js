@@ -215,15 +215,27 @@ var store = [{
         "url": "/study/study-cs-network-osi/",
         "teaser": null
       },{
-        "title": "[Study] Network - OSI 계층",
-        "excerpt":"OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다. 6 계층 - Presentation Layer 애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다. 데이터를 안전하게 전송하기 위해 암호화, 복호화하여...","categories": ["Study"],
+        "title": "[Study] Network - TCP",
+        "excerpt":"TCP 통신이란? 네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다. unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다. network congetion avoidance algorithm을 사용합니다. reliable network를 보장한다? 아래 문제들을 해결하는 것 packet이 손실될 수 있는 문제 packet의 순서가 바뀌는 문제 네트워크가 혼잡하게(congestion) 되는 문제 receiver가 과부화(overload) 되는 문제 흐름제어...","categories": ["Study"],
         "tags": [],
         "url": "/study/study-cs-network-tcp/",
         "teaser": null
       },{
-        "title": "[Study] 개발 용어 정리",
-        "excerpt":"APM Application Performance Management의 줄임말로, 응용 소프트웨어의 성능과 서비스 이용성을 감시하고 관리하는 시스템 관리 방법론입니다. 운영 중인 시스템의 성능을 모니터링하고 분석하여, 시스템의 가용성 및 안정성을 돕습니다. 핀포인트 Feign Spring Boot 진영에서 사용하는 Netflix의 오픈소스입니다. 선언적 방식(어노테이션 사용)으로 외부 API를 RESTful하게 호출할 수 있도록 추상화하여 제공합니다. interface와 annotation만으로 HTTP API 클라이언트를...","categories": ["Study"],
+        "title": "[Study] Database",
+        "excerpt":"SQL과 NoSQL SQL 데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다. 데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다. 장점 명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다. 관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다. 단점...","categories": ["Study"],
         "tags": [],
-        "url": "/study/study-dev-term/",
+        "url": "/study/study-cs-database/",
+        "teaser": null
+      },{
+        "title": "[Study] Operating System - Process, Thread",
+        "excerpt":"프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-os-process-thread/",
+        "teaser": null
+      },{
+        "title": "[Django Strategy] permissions",
+        "excerpt":"글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다. Django Permissions ModelViewSet등...","categories": ["Django Strategy"],
+        "tags": [],
+        "url": "/django%20strategy/study-django-strategy-permissions/",
         "teaser": null
       }]
