@@ -29,12 +29,6 @@ var store = [{
         "url": "/django%20strategy/django-logger/",
         "teaser": null
       },{
-        "title": "[Django] 테스트는 어떻게 수행할까?",
-        "excerpt":"글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 목표 DRF에서 제공하는 APITest를 이용하여 integration 테스트, e2e 테스트를 진행하는 예시에 대해 작성합니다. Item 및 ItemImage 모델을 기준으로...","categories": ["Django Strategy"],
-        "tags": [],
-        "url": "/django%20strategy/django-test/",
-        "teaser": null
-      },{
         "title": "[Django] 배치서버는 어떻게 구성할까?",
         "excerpt":"글을 작성하게 된 계기 배치 서버는 자동화에 필수적인 기능이기 때문에, 사용의 편의성을 어마어마하게 가져다줍니다. 배치 서버를 사용하게 되면, 동기/비동기 처리 등 프레임워크에서 제공하는 다양한 기술들을 사용해보기 용이할 것 같다고 생각되었습니다. Django에서 배치서버를 설정하는 방법에 대해 소개합니다. 설정 참고: https://cholol.tistory.com/531 Django에서 Command는 python manage.py &lt;command&gt;로 동작되는 기능들입니다. 예제: python manage.py makemigrations...","categories": ["Django Strategy"],
         "tags": [],
@@ -231,6 +225,12 @@ var store = [{
         "excerpt":"프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적...","categories": ["Study"],
         "tags": [],
         "url": "/study/study-cs-os-process-thread/",
+        "teaser": null
+      },{
+        "title": "[Django] 테스트는 어떻게 수행할까?",
+        "excerpt":"글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를...","categories": ["Django Strategy"],
+        "tags": [],
+        "url": "/django%20strategy/django-test/",
         "teaser": null
       },{
         "title": "[Django Strategy] permissions",

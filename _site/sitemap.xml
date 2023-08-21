@@ -21,10 +21,6 @@
 <lastmod>2023-04-18T23:05:07+09:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/django%20strategy/django-test/</loc>
-<lastmod>2023-04-19T20:05:07+09:00</lastmod>
-</url>
-<url>
 <loc>http://localhost:4000/django%20strategy/django-batch/</loc>
 <lastmod>2023-04-25T00:00:00+09:00</lastmod>
 </url>
@@ -155,6 +151,10 @@
 <url>
 <loc>http://localhost:4000/study/study-cs-os-process-thread/</loc>
 <lastmod>2023-08-16T00:05:07+09:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/django%20strategy/django-test/</loc>
+<lastmod>2023-08-21T00:05:07+09:00</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/django%20strategy/study-django-strategy-permissions/</loc>
