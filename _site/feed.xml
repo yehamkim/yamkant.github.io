@@ -1,4 +1,395 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-21T16:57:22+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django Strategy] permissions</title><link href="http://localhost:4000/django%20strategy/study-django-strategy-permissions/" rel="alternate" type="text/html" title="[Django Strategy] permissions" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/study-django-strategy-permissions</id><content type="html" xml:base="http://localhost:4000/django%20strategy/study-django-strategy-permissions/"><![CDATA[<h3 id="글을-작성한-계기">글을 작성한 계기</h3>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-29T23:22:39+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django] DRF에서 Viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/django%20strategy/django-strategy-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Viewset은 어떻게 사용할까?" /><published>2023-08-29T00:05:07+09:00</published><updated>2023-08-29T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-strategy-view</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-strategy-view/"><![CDATA[<h2 id="글을-작성하는-이유">글을 작성하는 이유</h2>
+<ul>
+  <li>Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.</li>
+  <li>프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.</li>
+  <li>따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.</li>
+</ul>
+
+<h2 id="modelviewset-사용-전략">ModelViewSet 사용 전략</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>을 상속받아 ViewSet을 구현하게 되면, 클래스 변수로 아래와 같은 값들을 지정하며 좀 더 장고스럽게 구현할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ProductViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="p">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">ProductSerializer</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsOwner</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="sh">"</span><span class="s">id</span><span class="sh">"</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span><span class="p">.</span><span class="n">SearchFilter</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">ProductPagination</span>
+
+    <span class="n">serializer_action_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sh">'</span><span class="s">list</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">create</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductCreateSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">update</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductUpdateSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">destroy</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductDeleteSerializer</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">user</span><span class="p">.</span><span class="nb">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">serializer_action_classes</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">action</span><span class="p">]</span>
+        <span class="nf">except </span><span class="p">(</span><span class="nb">KeyError</span><span class="p">,</span> <span class="nb">AttributeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="n">get_serializer_class</span>
+
+    <span class="nd">@extend_schema</span><span class="p">(</span>
+        <span class="n">request</span><span class="o">=</span><span class="n">ProductSerializer</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">상품 목록을 조회합니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"""</span><span class="s">상품 목록을 페이지번호/페이지크기/검색결과에 따라 조회합니다.</span><span class="sh">"""</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">상품</span><span class="sh">'</span><span class="p">],</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="n">PRODUCT_LIST_EXAMPLES</span><span class="p">,</span>
+        <span class="n">responses</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">:</span> <span class="n">ProductSerializer</span><span class="p">,</span>
+            <span class="n">status</span><span class="p">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="nf">get_queryset</span><span class="p">())</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">serializer</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="permissions">Permissions</h3>
+<ul>
+  <li>위 예시에서, <code class="language-plaintext highlighter-rouge">permission_dlasses</code>에 해당 ViewSet의 메서드를 사용하기 위한 권한을 나열합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IsOwner</code>의 경우, custom permission으로 <code class="language-plaintext highlighter-rouge">rest_framwework.permissions</code>의 <code class="language-plaintext highlighter-rouge">BasicPermission</code>을 상속받아 구성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IsOwner</code>는 상품을 상세 수정(update 메서드)하거나 상세 조회(retrieve 메서드)하는 경우, 유저가 가지고 있는 상품이 맞는지 확인하는 권한입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_permissions(self)</code> 메서드를 오버라이드 하면, 메서드에 따라 권한을 수정하여 사용할 수 있습니다.</li>
+</ul>
+
+<h3 id="queryset">Queryset</h3>
+<ul>
+  <li>일반적으로 api 메서드(<code class="language-plaintext highlighter-rouge">list</code>, <code class="language-plaintext highlighter-rouge">create</code>, <code class="language-plaintext highlighter-rouge">retrieve</code>, <code class="language-plaintext highlighter-rouge">update</code>, <code class="language-plaintext highlighter-rouge">delete</code>)들을 사용할 때는 해당 모델의 전체 값을 필요로 하는 경우가 거의 없습니다.</li>
+  <li>Soft delete가 있어서 논리적 삭제되지 않는 경우를 불러온다든지, 활성화된 데이터만 가져온다던지 공통적으로 처리해야 하는 조건에 대한 처리를 <code class="language-plaintext highlighter-rouge">get_query_set(self)</code>에서 미리 해둘 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_query_set</code>은 각각의 api 메서드 내부에서 사용되는 방식으로 <code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 구현되어있기도 하고, 필요하면 <code class="language-plaintext highlighter-rouge">self</code>로 호출하여 사용할 수 있습니다.</li>
+</ul>
+
+<h3 id="parameters">Parameters</h3>
+<ul>
+  <li>Path parameter, Query parameter 등을 사용하게 되는 경우에 대한 처리도 미리 수행할 수 있습니다.</li>
+</ul>
+
+<p><strong>path parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lookup_field</code>는 <code class="language-plaintext highlighter-rouge">urlpatterns</code>에 입력된 <code class="language-plaintext highlighter-rouge">path("&lt;int:id&gt;/",...</code>의 값을 찾아 db의 field 값과 매칭시킵니다.</li>
+</ul>
+
+<p><strong>search: query parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">filter_backends</code>의 <code class="language-plaintext highlighter-rouge">SearchFilter</code>와 <code class="language-plaintext highlighter-rouge">search_fields</code>를 위와 같이 설정하면, url query parameter로 입력되는 <code class="language-plaintext highlighter-rouge">?search=값</code> search에 해당하는 값을 해당 모델의 <code class="language-plaintext highlighter-rouge">name</code> 필드에서 <code class="language-plaintext highlighter-rouge">SearchFilter</code>의 방식으로 검색합니다.</li>
+  <li>검색된 쿼리를 사용하려면 <code class="language-plaintext highlighter-rouge">list</code> 메서드 내부 구현된 바와 같이 <code class="language-plaintext highlighter-rouge">self.filter_queryset</code> 메서드를 호출하여 사용합니다.</li>
+</ul>
+
+<p><strong>page, page_size: query parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">pagenation_class</code>를 통해 <code class="language-plaintext highlighter-rouge">page</code>, <code class="language-plaintext highlighter-rouge">page_size</code> 각 값에 따라 어떤 방식으로 조회할지 결정할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">DEFAULT_PAGE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DEFAULT_PAGE_SIZE</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">class</span> <span class="nc">ProductPagination</span><span class="p">(</span><span class="n">PageNumberPagination</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">DEFAULT_PAGE</span>
+    <span class="n">page_size</span> <span class="o">=</span> <span class="n">DEFAULT_PAGE_SIZE</span>
+    <span class="n">page_size_query_param</span> <span class="o">=</span> <span class="sh">'</span><span class="s">page_size</span><span class="sh">'</span>
+
+    <span class="k">def</span> <span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_paginated_response</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sh">'</span><span class="s">links</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="sh">'</span><span class="s">next</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_next_link</span><span class="p">(),</span>
+                <span class="sh">'</span><span class="s">previous</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_previous_link</span><span class="p">()</span>
+            <span class="p">},</span>
+            <span class="sh">'</span><span class="s">num_pages</span><span class="sh">'</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">page</span><span class="p">.</span><span class="n">paginator</span><span class="p">.</span><span class="n">num_pages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+            <span class="sh">'</span><span class="s">num</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="n">page</span><span class="p">.</span><span class="n">number</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">results</span><span class="sh">'</span><span class="p">:</span> <span class="n">data</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>위의 예시는, <code class="language-plaintext highlighter-rouge">ModelViewSet</code>의 <code class="language-plaintext highlighter-rouge">pagenation_class</code>에서 지정해준 커스텀 페이지네이션 클래스입니다.</li>
+  <li>위와 같은 방식으로 페이지네이션된 queryset을 사용할 수도 있고, <code class="language-plaintext highlighter-rouge">self.page.paginator</code> 클래스가 가지고 있는 값을 제어할 수도 있습니다.</li>
+</ul>
+
+<h3 id="serializer">Serializer</h3>
+<ul>
+  <li>action마다 다른 serializer를 사용하기 때문에, <code class="language-plaintext highlighter-rouge">get_serializer_class</code> 메서드를 통해 그에 해당하는 serializer를 불러옵니다.</li>
+  <li>내부적으로 보면, <code class="language-plaintext highlighter-rouge">ModelViewSet</code>은 <code class="language-plaintext highlighter-rouge">GenericViewSet</code>을 상속받고, <code class="language-plaintext highlighter-rouge">GenericViewSet</code> 내부에 <code class="language-plaintext highlighter-rouge">get_serializer</code>는 위에서 클래스 메서드로 지정해준 <code class="language-plaintext highlighter-rouge">get_serializer_class</code>의 클래스를 읽어옵니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer</code>는 <code class="language-plaintext highlighter-rouge">DestroyModelMixin</code>을 제외한 모든 믹스인에서 사용되기 때문에 <code class="language-plaintext highlighter-rouge">serializer</code>를 지정하여 API 메서드에 설정하는 것은 필수적입니다.</li>
+</ul>
+
+<hr />
+
+<h2 id="generic-view의-동작방식">Generic view의 동작방식</h2>
+<ul>
+  <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
+  <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
+  <li>
+    <p>generic view는 네 가지 속성을 통해 API 동작을 결정합니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  - authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
+      - .get_authenticators(self)
+  - permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
+      - .get_permissions(self) 
+  - queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
+      - .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.
+      - .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.
+  - serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
+      - .get_serializer_class(self)
+      - .get_serializer_context(self)
+      - .get_serializer(self, ...)
+</code></pre></div>    </div>
+
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">queryset</code>에서, soft-deleted 요소를 조회하면, <code class="language-plaintext highlighter-rouge">queryset = Item.objects.filter(is_deleted='N')</code>과 같이 처리합니다. (정적 필터 적용)</li>
+      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing 하여 object manager의 filter를 추가할 수 있습니다.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># items/views/ItemView.py
+</span>  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+  <span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+  <span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+
+  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+  <span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+      <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+      <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+      <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+      <span class="bp">...</span>
+</code></pre></div>    </div>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># settings.py
+</span>  <span class="bp">...</span>
+
+  <span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="sh">"</span><span class="s">DEFAULT_AUTHENTICATION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">"</span><span class="s">rest_framework_simplejwt.authentication.JWTAuthentication</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">),</span>
+      <span class="sh">"</span><span class="s">DEFAULT_PERMISSION_CLASSES</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
+          <span class="sh">"</span><span class="s">rest_framework.permissions.IsAuthenticated</span><span class="sh">"</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="sh">"</span><span class="s">DEFAULT_FILTER_BACKENDS</span><span class="sh">"</span><span class="p">:</span> <span class="p">(</span>
+          <span class="sh">'</span><span class="s">django_filters.rest_framework.DjangoFilterBackend</span><span class="sh">'</span><span class="p">,</span>
+      <span class="p">),</span>
+  <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>인증이나 권한의 경우, settings.py에 REST_FRAMEWORK에 값을 정의해 두고, 전역적으로 이를 사용할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># views.py
+</span>
+<span class="kn">from</span> <span class="n">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
+<span class="kn">from</span> <span class="n">items.serializers</span> <span class="kn">import</span> <span class="n">ItemSerializer</span><span class="p">,</span> <span class="n">ItemCreateSerializer</span>
+<span class="kn">from</span> <span class="n">items.models</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Category</span>
+<span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
+
+<span class="sh">'''</span><span class="s">
+# 요구사항
+아이템 생성
+- 아이템 이름, 가격, 브랜드가 모두 같은 경우 생성을 막습니다.
+- 상품의 금액이 10000원 이하인 경우 생성을 막습니다. 
+
+아이템 조회
+- soft deleted 되지 않은 상품들을 가져옵니다.
+</span><span class="sh">'''</span>
+
+<span class="k">class</span> <span class="nc">ItemListCreateAPIView</span><span class="p">(</span><span class="n">ListCreateAPIView</span><span class="p">):</span>
+    <span class="n">allowed_method</span> <span class="o">=</span> <span class="p">[</span><span class="sh">"</span><span class="s">get</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">post</span><span class="sh">"</span><span class="p">]</span>
+    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_AUTHENTICATION_CLASSES</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="n">api_settings</span><span class="p">.</span><span class="n">DEFAULT_PERMISSION_CLASSES</span>
+    <span class="n">queryset</span><span class="o">=</span><span class="n">Item</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_queryset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemSerializer</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ItemCreateSerializer</span>
+    
+    <span class="k">def</span> <span class="nf">filter_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="sh">'</span><span class="s">name</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">query_params</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="nc">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">queryset</span>
+    
+    <span class="k">def</span> <span class="nf">get_serializer_context</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="o">==</span> <span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_serializer_context</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">category</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">reqData</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reqData</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">categoryObject</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">reqData</span><span class="p">[</span><span class="sh">"</span><span class="s">cate_id</span><span class="sh">"</span><span class="p">])</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">check_object_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">,</span> <span class="n">categoryObject</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">categoryObject</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">queryset</code>: <code class="language-plaintext highlighter-rouge">get_queryset()</code> 메서드에서 불러올 쿼리셋을 정적으로 지정합니다.(외부에 의해 수정되지 않습니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>: url query parameter을 parsing 하여 <code class="language-plaintext highlighter-rouge">queryset</code>에 필터링을 추가합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
+</ul>
+
+<h3 id="참고">참고</h3>
+<ul>
+  <li><a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까? (query count 포함)</title><link href="http://localhost:4000/django%20strategy/django-strategy-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까? (query count 포함)" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-strategy-test</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-strategy-test/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<ul>
+  <li>테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다.</li>
+  <li>서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 <code class="language-plaintext highlighter-rouge">python3 manage.py test ~</code> 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다.</li>
+  <li>구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.</li>
+</ul>
+
+<h3 id="serializer-test를-위한-testcase-작성">serializer test를 위한 TestCase 작성</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># core.test.py
+</span>
+<span class="kn">import</span> <span class="n">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="sh">"</span><span class="s">skeleton</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="nc">StreamHandler</span><span class="p">())</span>
+
+<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
+<span class="k">def</span> <span class="nf">assert_query_count</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@override_settings</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="nf">reset_queries</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">queries</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">queries</span>
+            <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+                <span class="n">logger</span><span class="p">.</span><span class="nf">debug</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">QUERY: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">sql</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="s">, TIME: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">time</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="n">count</span><span class="p">,</span> <span class="sh">"</span><span class="s">QUERY COUNT:%d != %d</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="k">class</span> <span class="nc">IntegrationSerializerTestCase</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">serializer_test</span><span class="p">(</span>
+        <span class="n">self</span><span class="p">,</span>
+        <span class="n">expected_query_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">instance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSerializer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">data</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">run_test</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">run_test</span>
+        <span class="k">if</span> <span class="n">expected_query_count</span><span class="p">:</span>
+            <span class="n">run_test</span> <span class="o">=</span> <span class="nf">assert_query_count</span><span class="p">(</span><span class="n">expected_query_count</span><span class="p">)(</span><span class="n">run_test</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">CreateSerializer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">UpdateSerializer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sh">"</span><span class="s">instance must be a ModelSerializer</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">serializer</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="n">updated_instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">serializer</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">core</code> 앱의 test 파일에 위와 같이 다른 테스트에서 상속받을 TestCase 클래스를 작성합니다. import 모듈은 생략합니다.</li>
+  <li>저는 테스트 작성시 <code class="language-plaintext highlighter-rouge">TestCase</code>를 상속받은 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받는 방식으로 테스트를 수행합니다.</li>
+  <li>클래스 변수로 지정한 <code class="language-plaintext highlighter-rouge">serializer</code>에 따라서, 검증하는 방식이 다릅니다. 테스트를 위해 더욱 구체적인 정보를 추가해야할 필요가 있다면 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>의 메서드에서 이를 관리하는 방식으로 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">serializer.save()</code> 이 후 반환되는 값은 serializer.data입니다.</li>
+  <li>얼마나 많은 sql query를 호출했는지 평가하기 위해 DB 호출 부분을 <code class="language-plaintext highlighter-rouge">assert_query_count</code> 데코레이터를 사용합니다. <code class="language-plaintext highlighter-rouge">expected_query_count</code>를 인자로 추가한다면, 이에 대한 부분도 평가합니다.</li>
+  <li>테스트 함수에서 <code class="language-plaintext highlighter-rouge">isinstance</code>로 serializer를 구분하는데, 이들은 미리 <code class="language-plaintext highlighter-rouge">core.serializers.py</code>에 작성하여둔 시리얼라이저를 상속하는 방식입니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># core.serializers.py
+</span>  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+
+  <span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+
+      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+
+  <span class="k">class</span> <span class="nc">UpdateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
+
+      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>해당 클래스들을 상속받아 생성/수정 시리얼라이저를 사용하게 될 것이므로, 공통되는 추가적인 정보 기입 혹은 로깅등이 있다면 이곳에 추가합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="구체적인-사용-예시">구체적인 사용 예시</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># products.test_serializer.py
+</span>
+<span class="k">class</span> <span class="nc">ProductUpdateSerializerTestCase</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">ProductUpdateSerializer</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">...</span>
+
+    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Product</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">prod_data</span><span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">])</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
+            <span class="n">expected_query_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">instance</span><span class="o">=</span><span class="n">prod</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">],</span>
+            <span class="n">category</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">],</span>
+            <span class="n">is_active</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">is_active</span><span class="sh">'</span><span class="p">],</span>
+            <span class="n">is_deleted</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">is_deleted</span><span class="sh">'</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">test_field_list</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">is_active</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">is_deleted</span><span class="sh">'</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">test_field_list</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">):</span>
+                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">serializer</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">core</code> 앱으로부터 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받아, 원하는 시리얼라이저를 테스트합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">ProductUpdateSerializer</code>는 아래와 같이 구성되어, <code class="language-plaintext highlighter-rouge">core.serializer.UpdateSerializer</code>를 상속받습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">ProductUpdateSerializer</span><span class="p">(</span><span class="n">UpdateSerializer</span><span class="p">):</span>
+      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">ProductSerializer</span>
+
+      <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+          <span class="n">model</span> <span class="o">=</span> <span class="n">Product</span>
+          <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+              <span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">,</span>
+              <span class="sh">"</span><span class="s">category</span><span class="sh">"</span><span class="p">,</span>
+              <span class="sh">"</span><span class="s">is_active</span><span class="sh">"</span><span class="p">,</span>
+              <span class="sh">"</span><span class="s">is_deleted</span><span class="sh">"</span><span class="p">,</span>
+          <span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">self.serializer_test</code>의 결과로 반환되는 serializer의 내용들을 활용하여 테스트합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다. 구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.]]></summary></entry><entry><title type="html">[Django Strategy] permissions</title><link href="http://localhost:4000/django%20strategy/study-django-strategy-permissions/" rel="alternate" type="text/html" title="[Django Strategy] permissions" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/study-django-strategy-permissions</id><content type="html" xml:base="http://localhost:4000/django%20strategy/study-django-strategy-permissions/"><![CDATA[<h3 id="글을-작성한-계기">글을 작성한 계기</h3>
 <ul>
   <li>최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다.</li>
   <li>ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다.</li>
@@ -57,201 +448,7 @@
   <li><code class="language-plaintext highlighter-rouge">has_object_permission</code>는 <code class="language-plaintext highlighter-rouge">has_permission</code> 검사를 통과한 이 후에 실행됩니다.</li>
   <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 상속받는 <code class="language-plaintext highlighter-rouge">GenericAPIView</code>에 <code class="language-plaintext highlighter-rouge">get_object</code> 메서드 내부에 <code class="language-plaintext highlighter-rouge">self.check_object_permissions</code>는 해당 object가 지정해둔 permission에 따라 권한을 갖는지를 판단합니다.</li>
   <li>Django의 mixins 모듈을 살펴보면, <code class="language-plaintext highlighter-rouge">get_object</code> 메서드를 사용하는 믹스인은 detail 관련 <code class="language-plaintext highlighter-rouge">Retrieve</code>(조회), <code class="language-plaintext highlighter-rouge">Update</code>(수정), <code class="language-plaintext highlighter-rouge">Destroy</code>(삭제) 모듈에서 사용하게 되며, 이 때 object-level Permission을 확인합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까?</title><link href="http://localhost:4000/django%20strategy/django-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까?" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-test</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-test/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
-<ul>
-  <li>테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다.</li>
-  <li>서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 <code class="language-plaintext highlighter-rouge">python3 manage.py test ~</code> 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다.</li>
-  <li>구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.</li>
-</ul>
-
-<h3 id="serializer-test를-위한-testcase-작성">serializer test를 위한 TestCase 작성</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># core.test.py
-</span>
-<span class="kn">from</span> <span class="n">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span>
-
-<span class="k">class</span> <span class="nc">IntegrationSerializerTestCase</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">serializer_test</span><span class="p">(</span>
-        <span class="n">self</span><span class="p">,</span>
-        <span class="n">instance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSerializer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">data</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">CreateSerializer</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">UpdateSerializer</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sh">"</span><span class="s">instance must be a ModelSerializer</span><span class="sh">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">serializer</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">updated_instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">serializer</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">core</code> 앱의 test 파일에 위와 같이 다른 테스트에서 상속받을 TestCase 클래스를 작성합니다. import 모듈은 생략합니다.</li>
-  <li>저는 테스트 작성시 <code class="language-plaintext highlighter-rouge">TestCase</code>를 상속받은 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받는 방식으로 테스트를 수행합니다.</li>
-  <li>클래스 변수로 지정한 <code class="language-plaintext highlighter-rouge">serializer</code>에 따라서, 검증하는 방식이 다릅니다. 테스트를 위해 더욱 구체적인 정보를 추가해야할 필요가 있다면 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>의 메서드에서 이를 관리하는 방식으로 사용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">serializer.save()</code> 이 후 반환되는 값은 serializer.data입니다.</li>
-  <li>테스트 함수에서 <code class="language-plaintext highlighter-rouge">isinstance</code>로 serializer를 구분하는데, 이들은 미리 <code class="language-plaintext highlighter-rouge">core.serializers.py</code>에 작성하여둔 시리얼라이저를 상속하는 방식입니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># core.serializers.py
-</span>  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-
-  <span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
-
-      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
-
-  <span class="k">class</span> <span class="nc">UpdateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
-
-      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
-</code></pre></div>    </div>
-    <ul>
-      <li>해당 클래스들을 상속받아 생성/수정 시리얼라이저를 사용하게 될 것이므로, 공통되는 추가적인 정보 기입 혹은 로깅등이 있다면 이곳에 추가합니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># products.test_serializer.py
-</span>
-<span class="k">class</span> <span class="nc">ProductCreateSerializerTestCase</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
-    <span class="n">serializer</span> <span class="o">=</span> <span class="n">ProductCreateSerializer</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="bp">...</span>
-
-    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">image_url</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">image_url</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">user_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">user_id</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">category</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">test_field_list</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">image_url</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">user_id</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">test_field_list</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">serializer</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">core</code> 앱으로부터 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받아, 원하는 시리얼라이저를 테스트합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">ProductCreateSerializer</code>는 아래와 같이 구성되어, <code class="language-plaintext highlighter-rouge">core.serializer.CreateSerializer</code>를 상속받습니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">ProductCreateSerializer</span><span class="p">(</span><span class="n">CreateSerializer</span><span class="p">):</span>
-  <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">ProductSerializer</span>
-
-  <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-      <span class="n">model</span> <span class="o">=</span> <span class="n">Product</span>
-      <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
-          <span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">,</span>
-          <span class="sh">"</span><span class="s">image_url</span><span class="sh">"</span><span class="p">,</span>
-          <span class="sh">"</span><span class="s">category</span><span class="sh">"</span><span class="p">,</span>
-          <span class="sh">"</span><span class="s">user_id</span><span class="sh">"</span><span class="p">,</span>
-      <span class="p">)</span>
-</code></pre></div>    </div>
-  </li>
-  <li><code class="language-plaintext highlighter-rouge">self.serializer_test</code>의 결과로 반환되는 내용들을 테스트합니다.</li>
-</ul>
-
-<h3 id="query-count-부분-추가">Query Count 부분 추가</h3>
-
-<ul>
-  <li>얼마나 많은 sql query를 호출했는지 평가하기 위해 DB 호출 부분을 <code class="language-plaintext highlighter-rouge">wrapFunctionForQueryCount</code>로 감싸서 사용합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="bp">...</span>
-  <span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
-  <span class="bp">...</span>
-
-  <span class="k">def</span> <span class="nf">wrapFunctionForQueryCount</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
-      <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-          <span class="nd">@override_settings</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-          <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-              <span class="nf">reset_queries</span><span class="p">()</span>
-              <span class="n">ret</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-              <span class="n">queries</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">queries</span>
-              <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
-                  <span class="c1"># TODO: Logger 사용하여 출력결과 저장
-</span>                  <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">QUERY: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">sql</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="s">, TIME: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">time</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
-              <span class="k">assert</span> <span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="n">count</span><span class="p">,</span> <span class="sh">"</span><span class="s">QUERY COUNT:%d != %d</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
-              <span class="k">return</span> <span class="n">ret</span>
-          <span class="k">return</span> <span class="n">wrapper</span>
-      <span class="k">return</span> <span class="n">decorator</span>
-</code></pre></div>    </div>
-  </li>
-</ul>
-
-<h3 id="기본-테스트-클래스를-상속받는-테스트-예시">기본 테스트 클래스를 상속받는 테스트 예시</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps/members/tests.integration.py
-</span><span class="kn">from</span> <span class="n">django.urls</span> <span class="kn">import</span> <span class="n">reverse</span>
-<span class="kn">from</span> <span class="n">core.tests</span> <span class="kn">import</span> <span class="n">IntegrationSerializerTestCase</span>
-<span class="kn">from</span> <span class="n">members.serializers</span> <span class="kn">import</span> <span class="n">MemberCreateSerializer</span>
-
-<span class="k">class</span> <span class="nc">MemberCreateSerializerTest</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
-    <span class="n">serializer</span> <span class="o">=</span> <span class="n">MemberCreateSerializer</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="c1"># 1st query: unique phone number check
-</span>    <span class="c1"># 2nd query: insert new member
-</span>    
-    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">instance</span><span class="p">.</span><span class="n">phone</span><span class="p">,</span> <span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">test_mismatch_password</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59332</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">test_empty_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">phone</span><span class="o">=</span><span class="sh">""</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">59333</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">test_register_repeated_phone</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expectedQueryCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">expectedResult</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">phone</span><span class="o">=</span><span class="sh">"</span><span class="s">01050175933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-            <span class="n">password2</span><span class="o">=</span><span class="sh">"</span><span class="s">5933</span><span class="sh">"</span><span class="p">,</span>
-        <span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li>위와 같이, member 생성 테스트를 위한 테스트 클래스는 앞서 설명한 기본 테스트 클래스를 상속받습니다.</li>
-  <li>기대하는 결과(생성이므로 생성되었는지)가 잘 반환되었는지, 테스트 중 오류는 없는지 확인할 수 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다. 구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread/"><![CDATA[<h2 id="프로세스">프로세스</h2>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread/"><![CDATA[<h2 id="프로세스">프로세스</h2>
 <ul>
   <li>메모리 상에서 실행 중인 프로그램입니다.</li>
   <li>디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다.</li>
@@ -445,6 +642,65 @@
 <ul>
   <li>우선순위를 계산하여 점유 불평등을 보완하는 방법으로, SJF의 단점을 보완합니다.</li>
   <li>우선순위 = (대기시간 + 실행시간) / 실행시간</li>
+</ul>
+
+<h2 id="deadlock교착상태">Deadlock(교착상태)</h2>
+<ul>
+  <li>둘 이상의 프로세스가 다른 프로세스가 점유하고 있는 자원을 기다리기 위해 무한 대기에 빠지는 상황을 의미합니다.</li>
+</ul>
+
+<h3 id="발생조건">발생조건</h3>
+<p>이 중 하나라도 만족하지 않으면 교착상태는 발생하지 않습니다.</p>
+<ul>
+  <li>상호배제(Mutual exclusion): <strong>한 번에 프로세스 하나만 해당 자원을 사용할 수 있다</strong>. 사용 중인 자원을 다른 프로세스가 사용하려면 요청한 자원이 해제될 때까지 기다려야 한다.</li>
+  <li>점유대기(Hold and Wait): 자원을 최소한 하나 보유하고, 다른 프로세스에 할당된 자원을 점유하기 위해 대기하는 프로세스가 존재해야 한다.</li>
+  <li>비선점(No preemption): 프로세스가 어떤 자원의 사용이 끝날 때까지 그 자원을 뺏을 수 없습니다.</li>
+  <li>순환대기(Circular wait): Hold and Wait 관계의 프로세스들이 서로를 기다립니다.</li>
+</ul>
+
+<h3 id="교착상태-방지방법">교착상태 방지방법</h3>
+<ul>
+  <li>예방(Prevention): 할당 구조 측면에서, 교착상태가 발생할 수 있는 요구조건을 만족시키지 않도록 함으로써 교착상태를 방지합니다.</li>
+  <li>회피(Avoidance): 교착상태가 발생할 가능성이 있는 자원을 할당(unsafe allocation)하지 않습니다. (대표적으로, 은행원 알고리즘, 자원 할당 그래프)</li>
+  <li>탐지 및 회복(Detection and Recovery): 교착상태가 발생할 수 있도록 놔두고 교착상태가 발생할 경우 이를 찾아내어 고칩니다.</li>
+</ul>
+
+<p><strong>예방</strong></p>
+<ul>
+  <li>상호 배제 조건 방지: 한 번에 여러 프로세스가 공유 자원을 사용할 수 있도록 합니다.</li>
+  <li>점유 대기 조건 방지
+    <ul>
+      <li>프로세스 대기를 없애기 위해서 프로세스가 실행되기 전에 필요한 모든 자원을 할당합니다. (자원 낭비 발생)</li>
+      <li>자원을 점유하지 않고 있을 때에만 다른 자원을 요청할 수 있도록 합니다. 한 프로세스가 추가적인 자원을 필요로 하면, 자신의 자원을 모두 해제하여 빈상태에서 다시 요청합니다. (기아상태가 될 수 있음)</li>
+    </ul>
+  </li>
+  <li>비선점 조건 방지: 이미 다른 프로세스에 할당된 자원에 대해 선점권이 없다면, 높은 우선순위의 프로세스가 해당 자원을 선점할 수 있도록 합니다.</li>
+  <li>순환대기 조건 방지: 자원을 순환 형태로 대기하도록 하지 않고, 일정한 방향으로 자원을 요구할 수 있도록 합니다. (임의로 순서를 부여)</li>
+</ul>
+
+<p><strong>회피</strong></p>
+<ul>
+  <li>시스템의 프로세스들이 데드락을 발생시키지 않도록 요청되는 자원을 모두에게 할당할 수 있다면, <code class="language-plaintext highlighter-rouge">안정 상태(safe state)</code>에 있다고 말합니다.</li>
+  <li>프로세스들에게 자원을 할당하고 실행 및 종료 등의 작업을 할 때, 데드락을 발생시키지 않게 하는 특정한 순서를 찾는다면, 이를 <code class="language-plaintext highlighter-rouge">안전 순서(safe sequence)</code>라고 합니다.</li>
+  <li>데드락은 불안정 상태에 있을 때 발생합니다. 따라서, 불안정 상태가 데드락보다 더 큰 집합입니다.</li>
+  <li>회피 알고리즘은 자원을 할당한 후에도 시스템이 항상 Safe state에 있도록 할당을 허용하게 됩니다.</li>
+</ul>
+
+<p><strong>탐지 및 회복</strong></p>
+
+<p>교착상태가 발생하도록 두고, 교착상태가 발생한다면 그 후에 해결하는 방식입니다.</p>
+
+<p>탐지 기법</p>
+<ul>
+  <li>Allocation, Request, Available 등으로 시스템에 데드락이 발생했는지 여부를 탐색합니다.</li>
+  <li>자원 할당 그래프를 통해 탐지하는 방법도 있습니다.</li>
+</ul>
+
+<p>회복 기법</p>
+<ul>
+  <li>교착상태에 빠진 모든 프로세스를 중단시키는 방법이 있지만, 연산중이던 프로세스들도 모두 일시에 중단되므로, 작업 중인 부분 결과가 폐기될 수 있습니다.</li>
+  <li>프로세스를 중단시킬 때마다 탐지 알고리즘으로 데드락을 탐지하며 회복시키는 방법이 있습니다. 매번 탐지 알고리즘을 호출 및 수행해야하기 때문에 부담되는 작업일 수 있습니다.</li>
+  <li>프로세스에 할당된 자원을 선점하여 데드락을 해결할 때까지 해당 자원을 다른 프로세스에 할당하는 방법이 있습니다.</li>
 </ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적 할당 시 사용하는 (new(), malloc()) 영역입니다. Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역) 함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다. 하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.]]></summary></entry><entry><title type="html">[Study] Network - TCP</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - TCP" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="tcp-통신이란">TCP 통신이란?</h3>
 <ul>
   <li>네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다.</li>
@@ -844,7 +1100,95 @@ uWSGI</p>
   <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
   <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
   <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Django - 설계 철학</title><link href="http://localhost:4000/django%20study/study-django-philosophy/" rel="alternate" type="text/html" title="[Study] Django - 설계 철학" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-philosophy</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-philosophy/"><![CDATA[<h3 id="기본을-충실히-하자">기본을 충실히 하자!</h3>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Django - 코딩 스타일</title><link href="http://localhost:4000/django%20study/study-django-coding-style/" rel="alternate" type="text/html" title="[Study] Django - 코딩 스타일" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-coding-style</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-coding-style/"><![CDATA[<h3 id="pre-commit-checks">Pre-commit checks</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">flake8</code> 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">git hook</code>: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">pre-commit</code>은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.</li>
+</ul>
+
+<h3 id="python-style">Python style</h3>
+<ul>
+  <li>모든 파일은 <code class="language-plaintext highlighter-rouge">black auto-fomatter</code>를 사용하여 포맷되어야합니다.</li>
+  <li>프로젝트 레포지토리는 <code class="language-plaintext highlighter-rouge">.editorconfig</code> 파일을 포함해야합니다.</li>
+  <li>장고 운영진은 whitespace 이슈들을 피하기 위해 <code class="language-plaintext highlighter-rouge">EditorConfig</code>와 함께 텍스트 에디터를 사용하는 것을 추천합니다.</li>
+  <li>만약 구체적으로 정한 부분이 없으면 대체적으로, <code class="language-plaintext highlighter-rouge">PEP 8</code> 따릅니다.</li>
+  <li>스트링 값은 <code class="language-plaintext highlighter-rouge">%-formatting</code>, <code class="language-plaintext highlighter-rouge">f-string</code>, <code class="language-plaintext highlighter-rouge">str.format()</code> 형태로 사용하는 것을 권장합니다. (가독성) 또한, <code class="language-plaintext highlighter-rouge">f-string</code> 사용시 plain variable로 사용해야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># Disallowed
+</span>  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="nf">get_user</span><span class="p">()</span><span class="si">}</span><span class="sh">"</span>
+    
+  <span class="c1"># Allowed
+</span>  <span class="n">user</span> <span class="o">=</span> <span class="nf">get_user</span><span class="p">()</span>
+  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="sh">""</span><span class="s">
+</span></code></pre></div>    </div>
+  </li>
+  <li>camel 표기법 보다 snake 표기법을 권장합니다.</li>
+  <li>docstring은 <code class="language-plaintext highlighter-rouge">PEP 257</code> 스타일을 따릅니다.</li>
+  <li>테스트 수행 시, <code class="language-plaintext highlighter-rouge">assertRaises()</code>를 사용하기 보다, <code class="language-plaintext highlighter-rouge">assertRaisesMessage()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsMessage()</code>를 사용하여, 예외에 대한 경고 메시지까지 함꼐 봅니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">assertRaisesRegex()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsRegex()</code>는 정규식 매칭이 필요한 경우에만 사용합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">assertTrue()</code>와 <code class="language-plaintext highlighter-rouge">assertFalse()</code> 보다 <code class="language-plaintext highlighter-rouge">assertIs(..., True/False)</code>를 사용합니다.</li>
+</ul>
+
+<h3 id="imports">Imports</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">isort</code> 모듈을 사용하여 import를 자동으로 소팅합니다.</li>
+  <li>아래와 같이 그룹별로 모듈을 묶어서 import 합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># future
+</span>  <span class="bp">...</span>
+  <span class="c1"># standard library
+</span>  <span class="bp">...</span>
+  <span class="c1"># third-party
+</span>  <span class="bp">...</span>
+  <span class="c1"># Django
+</span>  <span class="bp">...</span>
+  <span class="c1"># local Django
+</span>  <span class="bp">...</span>
+  <span class="c1"># try/except
+</span>  <span class="bp">...</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">import ...</code>만 사용하는 경우를 <code class="language-plaintext highlighter-rouge">from ... import ...</code>로 모듈을 호출하는 경우들보다 상위에 위치시킵니다.</li>
+  <li>알파벳 순서로 모듈을 호출하는 것을 권장합니다.</li>
+  <li>너무 긴 모듈 호출은 끊어서 구분합니다. (4 space와 trailing comma 사용)</li>
+</ul>
+
+<h3 id="template-style">Template style</h3>
+<ul>
+  <li>중괄호 사이의 tag comment들 사이에는 공백을 삽입합니다.
+(<code class="language-plaintext highlighter-rouge"> -&gt; </code>)</li>
+</ul>
+
+<h3 id="view-style">View style</h3>
+<ul>
+  <li>view 함수의 첫 번째 파라미터는 <code class="language-plaintext highlighter-rouge">req</code>가 아닌 <code class="language-plaintext highlighter-rouge">request</code>로 확실히 표기합니다.</li>
+</ul>
+
+<h3 id="model-style">Model style</h3>
+<ul>
+  <li>필드명은 소문자 snake 표기법을 사용하여 정의합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">class Meta</code>는 필드 정의 뒤에 single line을 공백으로 둔 후, 정의합니다.</li>
+  <li>모델 메서드의 정의 순서는 아래와 같습니다.
+    <ul>
+      <li>All database fields</li>
+      <li>Custom manager attributes</li>
+      <li><code class="language-plaintext highlighter-rouge">class Meta</code></li>
+      <li><code class="language-plaintext highlighter-rouge">def __str__()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">def save()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">def get_absolute_url()</code></li>
+      <li>Any custom method</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="djangoconfsettings-사용하기"><code class="language-plaintext highlighter-rouge">django.conf.settings</code> 사용하기</h3>
+<ul>
+  <li>모듈들은 일반적으로 최상위 레벨의 <code class="language-plaintext highlighter-rouge">django.conf.settings</code>에 저장된 설정들을 사용하지 않도록 해야합니다.</li>
+  <li>환경변수인 <code class="language-plaintext highlighter-rouge">DJANGO_SETTINGS_MODULE</code>에 의존하지 않도록 설정해야합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+  <span class="n">setting</span><span class="p">.</span><span class="nf">configure</span><span class="p">({},</span> <span class="n">SOME_SETTING</span><span class="o">=</span><span class="sh">"</span><span class="s">foo</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[Pre-commit checks flake8 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다. git hook: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다. pre-commit은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] Django - 설계 철학</title><link href="http://localhost:4000/django%20study/study-django-philosophy/" rel="alternate" type="text/html" title="[Study] Django - 설계 철학" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-philosophy</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-philosophy/"><![CDATA[<h3 id="기본을-충실히-하자">기본을 충실히 하자!</h3>
 <ul>
   <li>구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다.</li>
   <li>프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다.</li>
@@ -936,95 +1280,7 @@ uWSGI</p>
   <li>함수로 처리할 수 있는 일을 하기 위해 클래스의 인스턴스를 굳이 생성하지 않아도 됩니다.</li>
   <li>글로벌 변수의 요청 데이터에 접근하는 것이 아닌 뷰 함수에 전달된 요청 객체에 각각 접근해야합니다.</li>
   <li>뷰는 개발자가 어떤 템플릿을 사용하는지에 무관해야합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다.]]></summary></entry><entry><title type="html">[Study] Django - 코딩 스타일</title><link href="http://localhost:4000/django%20study/study-django-coding-style/" rel="alternate" type="text/html" title="[Study] Django - 코딩 스타일" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-coding-style</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-coding-style/"><![CDATA[<h3 id="pre-commit-checks">Pre-commit checks</h3>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">flake8</code> 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">git hook</code>: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">pre-commit</code>은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.</li>
-</ul>
-
-<h3 id="python-style">Python style</h3>
-<ul>
-  <li>모든 파일은 <code class="language-plaintext highlighter-rouge">black auto-fomatter</code>를 사용하여 포맷되어야합니다.</li>
-  <li>프로젝트 레포지토리는 <code class="language-plaintext highlighter-rouge">.editorconfig</code> 파일을 포함해야합니다.</li>
-  <li>장고 운영진은 whitespace 이슈들을 피하기 위해 <code class="language-plaintext highlighter-rouge">EditorConfig</code>와 함께 텍스트 에디터를 사용하는 것을 추천합니다.</li>
-  <li>만약 구체적으로 정한 부분이 없으면 대체적으로, <code class="language-plaintext highlighter-rouge">PEP 8</code> 따릅니다.</li>
-  <li>스트링 값은 <code class="language-plaintext highlighter-rouge">%-formatting</code>, <code class="language-plaintext highlighter-rouge">f-string</code>, <code class="language-plaintext highlighter-rouge">str.format()</code> 형태로 사용하는 것을 권장합니다. (가독성) 또한, <code class="language-plaintext highlighter-rouge">f-string</code> 사용시 plain variable로 사용해야합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># Disallowed
-</span>  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="nf">get_user</span><span class="p">()</span><span class="si">}</span><span class="sh">"</span>
-    
-  <span class="c1"># Allowed
-</span>  <span class="n">user</span> <span class="o">=</span> <span class="nf">get_user</span><span class="p">()</span>
-  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="sh">""</span><span class="s">
-</span></code></pre></div>    </div>
-  </li>
-  <li>camel 표기법 보다 snake 표기법을 권장합니다.</li>
-  <li>docstring은 <code class="language-plaintext highlighter-rouge">PEP 257</code> 스타일을 따릅니다.</li>
-  <li>테스트 수행 시, <code class="language-plaintext highlighter-rouge">assertRaises()</code>를 사용하기 보다, <code class="language-plaintext highlighter-rouge">assertRaisesMessage()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsMessage()</code>를 사용하여, 예외에 대한 경고 메시지까지 함꼐 봅니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">assertRaisesRegex()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsRegex()</code>는 정규식 매칭이 필요한 경우에만 사용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">assertTrue()</code>와 <code class="language-plaintext highlighter-rouge">assertFalse()</code> 보다 <code class="language-plaintext highlighter-rouge">assertIs(..., True/False)</code>를 사용합니다.</li>
-</ul>
-
-<h3 id="imports">Imports</h3>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">isort</code> 모듈을 사용하여 import를 자동으로 소팅합니다.</li>
-  <li>아래와 같이 그룹별로 모듈을 묶어서 import 합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># future
-</span>  <span class="bp">...</span>
-  <span class="c1"># standard library
-</span>  <span class="bp">...</span>
-  <span class="c1"># third-party
-</span>  <span class="bp">...</span>
-  <span class="c1"># Django
-</span>  <span class="bp">...</span>
-  <span class="c1"># local Django
-</span>  <span class="bp">...</span>
-  <span class="c1"># try/except
-</span>  <span class="bp">...</span>
-</code></pre></div>    </div>
-  </li>
-  <li><code class="language-plaintext highlighter-rouge">import ...</code>만 사용하는 경우를 <code class="language-plaintext highlighter-rouge">from ... import ...</code>로 모듈을 호출하는 경우들보다 상위에 위치시킵니다.</li>
-  <li>알파벳 순서로 모듈을 호출하는 것을 권장합니다.</li>
-  <li>너무 긴 모듈 호출은 끊어서 구분합니다. (4 space와 trailing comma 사용)</li>
-</ul>
-
-<h3 id="template-style">Template style</h3>
-<ul>
-  <li>중괄호 사이의 tag comment들 사이에는 공백을 삽입합니다.
-(<code class="language-plaintext highlighter-rouge"> -&gt; </code>)</li>
-</ul>
-
-<h3 id="view-style">View style</h3>
-<ul>
-  <li>view 함수의 첫 번째 파라미터는 <code class="language-plaintext highlighter-rouge">req</code>가 아닌 <code class="language-plaintext highlighter-rouge">request</code>로 확실히 표기합니다.</li>
-</ul>
-
-<h3 id="model-style">Model style</h3>
-<ul>
-  <li>필드명은 소문자 snake 표기법을 사용하여 정의합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">class Meta</code>는 필드 정의 뒤에 single line을 공백으로 둔 후, 정의합니다.</li>
-  <li>모델 메서드의 정의 순서는 아래와 같습니다.
-    <ul>
-      <li>All database fields</li>
-      <li>Custom manager attributes</li>
-      <li><code class="language-plaintext highlighter-rouge">class Meta</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def __str__()</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def save()</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def get_absolute_url()</code></li>
-      <li>Any custom method</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="djangoconfsettings-사용하기"><code class="language-plaintext highlighter-rouge">django.conf.settings</code> 사용하기</h3>
-<ul>
-  <li>모듈들은 일반적으로 최상위 레벨의 <code class="language-plaintext highlighter-rouge">django.conf.settings</code>에 저장된 설정들을 사용하지 않도록 해야합니다.</li>
-  <li>환경변수인 <code class="language-plaintext highlighter-rouge">DJANGO_SETTINGS_MODULE</code>에 의존하지 않도록 설정해야합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
-  <span class="n">setting</span><span class="p">.</span><span class="nf">configure</span><span class="p">({},</span> <span class="n">SOME_SETTING</span><span class="o">=</span><span class="sh">"</span><span class="s">foo</span><span class="sh">"</span><span class="p">)</span>
-</code></pre></div>    </div>
-  </li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[Pre-commit checks flake8 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다. git hook: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다. pre-commit은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] Django - ORM Basic</title><link href="http://localhost:4000/django%20study/study-django-orm-basic/" rel="alternate" type="text/html" title="[Study] Django - ORM Basic" /><published>2023-08-12T00:05:07+09:00</published><updated>2023-08-12T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-orm-basic</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-orm-basic/"><![CDATA[<h2 id="orm이란-무엇인가">ORM이란 무엇인가?</h2>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다.]]></summary></entry><entry><title type="html">[Study] Django - ORM Basic</title><link href="http://localhost:4000/django%20study/study-django-orm-basic/" rel="alternate" type="text/html" title="[Study] Django - ORM Basic" /><published>2023-08-12T00:05:07+09:00</published><updated>2023-08-12T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-orm-basic</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-orm-basic/"><![CDATA[<h2 id="orm이란-무엇인가">ORM이란 무엇인가?</h2>
 
 <ul>
   <li>객체지향 프로그래밍은 클래스를 사용하지만, 관계형 데이터베이스는 테이블을 사용하기 때문에, 객체 모델과 관계형 모델 간에 불일치가 발생합니다.</li>
@@ -1132,340 +1388,4 @@ uWSGI</p>
 <h2 id="참고">참고</h2>
 <ul>
   <li><a href="https://bentist.tistory.com/109">bentist님의 블로그</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[ORM이란 무엇인가?]]></summary></entry><entry><title type="html">[Study] Python Clean Code - Good Code</title><link href="http://localhost:4000/study/study-cleancode-goodcode/" rel="alternate" type="text/html" title="[Study] Python Clean Code - Good Code" /><published>2023-08-12T00:05:07+09:00</published><updated>2023-08-12T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cleancode-goodcode</id><content type="html" xml:base="http://localhost:4000/study/study-cleancode-goodcode/"><![CDATA[<h2 id="계약에-의한-디자인">계약에 의한 디자인</h2>
-<ul>
-  <li>계약: 소프트웨어 컴포넌트 간의 통신 중에 반드시 지켜져야 하는 규칙을 강제하는 것입니다.</li>
-  <li>사전조건: 코드가 실행되기 전에 확인해야 할 조건들로, 유효성 검사, DB 및 파일 등에 대한 것들로, 서버가 담당할 부분입니다.</li>
-  <li>사후조건: 코드 실행 이후에 함수 반환 값의 유효성 검사로, 클라이언트가 담당할 부분입니다.</li>
-  <li>위의 두 가지 조건을 통해, 책임소재를 신속히 파악할 수 있습니다. 사전조건 검증에 실패한다면 클라이언트의 결함, 사후조건에 실패하면 컴포넌트의 결함입니다.</li>
-</ul>
-
-<h3 id="사전조건precondition">사전조건(precondition)</h3>
-<ul>
-  <li>함수나 메서드가 제대로 동작하기 위해 보장해야 하는 모든 것을 의미하며, 적절한 데이터를 전달해야 합니다.</li>
-  <li>파이썬은 동적으로 타입이 결정되기 때문에, 전달된 데이터가 적절한 타입인지 확인하는 경우도 있습니다.</li>
-  <li>클라이언트가 함수를 호출하기 전, 모든 유효성을 검사하는 방식은 tolerant 접근법으로, 함수가 어떤 값이라도 수용하게 됩니다.</li>
-  <li>하지만, 함수가 자체적으로 로직을 실행하기 전에 검사하도록 한다면 demanding 접근 방법입니다.</li>
-  <li>DRY 원칙에 의해, 이때도 검증 로직은 클라이언트에 두거나 함수 자체에 두어야 합니다.</li>
-</ul>
-
-<h3 id="사후조건postcondition">사후조건(postcondition)</h3>
-<ul>
-  <li>메서드 또는 함수가 반환된 후의 상태를 강제하는 계약의 일부입니다.</li>
-  <li>사후조건 검증에 통과하고 클라이언트는 반환 객체를 아무 문제 없이 사용할 수 있어야 합니다.</li>
-</ul>
-
-<h2 id="방어적-프로그래밍">방어적 프로그래밍</h2>
-<ul>
-  <li>방어적 프로그래밍은 계약에 의한 디자인과 다른 접근방식을 따릅니다.</li>
-  <li>계약에서 예외를 발생시키고 실패하게 되는 조건을 기술하는 대신, 코드의 모든 부분을 유효하지 않은 것으로부터 스스로 보호할 수 있도록 합니다.</li>
-  <li>에러핸들링(예상할 수 있는 시나리오의 오류를 처리하는 방법)과 어썰션(발생하지 않아야 하는 오류를 처리하는 방법)을 사용합니다.</li>
-</ul>
-
-<h3 id="에러-핸들링">에러 핸들링</h3>
-<ul>
-  <li>예상되는 에러에 대해 실행할 수 있을지, 프로그램을 중단할지를 판단하기 위한 절차입니다.</li>
-</ul>
-
-<p><strong>값 대체</strong></p>
-<ul>
-  <li>일부 시나리오에서 오류에 의해 소프트웨어가 잘못된 값을 생성하거나 전체가 종료될 위험이 있는 경우, 결괏값을 다른 값으로 대체합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">os</span>
-<span class="n">os</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="sh">"</span><span class="s">DBPORT</span><span class="sh">"</span><span class="p">,</span> <span class="mi">5432</span><span class="p">)</span> <span class="c1"># "DBPORT"가 env에 없는 경우 5432 반환
-</span><span class="k">def</span> <span class="nf">connect_database</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">"</span><span class="s">localhost</span><span class="sh">"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">):</span>
-    <span class="bp">...</span>
-</code></pre></div>    </div>
-  </li>
-  <li>데이터가 누락될 경우 None 때문에 발생하게 되는 오류를 방지합니다.</li>
-</ul>
-
-<p><strong>예외 처리</strong></p>
-<ul>
-  <li>함수 호출 실패는 외부 컴포넌트 중 하나의 문제로 인한 것일 수 있습니다.</li>
-  <li>함수는 심각한 오류에 대해 명확하고 분명하게 알려주어 적절하게 해결할 수 있도록 해야 합니다.</li>
-  <li>예외가 많을수록 호출자는 함수에 대해 더 많은 것을 알아야 하므로, 캡슐화를 약화시킵니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">DataTransport</span><span class="p">:</span>
-    <span class="n">retry_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">retry_n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">connector</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_connector</span> <span class="o">=</span> <span class="n">connector</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">connection</span> <span class="o">=</span> <span class="bp">None</span>
-      
-    <span class="k">def</span> <span class="nf">deliver_event</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">self</span><span class="p">.</span><span class="nf">connect</span><span class="p">()</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">decode</span><span class="p">()</span>
-            <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">except</span> <span class="nb">ConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">연결 실패: %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">raise</span>
-        <span class="k">except</span> <span class="nb">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="sh">"</span><span class="s">%r 잘못된 데이터 포함: %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">raise</span>
-    
-    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">retry_n_times</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_connector</span><span class="p">.</span><span class="nf">connect</span><span class="p">()</span>
-            <span class="k">except</span> <span class="nb">ConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s: 새로운 연결 시도 %is</span><span class="sh">"</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">retry_threshold</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-              <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">connection</span>
-        <span class="k">raise</span> <span class="nc">ConnectionError</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">retry_n_times</span><span class="si">}</span><span class="s"> 번째 재시도 연결 실패</span><span class="sh">"</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">connection</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">deliver_event</code>의 경우, 두 가지의 예외상황이 발생할 수 있습니다. <code class="language-plaintext highlighter-rouge">connect</code> 메서드를 사용할 때 혹은 <code class="language-plaintext highlighter-rouge">decode()</code> 메서드를 사용할 때의 경우로, 구현을 수정할 필요가 있습니다.</li>
-</ul>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">connection_with_retry</span><span class="p">(</span><span class="n">connector</span><span class="p">,</span> <span class="n">retry_n_times</span><span class="p">,</span> <span class="n">retry_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">retry_n_times</span><span class="p">):</span>
-      <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">connector</span><span class="p">.</span><span class="nf">connect</span><span class="p">()</span>
-      <span class="k">except</span> <span class="nb">ConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">%s: 새로운 연결 시도 %is</span><span class="sh">"</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">retry_threshold</span><span class="p">)</span>
-          <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="n">retry_threshold</span><span class="p">)</span>
-      <span class="n">exc</span> <span class="o">=</span> <span class="nc">ConnectionError</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">retry_n_times</span><span class="si">}</span><span class="s"> 번째 재시도 연결 실패</span><span class="sh">"</span><span class="p">)</span>
-      <span class="n">logger</span><span class="p">.</span><span class="nf">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-      <span class="k">raise</span> <span class="n">exc</span>
-
-<span class="k">class</span> <span class="nc">DataTransport</span><span class="p">:</span>
-    <span class="n">retry_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">retry_n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">connector</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">_connector</span> <span class="o">=</span> <span class="n">connector</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">connection</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="k">def</span> <span class="nf">deliver_event</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">connection</span> <span class="o">=</span> <span class="nf">connection_with_retry</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_connector</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">retry_n_times</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">retry_threshold</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">connection</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="nf">decode</span><span class="p">())</span>
-        <span class="k">except</span> <span class="nb">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="sh">"</span><span class="s">%r 잘못된 데이터 포함: %s</span><span class="sh">"</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">raise</span>
-    <span class="bp">...</span>
-</code></pre></div></div>
-<ul>
-  <li>연결과 연결 예외까지를 담당하는 <code class="language-plaintext highlighter-rouge">connection_with_retry</code> 메서드를 독립적으로 구현합니다.</li>
-  <li>위와 같이 방식을 변경하면, 예외처리를 <code class="language-plaintext highlighter-rouge">deliver_event</code>에서 따로 관리할 필요가 없게 되고, 의도적으로 예외가 발생하도록 내버려 둘 수 있습니다.</li>
-</ul>
-
-<h3 id="예외처리시-주의사항">예외처리시 주의사항</h3>
-<p><strong>Traceback 노출 금지</strong></p>
-<ul>
-  <li>예외 처리시 발생하는 오류가 전파되었을 때, 세부사항을 사용자에게 보이지 않도록 해야 합니다.</li>
-  <li>파이썬에서의 traceback은 중요 정보들을 유출하게될 가능성이 있기 때문입니다.</li>
-</ul>
-
-<p><strong>비어있는 except 블록 사용 금지</strong></p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="p">:</span>
-    <span class="nf">process_data</span><span class="p">()</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="k">pass</span>
-</code></pre></div></div>
-<ul>
-  <li>파이썬의 철학은, “에러는 조용히 전달되어서는 안된다는 것”입니다. 위와 같은 방식은 코드를 숨기고 에러 수정을 어렵게 합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">Exception</code>과 같이 광범위한 예외 보다는 <code class="language-plaintext highlighter-rouge">보다 구체적인 예외</code>를 사용해야합니다.</li>
-</ul>
-
-<p><strong>원본 예외 포함</strong></p>
-<ul>
-  <li>오류 처리 과정에서 다른 오류를 발생시키고 메시지를 변경하는 경우가 있을 수 있습니다.</li>
-  <li>이 때, 원본의 예외를 포함하는 것이 좋습니다.
-```python
-class InternalDataError(Exception):
-  “"”업무 도메인 데이터의 예외”””</li>
-</ul>
-
-<p>def process(data_dictionary, record_id):
-    try:
-        return data_dictionary[record_id]
-    except KeyError as e:
-      raise InternalDataError(“Record not present”) from e</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 위와 같이, 기본 예외를 상속받아, 커스텀 예외로 처리하는 방식도 있습니다.
-
-### 파이썬에서 어썰션 사용하기
-- 절대로 일어나지 않아야하는 상황에서 사용됩니다. 따라서, assert 문이 작동하면, 소프트웨어에 결함이 있음을 의미합니다.
-- 따라서, 프로그램을 중단해야할 가능성이 있는 오류로, 결함을 수정하기 위해 프로그램을 중지하는 것이 좋습니다.
-```python
-result = condition.holds()
-assert result &gt; 0, "에러 {0}".format(result)
-</code></pre></div></div>
-
-<h2 id="관심사의-분리">관심사의 분리</h2>
-<ul>
-  <li>프로그램의 각 부분은 기능의 일부분(관심사)에 대해서만 책임을 지며, 나머지 부분에 대해서는 알 필요가 없습니다.</li>
-  <li>소프트웨어의 관심사를 분리하는 목표는 파급 효과(한 지점의 변화가 전체로 전파되는 것)를 최소화하여 유지보수성을 향상시키는데 있습니다.</li>
-</ul>
-
-<h3 id="응집력">응집력</h3>
-<ul>
-  <li>객체는 작고 잘 정의된 목적을 가져야 하며, 가능하면 작아야 합니다.</li>
-  <li>객체의 응집력이 높을수록 더 유용하고 재사용성이 높아지므로, 더 좋은 디자인입니다.</li>
-</ul>
-
-<h3 id="결합력">결합력</h3>
-<ul>
-  <li>두 개 이상의 객체가 서로 어떻게 의존하는지를 나타냅니다.</li>
-  <li>객체 또는 메서드의 두 부분이 서로 너무 의존적이라면, 다음과 같은 결과를 가져옵니다.</li>
-  <li>
-    <ol>
-      <li>낮은 재사용성: 어떤 함수가 특정 객체에 지나치게 의존하거나 너무 많은 파라미터를 가진다면, 해당 객체에 결합하게 됩니다.</li>
-    </ol>
-  </li>
-  <li>
-    <ol>
-      <li>파급효과: 너무 가깝게 붙어있게 되면, 두 부분 중 하나를 변경할 때 다른 부분에도 영향을 미칩니다.</li>
-    </ol>
-  </li>
-  <li>
-    <ol>
-      <li>낮은 수준의 추상화: 두 함수가 너무 가깝게 관련되어 있으면, 서로 다른 추상화 레벨에서 문제를 해결하기 어렵습니다.</li>
-    </ol>
-  </li>
-</ul>
-
-<h2 id="컴포지션과-상속">컴포지션과 상속</h2>
-
-<h3 id="상속의-좋은-예시">상속의 좋은 예시</h3>
-<ul>
-  <li>public 메서드와 속성 인터페이스를 정의한 컴포넌트를 그대로 물려받으면서 추가 기능을 더하려고 하는 경우 및 특정 기능을 수정하는 경우에 좋습니다.</li>
-  <li>예를 들어, <code class="language-plaintext highlighter-rouge">http.server</code> 패키지에서 <code class="language-plaintext highlighter-rouge">BaseHTTPRequsetHandler</code> 기본 클래스와, 이를 변경한 <code class="language-plaintext highlighter-rouge">SimpleHTTPRequestHandler</code>가 있습니다.</li>
-  <li>예외처리를 담당하는 <code class="language-plaintext highlighter-rouge">Exception</code> 클래스의 경우, 상속을 사용하는 것이 좋습니다.</li>
-</ul>
-
-<h3 id="상속의-안티패턴">상속의 안티패턴</h3>
-<ul>
-  <li>도메인 문제를 해결하기 위해, 적절한 데이터 구조를 만든 후, 이를 사용하는 객체를 만들지 않고 데이터 구조(딕셔너리/셋/리스트 등) 자체를 객체로 만드는 경우입니다.</li>
-  <li>또한, public 인터페이스를 통해 노출된 public 메서드를 사용하게 되기 때문에, 필요없는 메서드에도 접근할 수 있는 coupling에 대한 문제가 발생합니다.
-```python
-class TransactionPolicy(collections.UserDict):
-  “"”잘못된 상속 예시”””
-  def change_in_policy(self, customer_id, <strong>new_policy_data):
-      self[customer_id].update(</strong>new_policy_data)</li>
-</ul>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 올바른 해결책은 컴포지션을 사용하는 것입니다. `TransactionalPolicy` 자체가 딕셔너리가 되는 것이 아니라 딕셔너리를 활용하는 것입니다.
-- 사전을 private 속성에 저장하고 `__getitem__()`으로 사전의 프록시를 만들고 나머지 필요한 public 메서드를 추가적으로 구현하는 것입니다.
-```python
-class TransactionPolicy:
-    """컴포지션을 사용한 리팩토링 예시"""
-    def __init__(self, policy_data, **extra_data):
-        self._data = {**policy_data, **extra_data}
-    
-    def change_in_policy(self, customer_id, **new_policy_data):
-        self._data[customer_id].update(**new_policy_data)
-
-    def __getitem__(self, customer_id):
-        return self._data[customer_id]
-    
-    def __len__(self):
-        return len(self._data)
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">TransacctionalPolicy</code> 자체가 딕셔너리가 되는 것이 아닌, 딕셔너리를 활용하는 것입니다. 즉, 딕셔너리를 private 속성에 저장하고 <code class="language-plaintext highlighter-rouge">__getitem__()</code>으로 딕셔너리의 프록시를 생성합니다.</li>
-  <li>이 방법은 개념적으로 정확하며, 현재 딕셔너리의 데이터 구조를 변경하더라도 인터페이스만 유지하면, 사용자는 영향을 받지 않습니다.</li>
-</ul>
-
-<h3 id="파이썬-다중상속">파이썬 다중상속</h3>
-<ul>
-  <li>파이썬은 다중상속을 지원하지만, 이를 잘못 사용하면 큰 문제를 초래할 수 있습니다.</li>
-  <li>다중 상속의 올바른 해결책으로는 믹스인(mixin)을 활용한 디자인 패턴이 있습니다.</li>
-</ul>
-
-<p><strong>믹스인(mixin)</strong></p>
-<ul>
-  <li>믹스인은 코드를 재사용하기 위해, 일반적인 행동을 캡슐화한 기본 클래스입니다.</li>
-  <li>
-    <p>믹스인 클래스는 그 자체로는 유용하지 않으며, 대부분이 클래스에 정의된 메서드나 속성에 의존하기 때문에 확장에서는 동작하지 않습니다.
-```python
-class BaseTokenizer:
-  def <strong>init</strong>(self, str_token):
-      self.str_token = str_token</p>
-
-    <p>def <strong>iter</strong>(self):
-      yield from self.str_token.split(“-“)</p>
-  </li>
-</ul>
-
-<p>class UpperIterableMixin:
-  def <strong>iter</strong>(self):
-      return map(str.upper, super().<strong>iter</strong>())</p>
-
-<p>class Tokenizer(UpperIterableMixin, BaseTokenizer):
-    pass</p>
-
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>tk = BaseTokenizer(“28a2320b-fd3f-4627-9792-a2b38e3c46b0”)
-list(tk)
-[‘28a2320b’, ‘fd3f’, ‘4627’, ‘9792’, ‘a2b38e3c46b0’]
-```</p>
-      <ul>
-        <li>위에서 mixin과 함께 <code class="language-plaintext highlighter-rouge">BaseTokenizer</code>를 사용한 <code class="language-plaintext highlighter-rouge">Tokenizer</code> 클래스의 경우, 일종의 데코레이터 역할을 합니다.</li>
-        <li>믹스인에서 <code class="language-plaintext highlighter-rouge">__iter__</code>를 호출하고 다시 <code class="language-plaintext highlighter-rouge">super()</code>를 호출하여 <code class="language-plaintext highlighter-rouge">BaseTokenizer</code>에 위임합니다.</li>
-      </ul>
-    </blockquote>
-  </blockquote>
-</blockquote>
-
-<h3 id="파이썬의-함수-인자-동작방식">파이썬의 함수 인자 동작방식</h3>
-<ul>
-  <li>파이썬의 첫 번째 규칙은 모든 인자가 passed by a value 된다는 것입니다. 따라서, 함수 인자에 있는 변수를 할당하고 나중에 사용합니다.</li>
-  <li>함수의 인자가 mutable한지 immutable한지에 따라서 함수 내부에서 값이 의도치 않게 변형되는 경우가 발생할 수 있습니다.
-<strong>가변인자</strong></li>
-  <li>파이썬에서 가변인자를 사용하려면 해당 인자를 packing할 변수 이름 앞에 <code class="language-plaintext highlighter-rouge">*</code>를 붙입니다.
-```python
-    <h1 id="packing-예시">packing 예시</h1>
-    <p>def f(first, second):
-  print(first, second)</p>
-  </li>
-</ul>
-
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>l = [1, 2]
-f(*l)
-1 2</p>
-    </blockquote>
-  </blockquote>
-</blockquote>
-
-<h1 id="unpacking-예시">unpacking 예시</h1>
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>a, b = [1, 2]
-print(a, b)
-1 2
-```</p>
-      <ul>
-        <li>인자를 딕셔너리로 패킹하려면 변수 이름 앞에 <code class="language-plaintext highlighter-rouge">**</code>를 붙입니다.
-```python
-def function(**kwargs):
-  print(kwargs)</li>
-      </ul>
-    </blockquote>
-  </blockquote>
-</blockquote>
-
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>function(key=”value”)
-{‘key’: ‘value’}
-```</p>
-    </blockquote>
-  </blockquote>
-</blockquote>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[계약에 의한 디자인 계약: 소프트웨어 컴포넌트 간의 통신 중에 반드시 지켜져야 하는 규칙을 강제하는 것입니다. 사전조건: 코드가 실행되기 전에 확인해야 할 조건들로, 유효성 검사, DB 및 파일 등에 대한 것들로, 서버가 담당할 부분입니다. 사후조건: 코드 실행 이후에 함수 반환 값의 유효성 검사로, 클라이언트가 담당할 부분입니다. 위의 두 가지 조건을 통해, 책임소재를 신속히 파악할 수 있습니다. 사전조건 검증에 실패한다면 클라이언트의 결함, 사후조건에 실패하면 컴포넌트의 결함입니다.]]></summary></entry></feed>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[ORM이란 무엇인가?]]></summary></entry></feed>

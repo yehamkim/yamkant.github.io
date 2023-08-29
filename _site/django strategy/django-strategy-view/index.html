@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까? - Yam’s Dev Logs</title>
-<meta name="description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네 가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
+<!-- begin _includes/seo.html --><title>[Django] DRF에서 Viewset은 어떻게 사용할까? - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하는 이유    Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.   프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.   따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -22,30 +22,30 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?">
-<meta property="og:url" content="http://localhost:4000/django%20strategy/django-view/">
+<meta property="og:title" content="[Django] DRF에서 Viewset은 어떻게 사용할까?">
+<meta property="og:url" content="http://localhost:4000/django%20strategy/django-strategy-view/">
 
 
-  <meta property="og:description" content="참고: mynghn님 블로그 Generic view의 동작방식    DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.   Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.   generic view는 네 가지 속성을 통해 API 동작을 결정합니다.   ```            authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.                    .get_authenticators(self)                       permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.                    .get_permissions(self)                       queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.                    .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.           .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.                       serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.                    .get_serializer_class(self)           .get_serializer_context(self)           .get_serializer(self, …)   ```                       queryset에서, soft-deleted 요소를 조회하면, queryset = Item.objects.filter(is_deleted=&#39;N&#39;)과 같이 처리합니다. (정적 필터 적용)       filter_queryset에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.">
-
-
-
-
-
-
-
-  <meta property="article:published_time" content="2023-05-27T20:05:07+09:00">
+  <meta property="og:description" content="글을 작성하는 이유    Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.   프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.   따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.">
 
 
 
 
 
-  
+
+
+  <meta property="article:published_time" content="2023-08-29T00:05:07+09:00">
+
+
+
+
 
   
 
+  
 
-<link rel="canonical" href="http://localhost:4000/django%20strategy/django-view/">
+
+<link rel="canonical" href="http://localhost:4000/django%20strategy/django-strategy-view/">
 
 
 
@@ -263,7 +263,7 @@
     <ul class="nav__items" id="category_tag_menu">
         <!--전체 글 수-->
         <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-            📂 <span>Total Posts: 40</span>
+            📂 <span>Total Posts: 39</span>
         </li>
         <li>
             <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
@@ -280,7 +280,7 @@
                 
                 
                 
-                <li><a href="/categories/django-strategy" class="">Django Strategy (13)</a></li>
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
                 
                 
                 
@@ -432,45 +432,165 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?</h1>
+      <h1 id="page-title" class="page__title">[Django] DRF에서 Viewset은 어떻게 사용할까?</h1>
     
-    <p>참고: <a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></p>
-<h3 id="generic-view의-동작방식">Generic view의 동작방식</h3>
+    <h2 id="글을-작성하는-이유">글을 작성하는 이유</h2>
+<ul>
+  <li>Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.</li>
+  <li>프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.</li>
+  <li>따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.</li>
+</ul>
+
+<h2 id="modelviewset-사용-전략">ModelViewSet 사용 전략</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>을 상속받아 ViewSet을 구현하게 되면, 클래스 변수로 아래와 같은 값들을 지정하며 좀 더 장고스럽게 구현할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ProductViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="p">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Product</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="sh">"</span><span class="s">N</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">ProductSerializer</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsOwner</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="sh">"</span><span class="s">id</span><span class="sh">"</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span><span class="p">.</span><span class="n">SearchFilter</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">ProductPagination</span>
+
+    <span class="n">serializer_action_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sh">'</span><span class="s">list</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">create</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductCreateSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">update</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductUpdateSerializer</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">destroy</span><span class="sh">'</span><span class="p">:</span> <span class="n">ProductDeleteSerializer</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">queryset</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">user</span><span class="p">.</span><span class="nb">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_serializer_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">serializer_action_classes</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">action</span><span class="p">]</span>
+        <span class="nf">except </span><span class="p">(</span><span class="nb">KeyError</span><span class="p">,</span> <span class="nb">AttributeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="n">get_serializer_class</span>
+
+    <span class="nd">@extend_schema</span><span class="p">(</span>
+        <span class="n">request</span><span class="o">=</span><span class="n">ProductSerializer</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="sh">"</span><span class="s">상품 목록을 조회합니다.</span><span class="sh">"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sh">"""</span><span class="s">상품 목록을 페이지번호/페이지크기/검색결과에 따라 조회합니다.</span><span class="sh">"""</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">상품</span><span class="sh">'</span><span class="p">],</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="n">PRODUCT_LIST_EXAMPLES</span><span class="p">,</span>
+        <span class="n">responses</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">status</span><span class="p">.</span><span class="n">HTTP_200_OK</span><span class="p">:</span> <span class="n">ProductSerializer</span><span class="p">,</span>
+            <span class="n">status</span><span class="p">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="nf">get_queryset</span><span class="p">())</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nc">Response</span><span class="p">(</span><span class="n">serializer</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="permissions">Permissions</h3>
+<ul>
+  <li>위 예시에서, <code class="language-plaintext highlighter-rouge">permission_dlasses</code>에 해당 ViewSet의 메서드를 사용하기 위한 권한을 나열합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IsOwner</code>의 경우, custom permission으로 <code class="language-plaintext highlighter-rouge">rest_framwework.permissions</code>의 <code class="language-plaintext highlighter-rouge">BasicPermission</code>을 상속받아 구성합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">IsOwner</code>는 상품을 상세 수정(update 메서드)하거나 상세 조회(retrieve 메서드)하는 경우, 유저가 가지고 있는 상품이 맞는지 확인하는 권한입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_permissions(self)</code> 메서드를 오버라이드 하면, 메서드에 따라 권한을 수정하여 사용할 수 있습니다.</li>
+</ul>
+
+<h3 id="queryset">Queryset</h3>
+<ul>
+  <li>일반적으로 api 메서드(<code class="language-plaintext highlighter-rouge">list</code>, <code class="language-plaintext highlighter-rouge">create</code>, <code class="language-plaintext highlighter-rouge">retrieve</code>, <code class="language-plaintext highlighter-rouge">update</code>, <code class="language-plaintext highlighter-rouge">delete</code>)들을 사용할 때는 해당 모델의 전체 값을 필요로 하는 경우가 거의 없습니다.</li>
+  <li>Soft delete가 있어서 논리적 삭제되지 않는 경우를 불러온다든지, 활성화된 데이터만 가져온다던지 공통적으로 처리해야 하는 조건에 대한 처리를 <code class="language-plaintext highlighter-rouge">get_query_set(self)</code>에서 미리 해둘 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_query_set</code>은 각각의 api 메서드 내부에서 사용되는 방식으로 <code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 구현되어있기도 하고, 필요하면 <code class="language-plaintext highlighter-rouge">self</code>로 호출하여 사용할 수 있습니다.</li>
+</ul>
+
+<h3 id="parameters">Parameters</h3>
+<ul>
+  <li>Path parameter, Query parameter 등을 사용하게 되는 경우에 대한 처리도 미리 수행할 수 있습니다.</li>
+</ul>
+
+<p><strong>path parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lookup_field</code>는 <code class="language-plaintext highlighter-rouge">urlpatterns</code>에 입력된 <code class="language-plaintext highlighter-rouge">path("&lt;int:id&gt;/",...</code>의 값을 찾아 db의 field 값과 매칭시킵니다.</li>
+</ul>
+
+<p><strong>search: query parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">filter_backends</code>의 <code class="language-plaintext highlighter-rouge">SearchFilter</code>와 <code class="language-plaintext highlighter-rouge">search_fields</code>를 위와 같이 설정하면, url query parameter로 입력되는 <code class="language-plaintext highlighter-rouge">?search=값</code> search에 해당하는 값을 해당 모델의 <code class="language-plaintext highlighter-rouge">name</code> 필드에서 <code class="language-plaintext highlighter-rouge">SearchFilter</code>의 방식으로 검색합니다.</li>
+  <li>검색된 쿼리를 사용하려면 <code class="language-plaintext highlighter-rouge">list</code> 메서드 내부 구현된 바와 같이 <code class="language-plaintext highlighter-rouge">self.filter_queryset</code> 메서드를 호출하여 사용합니다.</li>
+</ul>
+
+<p><strong>page, page_size: query parameter</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">pagenation_class</code>를 통해 <code class="language-plaintext highlighter-rouge">page</code>, <code class="language-plaintext highlighter-rouge">page_size</code> 각 값에 따라 어떤 방식으로 조회할지 결정할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">DEFAULT_PAGE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DEFAULT_PAGE_SIZE</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">class</span> <span class="nc">ProductPagination</span><span class="p">(</span><span class="n">PageNumberPagination</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">DEFAULT_PAGE</span>
+    <span class="n">page_size</span> <span class="o">=</span> <span class="n">DEFAULT_PAGE_SIZE</span>
+    <span class="n">page_size_query_param</span> <span class="o">=</span> <span class="sh">'</span><span class="s">page_size</span><span class="sh">'</span>
+
+    <span class="k">def</span> <span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_paginated_response</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sh">'</span><span class="s">links</span><span class="sh">'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="sh">'</span><span class="s">next</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_next_link</span><span class="p">(),</span>
+                <span class="sh">'</span><span class="s">previous</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_previous_link</span><span class="p">()</span>
+            <span class="p">},</span>
+            <span class="sh">'</span><span class="s">num_pages</span><span class="sh">'</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">page</span><span class="p">.</span><span class="n">paginator</span><span class="p">.</span><span class="n">num_pages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+            <span class="sh">'</span><span class="s">num</span><span class="sh">'</span><span class="p">:</span> <span class="n">self</span><span class="p">.</span><span class="n">page</span><span class="p">.</span><span class="n">number</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">results</span><span class="sh">'</span><span class="p">:</span> <span class="n">data</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>위의 예시는, <code class="language-plaintext highlighter-rouge">ModelViewSet</code>의 <code class="language-plaintext highlighter-rouge">pagenation_class</code>에서 지정해준 커스텀 페이지네이션 클래스입니다.</li>
+  <li>위와 같은 방식으로 페이지네이션된 queryset을 사용할 수도 있고, <code class="language-plaintext highlighter-rouge">self.page.paginator</code> 클래스가 가지고 있는 값을 제어할 수도 있습니다.</li>
+</ul>
+
+<h3 id="serializer">Serializer</h3>
+<ul>
+  <li>action마다 다른 serializer를 사용하기 때문에, <code class="language-plaintext highlighter-rouge">get_serializer_class</code> 메서드를 통해 그에 해당하는 serializer를 불러옵니다.</li>
+  <li>내부적으로 보면, <code class="language-plaintext highlighter-rouge">ModelViewSet</code>은 <code class="language-plaintext highlighter-rouge">GenericViewSet</code>을 상속받고, <code class="language-plaintext highlighter-rouge">GenericViewSet</code> 내부에 <code class="language-plaintext highlighter-rouge">get_serializer</code>는 위에서 클래스 메서드로 지정해준 <code class="language-plaintext highlighter-rouge">get_serializer_class</code>의 클래스를 읽어옵니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer</code>는 <code class="language-plaintext highlighter-rouge">DestroyModelMixin</code>을 제외한 모든 믹스인에서 사용되기 때문에 <code class="language-plaintext highlighter-rouge">serializer</code>를 지정하여 API 메서드에 설정하는 것은 필수적입니다.</li>
+</ul>
+
+<hr />
+
+<h2 id="generic-view의-동작방식">Generic view의 동작방식</h2>
 <ul>
   <li>DRF 기본 클래스인 <code class="language-plaintext highlighter-rouge">APIView</code>에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다.</li>
   <li>Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다.</li>
-  <li>generic view는 네 가지 속성을 통해 API 동작을 결정합니다.
-  ```
+  <li>
+    <p>generic view는 네 가지 속성을 통해 API 동작을 결정합니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  - authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
+      - .get_authenticators(self)
+  - permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
+      - .get_permissions(self) 
+  - queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
+      - .get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.
+      - .filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.
+  - serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
+      - .get_serializer_class(self)
+      - .get_serializer_context(self)
+      - .get_serializer(self, ...)
+</code></pre></div>    </div>
+
     <ul>
-      <li>authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다.
-        <ul>
-          <li>.get_authenticators(self)</li>
-        </ul>
-      </li>
-      <li>permission_classes: API 요청에 대한 요청자의 권한을 검증합니다.
-        <ul>
-          <li>.get_permissions(self)</li>
-        </ul>
-      </li>
-      <li>queryset: 클래스 내부에서 사용하기 위한 기준이 되는 queryset을 설정합니다.
-        <ul>
-          <li>.get_queryset(self): 데이터를 정적으로(미리 데이터의 바운더리를 정해두고) 불러올 때 사용합니다.</li>
-          <li>.filter_queryset(self, queryset): 데이터를 동적으로(클라이언트의 요청에 따라 다른 값을 가져오도록) 불러올 때 사용합니다.</li>
-        </ul>
-      </li>
-      <li>serializer_class: request와 response 스펙을 정의하는 serializer를 설정합니다.
-        <ul>
-          <li>.get_serializer_class(self)</li>
-          <li>.get_serializer_context(self)</li>
-          <li>.get_serializer(self, …)
-  ```</li>
-        </ul>
-      </li>
       <li><code class="language-plaintext highlighter-rouge">queryset</code>에서, soft-deleted 요소를 조회하면, <code class="language-plaintext highlighter-rouge">queryset = Item.objects.filter(is_deleted='N')</code>과 같이 처리합니다. (정적 필터 적용)</li>
-      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing하여 object manager의 filter를 추가할 수 있습니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">filter_queryset</code>에서는 url의 query를 parsing 하여 object manager의 filter를 추가할 수 있습니다.</li>
     </ul>
   </li>
-  <li>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.
+  <li>
+    <p>Gneric API View에서, 기본적으로 설정한 예시는 다음과 같습니다.</p>
+
     <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># items/views/ItemView.py
 </span>  <span class="kn">from</span> <span class="n">rest_framework.settings</span> <span class="kn">import</span> <span class="n">api_settings</span>
   <span class="kn">from</span> <span class="n">rest_framework.generics</span> <span class="kn">import</span> <span class="n">ListCreateAPIView</span>
@@ -485,6 +605,7 @@
 
       <span class="bp">...</span>
 </code></pre></div>    </div>
+
     <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># settings.py
 </span>  <span class="bp">...</span>
 
@@ -563,6 +684,10 @@
   <li><code class="language-plaintext highlighter-rouge">get_serializer_context</code>: POST 요청시, <code class="language-plaintext highlighter-rouge">create</code> serializer 동작 수행시 category instance가 필요하기 때문에, 해당 작업을 미리 해줄 수 있습니다.</li>
 </ul>
 
+<h3 id="참고">참고</h3>
+<ul>
+  <li><a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></li>
+</ul>
 
   </div>
 </div>

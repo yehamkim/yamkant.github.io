@@ -263,7 +263,7 @@
     <ul class="nav__items" id="category_tag_menu">
         <!--전체 글 수-->
         <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-            📂 <span>Total Posts: 40</span>
+            📂 <span>Total Posts: 39</span>
         </li>
         <li>
             <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
@@ -280,7 +280,7 @@
                 
                 
                 
-                <li><a href="/categories/django-strategy" class="">Django Strategy (13)</a></li>
+                <li><a href="/categories/django-strategy" class="">Django Strategy (12)</a></li>
                 
                 
                 
@@ -630,6 +630,64 @@
   <li>우선순위 = (대기시간 + 실행시간) / 실행시간</li>
 </ul>
 
+<h2 id="deadlock교착상태">Deadlock(교착상태)</h2>
+<ul>
+  <li>둘 이상의 프로세스가 다른 프로세스가 점유하고 있는 자원을 기다리기 위해 무한 대기에 빠지는 상황을 의미합니다.</li>
+</ul>
+
+<h3 id="발생조건">발생조건</h3>
+<p>이 중 하나라도 만족하지 않으면 교착상태는 발생하지 않습니다.</p>
+<ul>
+  <li>상호배제(Mutual exclusion): <strong>한 번에 프로세스 하나만 해당 자원을 사용할 수 있다</strong>. 사용 중인 자원을 다른 프로세스가 사용하려면 요청한 자원이 해제될 때까지 기다려야 한다.</li>
+  <li>점유대기(Hold and Wait): 자원을 최소한 하나 보유하고, 다른 프로세스에 할당된 자원을 점유하기 위해 대기하는 프로세스가 존재해야 한다.</li>
+  <li>비선점(No preemption): 프로세스가 어떤 자원의 사용이 끝날 때까지 그 자원을 뺏을 수 없습니다.</li>
+  <li>순환대기(Circular wait): Hold and Wait 관계의 프로세스들이 서로를 기다립니다.</li>
+</ul>
+
+<h3 id="교착상태-방지방법">교착상태 방지방법</h3>
+<ul>
+  <li>예방(Prevention): 할당 구조 측면에서, 교착상태가 발생할 수 있는 요구조건을 만족시키지 않도록 함으로써 교착상태를 방지합니다.</li>
+  <li>회피(Avoidance): 교착상태가 발생할 가능성이 있는 자원을 할당(unsafe allocation)하지 않습니다. (대표적으로, 은행원 알고리즘, 자원 할당 그래프)</li>
+  <li>탐지 및 회복(Detection and Recovery): 교착상태가 발생할 수 있도록 놔두고 교착상태가 발생할 경우 이를 찾아내어 고칩니다.</li>
+</ul>
+
+<p><strong>예방</strong></p>
+<ul>
+  <li>상호 배제 조건 방지: 한 번에 여러 프로세스가 공유 자원을 사용할 수 있도록 합니다.</li>
+  <li>점유 대기 조건 방지
+    <ul>
+      <li>프로세스 대기를 없애기 위해서 프로세스가 실행되기 전에 필요한 모든 자원을 할당합니다. (자원 낭비 발생)</li>
+      <li>자원을 점유하지 않고 있을 때에만 다른 자원을 요청할 수 있도록 합니다. 한 프로세스가 추가적인 자원을 필요로 하면, 자신의 자원을 모두 해제하여 빈상태에서 다시 요청합니다. (기아상태가 될 수 있음)</li>
+    </ul>
+  </li>
+  <li>비선점 조건 방지: 이미 다른 프로세스에 할당된 자원에 대해 선점권이 없다면, 높은 우선순위의 프로세스가 해당 자원을 선점할 수 있도록 합니다.</li>
+  <li>순환대기 조건 방지: 자원을 순환 형태로 대기하도록 하지 않고, 일정한 방향으로 자원을 요구할 수 있도록 합니다. (임의로 순서를 부여)</li>
+</ul>
+
+<p><strong>회피</strong></p>
+<ul>
+  <li>시스템의 프로세스들이 데드락을 발생시키지 않도록 요청되는 자원을 모두에게 할당할 수 있다면, <code class="language-plaintext highlighter-rouge">안정 상태(safe state)</code>에 있다고 말합니다.</li>
+  <li>프로세스들에게 자원을 할당하고 실행 및 종료 등의 작업을 할 때, 데드락을 발생시키지 않게 하는 특정한 순서를 찾는다면, 이를 <code class="language-plaintext highlighter-rouge">안전 순서(safe sequence)</code>라고 합니다.</li>
+  <li>데드락은 불안정 상태에 있을 때 발생합니다. 따라서, 불안정 상태가 데드락보다 더 큰 집합입니다.</li>
+  <li>회피 알고리즘은 자원을 할당한 후에도 시스템이 항상 Safe state에 있도록 할당을 허용하게 됩니다.</li>
+</ul>
+
+<p><strong>탐지 및 회복</strong></p>
+
+<p>교착상태가 발생하도록 두고, 교착상태가 발생한다면 그 후에 해결하는 방식입니다.</p>
+
+<p>탐지 기법</p>
+<ul>
+  <li>Allocation, Request, Available 등으로 시스템에 데드락이 발생했는지 여부를 탐색합니다.</li>
+  <li>자원 할당 그래프를 통해 탐지하는 방법도 있습니다.</li>
+</ul>
+
+<p>회복 기법</p>
+<ul>
+  <li>교착상태에 빠진 모든 프로세스를 중단시키는 방법이 있지만, 연산중이던 프로세스들도 모두 일시에 중단되므로, 작업 중인 부분 결과가 폐기될 수 있습니다.</li>
+  <li>프로세스를 중단시킬 때마다 탐지 알고리즘으로 데드락을 탐지하며 회복시키는 방법이 있습니다. 매번 탐지 알고리즘을 호출 및 수행해야하기 때문에 부담되는 작업일 수 있습니다.</li>
+  <li>프로세스에 할당된 자원을 선점하여 데드락을 해결할 때까지 해당 자원을 다른 프로세스에 할당하는 방법이 있습니다.</li>
+</ul>
 
   </div>
 </div>

@@ -107,12 +107,6 @@ var store = [{
         "url": "/cs-database/",
         "teaser": null
       },{
-        "title": "[Django] DRF에서 Generic view, Model viewset은 어떻게 사용할까?",
-        "excerpt":"참고: mynghn님 블로그 Generic view의 동작방식 DRF 기본 클래스인 APIView에서는 사용자가 요청부터 응답까지의 구현을 처리할 수 있습니다. Generic view에서는 CRUD 패턴에 대한 구현을 미리 정해놓습니다. generic view는 네 가지 속성을 통해 API 동작을 결정합니다. ``` authentication_classes: 요청자의 가입 및 로그인 여부를 식별합니다. .get_authenticators(self) permission_classes: API 요청에 대한 요청자의 권한을 검증합니다....","categories": ["Django Strategy"],
-        "tags": [],
-        "url": "/django%20strategy/django-view/",
-        "teaser": null
-      },{
         "title": "[Django] API를 어떻게 명세하여 사용할까?",
         "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Django Strategy"],
         "tags": [],
@@ -123,12 +117,6 @@ var store = [{
         "excerpt":"Django custom user 생성을 위한 설정 추가 작업을 위한 Directory Level web - apps/ - config/ - settings/ - base.py - development.py - production.py ... - core/ - serializers.py - models.py ... - members/ - urls/ - members.py - models.py - serializers.py - views.py ... # config.settings.base.py INSTALLED_APPS = [...","categories": [],
         "tags": [],
         "url": "/django-custom-user/",
-        "teaser": null
-      },{
-        "title": "[Django] 테스트는 어떻게 수행할까?",
-        "excerpt":"작성이유 및 목표 흔히 리팩토링을 위해서, 발생할 법할 문제들을 미리 파악하기 위해서, 어떤 방식으로 사용하는지 명시하기 위해서 테스트를 작성합니다. 알고리즘 문제를 풀면서 또한 테스트 케이스의 중요성과 백엔드 개발자들이 왜 테스트 커버리지를 채워나가는데 집착하는지를 느끼게 됩니다. 해당 게시글에서는 Django를 통해 e2e, integration 테스트를 하기 위한 간단한 예시를 작성합니다. 커스텀 유저를 위한...","categories": ["Django Strategy"],
-        "tags": [],
-        "url": "/django%20strategy/django-test/",
         "teaser": null
       },{
         "title": "[Server] AWS ECS를 사용한 기본적인 배포환경 구성",
@@ -227,15 +215,21 @@ var store = [{
         "url": "/study/study-cs-os-process-thread/",
         "teaser": null
       },{
-        "title": "[Django] 테스트는 어떻게 수행할까?",
+        "title": "[Django] 테스트는 어떻게 수행할까? (query count 포함)",
         "excerpt":"글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를...","categories": ["Django Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-test/",
+        "url": "/django%20strategy/django-strategy-test/",
         "teaser": null
       },{
         "title": "[Django Strategy] permissions",
         "excerpt":"글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다. Django Permissions ModelViewSet등...","categories": ["Django Strategy"],
         "tags": [],
         "url": "/django%20strategy/study-django-strategy-permissions/",
+        "teaser": null
+      },{
+        "title": "[Django] DRF에서 Viewset은 어떻게 사용할까?",
+        "excerpt":"글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다. ModelViewSet 사용 전략...","categories": ["Django Strategy"],
+        "tags": [],
+        "url": "/django%20strategy/django-strategy-view/",
         "teaser": null
       }]
