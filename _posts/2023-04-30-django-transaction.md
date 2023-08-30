@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] Transaction은 어떻게 사용할까?"
 date:   2023-04-25 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ## Database transactions

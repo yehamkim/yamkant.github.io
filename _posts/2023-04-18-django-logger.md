@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] Logger는 어떻게 설정할까?"
 date:   2023-04-18 23:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ## 글을 작성하게 된 계기

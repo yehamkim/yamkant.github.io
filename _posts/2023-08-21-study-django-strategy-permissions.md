@@ -1,9 +1,9 @@
 ---
 layout: archive
-title:  "[Django Strategy] permissions"
+title:  "[Django] permissions"
 date:   2023-08-21 00:05:07 +0900
 categories: 
-    - Django Strategy
+    - Strategy
 ---
 
 ### 글을 작성한 계기

@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] Swagger는 어떻게 설정할까?"
 date:   2023-04-25 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 # swagger 설정

@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] Sequelizer는 어떻게 사용할까?"
 date:   2023-05-11 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ## 글을 작성하게 된 계기

@@ -24,27 +24,27 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] Logger는 어떻게 설정할까?",
-        "excerpt":"글을 작성하게 된 계기 퇴근 이후의 로그를 보는 것이 하루의 일과의 시작인 만큼, 로그가 구체적일수록 어떻게 보다 나은 서비스를 만들 수 있을까 뚜렷하게 고민하게 되는 것 같습니다. 로거를 공부하며 장고 미들웨어에 대해 학습할 수 있었습니다. 이를 계기로, 커스텀 데코레이터 사용 방법 또한 정리해 두면 좋을 것 같다고 생각했습니다. 로그 작성에...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하게 된 계기 퇴근 이후의 로그를 보는 것이 하루의 일과의 시작인 만큼, 로그가 구체적일수록 어떻게 보다 나은 서비스를 만들 수 있을까 뚜렷하게 고민하게 되는 것 같습니다. 로거를 공부하며 장고 미들웨어에 대해 학습할 수 있었습니다. 이를 계기로, 커스텀 데코레이터 사용 방법 또한 정리해 두면 좋을 것 같다고 생각했습니다. 로그 작성에...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-logger/",
+        "url": "/strategy/django-logger/",
         "teaser": null
       },{
         "title": "[Django] 배치서버는 어떻게 구성할까?",
-        "excerpt":"글을 작성하게 된 계기 배치 서버는 자동화에 필수적인 기능이기 때문에, 사용의 편의성을 어마어마하게 가져다줍니다. 배치 서버를 사용하게 되면, 동기/비동기 처리 등 프레임워크에서 제공하는 다양한 기술들을 사용해보기 용이할 것 같다고 생각되었습니다. Django에서 배치서버를 설정하는 방법에 대해 소개합니다. 설정 참고: https://cholol.tistory.com/531 Django에서 Command는 python manage.py &lt;command&gt;로 동작되는 기능들입니다. 예제: python manage.py makemigrations...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하게 된 계기 배치 서버는 자동화에 필수적인 기능이기 때문에, 사용의 편의성을 어마어마하게 가져다줍니다. 배치 서버를 사용하게 되면, 동기/비동기 처리 등 프레임워크에서 제공하는 다양한 기술들을 사용해보기 용이할 것 같다고 생각되었습니다. Django에서 배치서버를 설정하는 방법에 대해 소개합니다. 설정 참고: https://cholol.tistory.com/531 Django에서 Command는 python manage.py &lt;command&gt;로 동작되는 기능들입니다. 예제: python manage.py makemigrations...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-batch/",
+        "url": "/strategy/django-batch/",
         "teaser": null
       },{
         "title": "[Django] Swagger는 어떻게 설정할까?",
-        "excerpt":"swagger 설정 현재 디렉터리 레벨 .venv code - api(app) - urls.py - mysite(base) - settings.py - urls.py - static 설치항목 관련 모듈 설치 및 settings.py에 설정 항목을 추가합니다. $ pip install drf-yasg # settings.py INSTALLED_APPS = [ ... 'django.contrib.staticfiles', 'drf_yasg', ... ] ... STATIC_URL = '/static/' STATICFILES_DIRS = [BASE_DIR, 'static',]...","categories": ["Django Strategy"],
+        "excerpt":"swagger 설정 현재 디렉터리 레벨 .venv code - api(app) - urls.py - mysite(base) - settings.py - urls.py - static 설치항목 관련 모듈 설치 및 settings.py에 설정 항목을 추가합니다. $ pip install drf-yasg # settings.py INSTALLED_APPS = [ ... 'django.contrib.staticfiles', 'drf_yasg', ... ] ... STATIC_URL = '/static/' STATICFILES_DIRS = [BASE_DIR, 'static',]...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-swagger/",
+        "url": "/strategy/django-swagger/",
         "teaser": null
       },{
         "title": "[Django] Transaction은 어떻게 사용할까?",
-        "excerpt":"Database transactions Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다. Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다. transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다. HTTP 요청들에 transaction들 연결하기 연결을 위해...","categories": ["Django Strategy"],
+        "excerpt":"Database transactions Django의 기본 동작은 autocommit 모드를 실행시키는 것으로, transaction이 활성화되지 않으면, 각 쿼리는 즉시 db에 커밋됩니다. Django는 transaction 들이나 savepoint를 자동으로 사용하여 ORM 연산들(쿼리들의 update/delete)의 묶음을 보장합니다. transaction은 기본적으로 사용비용이 드는 편이기 때문에, overhead를 최소화하기 위해 가능한 한 transaction을 짧게 유지하는 것이 좋습니다. HTTP 요청들에 transaction들 연결하기 연결을 위해...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-transaction/",
+        "url": "/strategy/django-transaction/",
         "teaser": null
       },{
         "title": "[Book] 가상 면접 사례로 배우는 대규모 시스템 설계 기초",
@@ -54,9 +54,9 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] Sequelizer는 어떻게 사용할까?",
-        "excerpt":"글을 작성하게 된 계기 Data를 함수간 전달하거나 다른 레이어로 전달하는 경우에 항상 빠진 요소가 없는지, Validation 확인이 필요한지 판단하는 코드를 작성해야합니다. 이를 수월하게 하기 위해 custom exception을 만든 적도 있고, @dataclass를 활용한 적도 있지만 drf가 제공하는 기능을 사용할 때 model과의 연동도 수월하며 사용성이 좋았어서 공유하고자 글을 작성합니다. 참고: https://www.django-rest-framework.org/api-guide/serializers/ Post의...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하게 된 계기 Data를 함수간 전달하거나 다른 레이어로 전달하는 경우에 항상 빠진 요소가 없는지, Validation 확인이 필요한지 판단하는 코드를 작성해야합니다. 이를 수월하게 하기 위해 custom exception을 만든 적도 있고, @dataclass를 활용한 적도 있지만 drf가 제공하는 기능을 사용할 때 model과의 연동도 수월하며 사용성이 좋았어서 공유하고자 글을 작성합니다. 참고: https://www.django-rest-framework.org/api-guide/serializers/ Post의...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-serializer/",
+        "url": "/strategy/django-serializer/",
         "teaser": null
       },{
         "title": "[Server] Nginx를 이용한 무중단 배포 방법 (Nginx - Django)",
@@ -66,15 +66,15 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] 배포/개발 환경은 어떻게 설정할까?",
-        "excerpt":"최종 목표 .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용 Django Container Setting Django 폴더 구조 web - Dockerfile - apps/ - config/ - settings/ - base.py - development.py - production.py - wsgi/ - development.py - production.py ... - entrypoint.sh - manage.py - requirements.txt - .env Django 배포 환경...","categories": ["Django Strategy"],
+        "excerpt":"최종 목표 .env 파일에 설정된 DJANGO_SETTINGS_MODULE에 따라서 배포환경에 맞는 settings.py 사용 Django Container Setting Django 폴더 구조 web - Dockerfile - apps/ - config/ - settings/ - base.py - development.py - production.py - wsgi/ - development.py - production.py ... - entrypoint.sh - manage.py - requirements.txt - .env Django 배포 환경...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-setting/",
+        "url": "/strategy/django-setting/",
         "teaser": null
       },{
         "title": "[Django] Form 클래스는 어떻게 사용할까?",
-        "excerpt":"FORM HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다. (CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.) Djnago 폼 처리 과정 브라우저에서 form을 포함한 페이지를 요청합니다. Django는 “unbound” default form을 서빙합니다. (이 시점에서 폼은 초기값이 있지만, Client가...","categories": ["Django Strategy"],
+        "excerpt":"FORM HTML Form은 웹 페이지에서 필드나 위젯들의 묶음을 말합니다. 폼을 통해 사용자의 입력들을 받으므로, POST 요청으로 server에 데이터를 전달합니다. (CSRF 토큰을 통해 위조를 방지하기 위한 안정적인 대책을 세울 수 있습니다.) Djnago 폼 처리 과정 브라우저에서 form을 포함한 페이지를 요청합니다. Django는 “unbound” default form을 서빙합니다. (이 시점에서 폼은 초기값이 있지만, Client가...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-form/",
+        "url": "/strategy/django-form/",
         "teaser": null
       },{
         "title": "[SQL] dbcp란 무엇이며, api 서버와 DB는 어떻게 통신할까?",
@@ -96,9 +96,9 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?",
-        "excerpt":"Custom User Registration # requirements.txt asgiref==3.6.0 Django==4.2.1 djangorestframework==3.14.0 djangorestframework-simplejwt==5.2.2 PyJWT==2.7.0 pytz==2023.3 rest-framework-simplejwt==0.0.2 sqlparse==0.4.4 djangorestframework-simplejwt를 사용하여 개발합니다. # settings.py INSTALLED_APPS = [ 'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', # restframework \"rest_framework\", \"rest_framework_simplejwt\", \"rest_framework_simplejwt.token_blacklist\", # custom apps \"members\", \"core\", \"mytest\", ] ... # Settings for JWT Authentication SIMPLE_JWT = { \"ACCESS_TOKEN_LIFETIME\": timedelta(hours=1),...","categories": ["Django Strategy"],
+        "excerpt":"Custom User Registration # requirements.txt asgiref==3.6.0 Django==4.2.1 djangorestframework==3.14.0 djangorestframework-simplejwt==5.2.2 PyJWT==2.7.0 pytz==2023.3 rest-framework-simplejwt==0.0.2 sqlparse==0.4.4 djangorestframework-simplejwt를 사용하여 개발합니다. # settings.py INSTALLED_APPS = [ 'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', # restframework \"rest_framework\", \"rest_framework_simplejwt\", \"rest_framework_simplejwt.token_blacklist\", # custom apps \"members\", \"core\", \"mytest\", ] ... # Settings for JWT Authentication SIMPLE_JWT = { \"ACCESS_TOKEN_LIFETIME\": timedelta(hours=1),...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-auth/",
+        "url": "/strategy/django-auth/",
         "teaser": null
       },{
         "title": "Cs Database",
@@ -108,9 +108,9 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] API를 어떻게 명세하여 사용할까?",
-        "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Django Strategy"],
+        "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-spectacular/",
+        "url": "/strategy/django-spectacular/",
         "teaser": null
       },{
         "title": "Django Custom User",
@@ -216,20 +216,20 @@ var store = [{
         "teaser": null
       },{
         "title": "[Django] 테스트는 어떻게 수행할까? (query count 포함)",
-        "excerpt":"글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-strategy-test/",
+        "url": "/strategy/django-strategy-test/",
         "teaser": null
       },{
-        "title": "[Django Strategy] permissions",
-        "excerpt":"글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다. Django Permissions ModelViewSet등...","categories": ["Django Strategy"],
+        "title": "[Django] permissions",
+        "excerpt":"글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다. Django Permissions ModelViewSet등...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/study-django-strategy-permissions/",
+        "url": "/strategy/study-django-strategy-permissions/",
         "teaser": null
       },{
         "title": "[Django] DRF에서 Viewset은 어떻게 사용할까?",
-        "excerpt":"글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다. ModelViewSet 사용 전략...","categories": ["Django Strategy"],
+        "excerpt":"글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다. ModelViewSet 사용 전략...","categories": ["Strategy"],
         "tags": [],
-        "url": "/django%20strategy/django-strategy-view/",
+        "url": "/strategy/django-strategy-view/",
         "teaser": null
       }]

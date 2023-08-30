@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] API를 어떻게 명세하여 사용할까?"
 date:   2023-05-27 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ### Open API와 OAS, Swagger

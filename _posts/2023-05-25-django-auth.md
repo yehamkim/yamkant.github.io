@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] 커스텀 유저 및 jwt는 어떤 방식으로 설정할까?"
 date:   2023-05-25 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 # Custom User Registration

@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] 배포/개발 환경은 어떻게 설정할까?"
 date:   2023-05-13 20:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ### 최종 목표

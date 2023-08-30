@@ -23,7 +23,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
 <meta property="og:title" content="[Django] DRF에서 Viewset은 어떻게 사용할까?">
-<meta property="og:url" content="http://localhost:4000/django%20strategy/django-strategy-view/">
+<meta property="og:url" content="http://localhost:4000/strategy/django-strategy-view/">
 
 
   <meta property="og:description" content="글을 작성하는 이유    Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.   프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.   따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.">
@@ -45,7 +45,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/django%20strategy/django-strategy-view/">
+<link rel="canonical" href="http://localhost:4000/strategy/django-strategy-view/">
 
 
 
@@ -558,7 +558,7 @@
 <ul>
   <li>action마다 다른 serializer를 사용하기 때문에, <code class="language-plaintext highlighter-rouge">get_serializer_class</code> 메서드를 통해 그에 해당하는 serializer를 불러옵니다.</li>
   <li>내부적으로 보면, <code class="language-plaintext highlighter-rouge">ModelViewSet</code>은 <code class="language-plaintext highlighter-rouge">GenericViewSet</code>을 상속받고, <code class="language-plaintext highlighter-rouge">GenericViewSet</code> 내부에 <code class="language-plaintext highlighter-rouge">get_serializer</code>는 위에서 클래스 메서드로 지정해준 <code class="language-plaintext highlighter-rouge">get_serializer_class</code>의 클래스를 읽어옵니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">get_serializer</code>는 <code class="language-plaintext highlighter-rouge">DestroyModelMixin</code>을 제외한 모든 믹스인에서 사용되기 때문에 <code class="language-plaintext highlighter-rouge">serializer</code>를 지정하여 API 메서드에 설정하는 것은 필수적입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_serializer</code>는 <code class="language-plaintext highlighter-rouge">DestroyModelMixin</code>을 제외한 모든 믹스인에서 사용되기 때문에 필수적으로 <code class="language-plaintext highlighter-rouge">serializer</code>를 지정해야합니다.</li>
 </ul>
 
 <hr />

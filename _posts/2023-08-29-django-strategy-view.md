@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] DRF에서 Viewset은 어떻게 사용할까?"
 date:   2023-08-29 00:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ## 글을 작성하는 이유

@@ -2,7 +2,7 @@
 layout: archive
 title:  "[Django] 테스트는 어떻게 수행할까? (query count 포함)"
 date:   2023-08-21 00:05:07 +0900
-categories: [Django Strategy]
+categories: [Strategy]
 ---
 
 ## 글을 작성하게 된 계기
