@@ -245,8 +245,8 @@ var store = [{
         "url": "/study/study-cs-dbms/",
         "teaser": null
       },{
-        "title": "[Django] Push Notification은 어떤식으로 구현할 수 있을까?",
-        "excerpt":"글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다....","categories": ["Strategy"],
+        "title": "[Django] Push 알람은 어떤식으로 구현할 수 있을까?",
+        "excerpt":"글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을...","categories": ["Strategy"],
         "tags": [],
         "url": "/strategy/django-strategy-push-notification/",
         "teaser": null

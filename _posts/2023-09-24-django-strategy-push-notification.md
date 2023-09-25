@@ -1,64 +1,41 @@
 ---
 layout: archive
-title:  "[Django] Push Notification은 어떤식으로 구현할 수 있을까?"
+title:  "[Django] Push 알람은 어떤식으로 구현할 수 있을까?"
 date:   2023-09-24 00:05:07 +0900
 categories: 
     - Strategy
 ---
 
 ## 글을 작성하게 된 계기
-- 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다.
-- 이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다.
-- 하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.
-
-### 사용한 기술 스택
-- Celery, Redis
-- Django Eventstream, Django signal
+- 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다.
+- 이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다.
+- 하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다.
+- 이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 `django-eventstream`을 이용했습니다.
 
 ### 동작 순서
 1. [wsgi] wsgi에서 API request 전달 받습니다.
 2. [asgi] celery에서 특정 작업에 대한 동작을 처리하도록 합니다.
 3. [asgi] celery에서 특정 작업에 대한 동작을 처리 후, task result 테이블에 해당 내역을 기록합니다.  
    (이 때, event stream에서 클라이언트에게 전달하기 위한 `채널명(ex. user.username)`을 함께 기록합니다.)
-4. [asgi] task result DB를 모니터링 하다가, signal이 발생하면 wsgi 서버로 처리가 완료되었음을 request 요청합니다.   
+4. [asgi] task result DB를 모니터링 하다가, record가 추가되거나 수정되는 등의 signal이 발생하면 wsgi 서버로 request 요청합니다. 이때, task 관련 정보를 전달합니다.   
    (ex. `requests.get("http://127.0.0.1:8000/tasks/<task_id>/")` `task_id`는 wsgi에서 파싱)
 5. [wsgi] asgi의 request 내에 기록된 task 정보(task_id)를 통해 DB에서 어떤 태스크가 완료되었는지 판단합니다.
 6. [wsgi] task result DB에 기록할 때, 추가 입력한 `user.username(채널명)`를 통해 event stream으로 클라이언트에게 작업이 완료되었음을 알립니다.
 
-## 구현 예시
+## 튜토리얼 구현
+### 작동 방식
+- `/` 페이지에 접속하면 버튼이 있습니다. 버튼을 클릭하면, celery task로 지정한 5초를 카운트하는 태스크를 실행시킵니다.
+- 5초 타이머가 celery task에서 작동하고, task가 정상적으로 마칠 때, celery result 테이블에 태스크 관련 내용을 기록합니다.
+- asgi 서버에서 시그널을 통해 result 테이블을 모니터링하다가, 태스크를 마치면 Django eventstream이 클라이언트에게 메시지를 보냅니다.
+- 클라이언트측에서 버튼을 누른 이후 5초가 지난 후, alert 창을 띄웁니다.
+ 
 ### 들어가기 전
 - 작업환경 설정 부분은 공식 홈페이지의 방식을 따랐습니다.
   - [django signal 관련 설정](https://docs.djangoproject.com/en/4.2/topics/signals/)
   - [django-celery 관련 설정](https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html)
-  ```shell
-  $ pip install celery[redis] django-celery-results
-  ```
 - 구체적인 설정 예시는 부록에 남기겠습니다.
-- 구현 시나리오: `/` 페이지 접속 후, 버튼 클릭시 5초 타이머가 celery task에서 작동하고, 태스크 종료 후에 alert 이벤트가 발생합니다.
 
-### task 작성
-```python
-@shared_task(
-    bind=True,
-    max_retries=5,
-    ignore_result=True
-)
-def task_sleep(self, data, *args, **kwargs):
-    from time import sleep
-    sleep(data)
-
-    task_result = TaskResult.objects.create(
-        task_id=self.request.id,
-        status=states.SUCCESS,
-        meta=kwargs['channel_name'],
-    )
-    return True
-```
-- `task_sleep`을 wsgi 서버에서 호출할 때, 인자로 데이터와 `channel_name`을 함께 대입하고 이를 메타데이터에 저장합니다.
-- 이후, 태스크에 따라 발생시키고자 하는 알람을 구분하여 `send_event` 해주기 위한 채널명으로 사용됩니다. 
-- 해당 태스크를 실행시킬 때, TaskResult 모델(django-celery-results 모듈에서 생성한 테이블)을 통해 `django_celery_results_taskresult`테이블에 레코드를 기록합니다.
-
-### task 실행 로직
+### [wsgi] task 동작 요청
 ```python
 # config.urls.py
 
@@ -80,7 +57,30 @@ urlpatterns = [
 - `/tasks/`로 POST 요청을 보내는 경우 task가 실행됩니다. 
 - 이 때, 앞서 강조한 바와 같이 channel 이름을 함께 대입하여, 태스크 종료 후 알람을 줄 채널을 지정합니다.
 
-### task 종료 후 시그널 캐치
+### [asgi] task 수행 및 결과 저장
+```python
+@shared_task(
+    bind=True,
+    max_retries=5,
+    ignore_result=True
+)
+def task_sleep(self, data, *args, **kwargs):
+    from time import sleep
+    sleep(data)
+
+    task_result = TaskResult.objects.create(
+        task_id=self.request.id,
+        status=states.SUCCESS,
+        meta=kwargs['channel_name'],
+    )
+    return True
+```
+- `task_sleep`을 wsgi 서버에서 호출할 때, 인자로 데이터와 `channel_name`을 함께 대입하고 이를 메타데이터에 저장합니다.
+- 이후, 태스크에 따라 발생시키고자 하는 알람을 구분하여 `send_event` 해주기 위한 채널명으로 사용됩니다. 
+- 해당 태스크를 실행시킬 때, TaskResult 모델(django-celery-results 모듈에서 생성한 테이블)을 통해 `django_celery_results_taskresult`테이블에 레코드를 기록합니다.
+
+
+### [asgi] task 종료 후 시그널 캐치
 ```python
 apps.mycelery.signals.py
 
@@ -92,7 +92,7 @@ def process_celery_task_result(sender, instance, **kwargs):
 - `task_sleep`이 마무리 되면, post_save 이벤트를 통해 signal 발생을 감지합니다.
 - 이 때, 인자로 `TaskResult` 모델의 인스턴스가 바로 들어오므로 이를 사용하여 wsgi 서버에 마무리된 태스크를 전달해줍니다.
 
-### 태스크 호출 클라이언트에 태스크 종료 상황 전달
+### [asgi] 태스크 호출 클라이언트에 태스크 종료 상황 전달
 ```python
 # config.urls.py
 
@@ -245,6 +245,7 @@ TypeError: __init__() missing 1 required positional argument: 'get_response'
 HTTP GET /events/yamkant/ 500 [0.59, 127.0.0.1:55482]
 ```
 - module간 dependency 때문에 일어나는 현상입니다. 아래와 같이 모듈 버전을 맞춰주세요
+
 ```shell
 Django==4.2.5
 django-celery-results==2.5.1

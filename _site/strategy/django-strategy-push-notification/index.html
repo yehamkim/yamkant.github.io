@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[Django] Push Notification은 어떤식으로 구현할 수 있을까? - Yam’s Dev Logs</title>
-<meta name="description" content="글을 작성하게 된 계기    진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다.   이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다.   하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.">
+<!-- begin _includes/seo.html --><title>[Django] Push 알람은 어떤식으로 구현할 수 있을까? - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 계기    진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다.   이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다.   하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다.   이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 django-eventstream을 이용했습니다.">
 
 
   <meta name="author" content="Yeham Kim">
@@ -22,11 +22,11 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Yam's Dev Logs">
-<meta property="og:title" content="[Django] Push Notification은 어떤식으로 구현할 수 있을까?">
+<meta property="og:title" content="[Django] Push 알람은 어떤식으로 구현할 수 있을까?">
 <meta property="og:url" content="http://localhost:4000/strategy/django-strategy-push-notification/">
 
 
-  <meta property="og:description" content="글을 작성하게 된 계기    진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다.   이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다.   하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.">
+  <meta property="og:description" content="글을 작성하게 된 계기    진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다.   이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다.   하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다.   이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 django-eventstream을 이용했습니다.">
 
 
 
@@ -432,19 +432,14 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">[Django] Push Notification은 어떤식으로 구현할 수 있을까?</h1>
+      <h1 id="page-title" class="page__title">[Django] Push 알람은 어떤식으로 구현할 수 있을까?</h1>
     
     <h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
 <ul>
-  <li>진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다.</li>
-  <li>이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다.</li>
-  <li>하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.</li>
-</ul>
-
-<h3 id="사용한-기술-스택">사용한 기술 스택</h3>
-<ul>
-  <li>Celery, Redis</li>
-  <li>Django Eventstream, Django signal</li>
+  <li>진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다.</li>
+  <li>이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다.</li>
+  <li>하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다.</li>
+  <li>이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 <code class="language-plaintext highlighter-rouge">django-eventstream</code>을 이용했습니다.</li>
 </ul>
 
 <h3 id="동작-순서">동작 순서</h3>
@@ -453,52 +448,33 @@
   <li>[asgi] celery에서 특정 작업에 대한 동작을 처리하도록 합니다.</li>
   <li>[asgi] celery에서 특정 작업에 대한 동작을 처리 후, task result 테이블에 해당 내역을 기록합니다.<br />
 (이 때, event stream에서 클라이언트에게 전달하기 위한 <code class="language-plaintext highlighter-rouge">채널명(ex. user.username)</code>을 함께 기록합니다.)</li>
-  <li>[asgi] task result DB를 모니터링 하다가, signal이 발생하면 wsgi 서버로 처리가 완료되었음을 request 요청합니다. <br />
+  <li>[asgi] task result DB를 모니터링 하다가, record가 추가되거나 수정되는 등의 signal이 발생하면 wsgi 서버로 request 요청합니다. 이때, task 관련 정보를 전달합니다. <br />
 (ex. <code class="language-plaintext highlighter-rouge">requests.get("http://127.0.0.1:8000/tasks/&lt;task_id&gt;/")</code> <code class="language-plaintext highlighter-rouge">task_id</code>는 wsgi에서 파싱)</li>
   <li>[wsgi] asgi의 request 내에 기록된 task 정보(task_id)를 통해 DB에서 어떤 태스크가 완료되었는지 판단합니다.</li>
   <li>[wsgi] task result DB에 기록할 때, 추가 입력한 <code class="language-plaintext highlighter-rouge">user.username(채널명)</code>를 통해 event stream으로 클라이언트에게 작업이 완료되었음을 알립니다.</li>
 </ol>
 
-<h2 id="구현-예시">구현 예시</h2>
+<h2 id="튜토리얼-구현">튜토리얼 구현</h2>
+<h3 id="작동-방식">작동 방식</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/</code> 페이지에 접속하면 버튼이 있습니다. 버튼을 클릭하면, celery task로 지정한 5초를 카운트하는 태스크를 실행시킵니다.</li>
+  <li>5초 타이머가 celery task에서 작동하고, task가 정상적으로 마칠 때, celery result 테이블에 태스크 관련 내용을 기록합니다.</li>
+  <li>asgi 서버에서 시그널을 통해 result 테이블을 모니터링하다가, 태스크를 마치면 Django eventstream이 클라이언트에게 메시지를 보냅니다.</li>
+  <li>클라이언트측에서 버튼을 누른 이후 5초가 지난 후, alert 창을 띄웁니다.</li>
+</ul>
+
 <h3 id="들어가기-전">들어가기 전</h3>
 <ul>
   <li>작업환경 설정 부분은 공식 홈페이지의 방식을 따랐습니다.
     <ul>
       <li><a href="https://docs.djangoproject.com/en/4.2/topics/signals/">django signal 관련 설정</a></li>
-      <li><a href="https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html">django-celery 관련 설정</a>
-        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip <span class="nb">install </span>celery[redis] django-celery-results
-</code></pre></div>        </div>
-      </li>
+      <li><a href="https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html">django-celery 관련 설정</a></li>
     </ul>
   </li>
   <li>구체적인 설정 예시는 부록에 남기겠습니다.</li>
-  <li>구현 시나리오: <code class="language-plaintext highlighter-rouge">/</code> 페이지 접속 후, 버튼 클릭시 5초 타이머가 celery task에서 작동하고, 태스크 종료 후에 alert 이벤트가 발생합니다.</li>
 </ul>
 
-<h3 id="task-작성">task 작성</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@shared_task</span><span class="p">(</span>
-    <span class="n">bind</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">ignore_result</span><span class="o">=</span><span class="bp">True</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">task_sleep</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="n">time</span> <span class="kn">import</span> <span class="n">sleep</span>
-    <span class="nf">sleep</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="n">task_result</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
-        <span class="n">task_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="nb">id</span><span class="p">,</span>
-        <span class="n">status</span><span class="o">=</span><span class="n">states</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">,</span>
-        <span class="n">meta</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="sh">'</span><span class="s">channel_name</span><span class="sh">'</span><span class="p">],</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="bp">True</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">task_sleep</code>을 wsgi 서버에서 호출할 때, 인자로 데이터와 <code class="language-plaintext highlighter-rouge">channel_name</code>을 함께 대입하고 이를 메타데이터에 저장합니다.</li>
-  <li>이후, 태스크에 따라 발생시키고자 하는 알람을 구분하여 <code class="language-plaintext highlighter-rouge">send_event</code> 해주기 위한 채널명으로 사용됩니다.</li>
-  <li>해당 태스크를 실행시킬 때, TaskResult 모델(django-celery-results 모듈에서 생성한 테이블)을 통해 <code class="language-plaintext highlighter-rouge">django_celery_results_taskresult</code>테이블에 레코드를 기록합니다.</li>
-</ul>
-
-<h3 id="task-실행-로직">task 실행 로직</h3>
+<h3 id="wsgi-task-동작-요청">[wsgi] task 동작 요청</h3>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
 </span>
 <span class="k">class</span> <span class="nc">TaskCreateAPIView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
@@ -521,7 +497,30 @@
   <li>이 때, 앞서 강조한 바와 같이 channel 이름을 함께 대입하여, 태스크 종료 후 알람을 줄 채널을 지정합니다.</li>
 </ul>
 
-<h3 id="task-종료-후-시그널-캐치">task 종료 후 시그널 캐치</h3>
+<h3 id="asgi-task-수행-및-결과-저장">[asgi] task 수행 및 결과 저장</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@shared_task</span><span class="p">(</span>
+    <span class="n">bind</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">ignore_result</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">task_sleep</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="n">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+    <span class="nf">sleep</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">task_result</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="nb">id</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">states</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">,</span>
+        <span class="n">meta</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="sh">'</span><span class="s">channel_name</span><span class="sh">'</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">True</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">task_sleep</code>을 wsgi 서버에서 호출할 때, 인자로 데이터와 <code class="language-plaintext highlighter-rouge">channel_name</code>을 함께 대입하고 이를 메타데이터에 저장합니다.</li>
+  <li>이후, 태스크에 따라 발생시키고자 하는 알람을 구분하여 <code class="language-plaintext highlighter-rouge">send_event</code> 해주기 위한 채널명으로 사용됩니다.</li>
+  <li>해당 태스크를 실행시킬 때, TaskResult 모델(django-celery-results 모듈에서 생성한 테이블)을 통해 <code class="language-plaintext highlighter-rouge">django_celery_results_taskresult</code>테이블에 레코드를 기록합니다.</li>
+</ul>
+
+<h3 id="asgi-task-종료-후-시그널-캐치">[asgi] task 종료 후 시그널 캐치</h3>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">apps</span><span class="p">.</span><span class="n">mycelery</span><span class="p">.</span><span class="n">signals</span><span class="p">.</span><span class="n">py</span>
 
 <span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">TaskResult</span><span class="p">)</span>
@@ -534,7 +533,7 @@
   <li>이 때, 인자로 <code class="language-plaintext highlighter-rouge">TaskResult</code> 모델의 인스턴스가 바로 들어오므로 이를 사용하여 wsgi 서버에 마무리된 태스크를 전달해줍니다.</li>
 </ul>
 
-<h3 id="태스크-호출-클라이언트에-태스크-종료-상황-전달">태스크 호출 클라이언트에 태스크 종료 상황 전달</h3>
+<h3 id="asgi-태스크-호출-클라이언트에-태스크-종료-상황-전달">[asgi] 태스크 호출 클라이언트에 태스크 종료 상황 전달</h3>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
 </span>
 <span class="k">class</span> <span class="nc">TaskRetrieveAPIView</span><span class="p">(</span><span class="n">RetrieveAPIView</span><span class="p">):</span>
@@ -682,19 +681,19 @@
 HTTP GET /events/yamkant/ 500 [0.59, 127.0.0.1:55482]
 </code></pre></div></div>
 <ul>
-  <li>module간 dependency 때문에 일어나는 현상입니다. 아래와 같이 모듈 버전을 맞춰주세요
-```shell
-Django==4.2.5
-django-celery-results==2.5.1
-django-eventstream==4.5.1
-django-grip==3.4.0
-djangorestframework==3.14.0</li>
+  <li>module간 dependency 때문에 일어나는 현상입니다. 아래와 같이 모듈 버전을 맞춰주세요</li>
 </ul>
 
-<p>celery==5.3.4
-channels==3.0.4
-channels-redis==4.1.0
-```</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">Django</span><span class="o">==</span>4.2.5
+django-celery-results<span class="o">==</span>2.5.1
+django-eventstream<span class="o">==</span>4.5.1
+django-grip<span class="o">==</span>3.4.0
+<span class="nv">djangorestframework</span><span class="o">==</span>3.14.0
+
+<span class="nv">celery</span><span class="o">==</span>5.3.4
+<span class="nv">channels</span><span class="o">==</span>3.0.4
+channels-redis<span class="o">==</span>4.1.0
+</code></pre></div></div>
 
   </div>
 </div>
