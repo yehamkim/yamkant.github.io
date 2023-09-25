@@ -101,12 +101,6 @@ var store = [{
         "url": "/strategy/django-auth/",
         "teaser": null
       },{
-        "title": "Cs Database",
-        "excerpt":"NoSQL RDB의 단점은 무엇일까? 스키마가 경직되어 있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야 하여 스키마를 변경해야 합니다. 스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다. 결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다. RDB의 기본 철학은 중복제거를...","categories": [],
-        "tags": [],
-        "url": "/cs-database/",
-        "teaser": null
-      },{
         "title": "[Django] API를 어떻게 명세하여 사용할까?",
         "excerpt":"Open API와 OAS, Swagger Open API란? Open API는 누구나 사용할 수 있도록 endpoint가 개방된 API를 의미합니다. OpenAPI Specification(OAS)는 OpenAPI(띄어쓰기 없음)가 표기하기도 하며, RESTful 형식의 API 정의된 규약에 따라 json이나 yaml로 표현하는 방식을 의미합니다. 직접 소스코드나 문서를 보지 않더라도 서비스를 이해할 수 있다는 장점이 있습니다. Swagger란? 2010년대 초 Tam Wordnik이 개발하기...","categories": ["Strategy"],
         "tags": [],
@@ -203,16 +197,16 @@ var store = [{
         "url": "/study/study-cs-network-tcp/",
         "teaser": null
       },{
-        "title": "[Study] Database",
-        "excerpt":"SQL과 NoSQL SQL 데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다. 데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다. 장점 명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다. 관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다. 단점...","categories": ["Study"],
-        "tags": [],
-        "url": "/study/study-cs-database/",
-        "teaser": null
-      },{
         "title": "[Study] Operating System - Process, Thread",
         "excerpt":"프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적...","categories": ["Study"],
         "tags": [],
-        "url": "/study/study-cs-os-process-thread/",
+        "url": "/study/study-cs-os-process-thread-old/",
+        "teaser": null
+      },{
+        "title": "[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication",
+        "excerpt":"SQL과 NoSQL SQL 데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다. 데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다. 장점 명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다. 관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다. 단점...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-database/",
         "teaser": null
       },{
         "title": "[Django] 테스트는 어떻게 수행할까? (query count 포함)",
@@ -231,5 +225,29 @@ var store = [{
         "excerpt":"글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다. ModelViewSet 사용 전략...","categories": ["Strategy"],
         "tags": [],
         "url": "/strategy/django-strategy-view/",
+        "teaser": null
+      },{
+        "title": "[Study] Operating System - Process, Thread, System call",
+        "excerpt":"컴퓨터의 구조 (코어와 스레드) OS kernel은 사용자 프로그램과 Memory, CPU, Device를 다루는 연결고리 역할을 합니다. 코어와 스레드 코어는 코어 자체의 연산작업에 비해, 메모리에서 데이터를 기다리는 시간이 오래 걸립니다. 이는 결국 코어의 자원 낭비로 이어집니다. Q. OS 스레드 여덟 개를 하이퍼 스레딩이 적용된 인텔 듀얼코드 위에서 동작시키려면 OS 스레드들을 어떻게 코어에...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-os-process-thread-new/",
+        "teaser": null
+      },{
+        "title": "[Study] Operating System - Sync, Async",
+        "excerpt":"Race condition 여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다. 동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다. critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다. do { entry section # critical section에...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-os-sync-async/",
+        "teaser": null
+      },{
+        "title": "[Study] Database - TRIGGER, Transaction",
+        "excerpt":"SQL Trigger 데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다. INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능) 애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다. 트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-cs-dbms/",
+        "teaser": null
+      },{
+        "title": "[Django] Push Notification은 어떤식으로 구현할 수 있을까?",
+        "excerpt":"글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다....","categories": ["Strategy"],
+        "tags": [],
+        "url": "/strategy/django-strategy-push-notification/",
         "teaser": null
       }]

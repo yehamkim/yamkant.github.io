@@ -1,0 +1,644 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Operating System - Sync, Async - Yam’s Dev Logs</title>
+<meta name="description" content="Race condition    여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다.   동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다.   critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다.     do {   entry section # critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간     critical section   exit section # 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간     remainder section } while (True)           하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다.   critical section problem의 해결책을 위한 조건은 다음과 같습니다.            mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다.       progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다.       bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Operating System - Sync, Async">
+<meta property="og:url" content="http://localhost:4000/study/study-cs-os-sync-async/">
+
+
+  <meta property="og:description" content="Race condition    여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다.   동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다.   critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다.     do {   entry section # critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간     critical section   exit section # 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간     remainder section } while (True)           하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다.   critical section problem의 해결책을 위한 조건은 다음과 같습니다.            mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다.       progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다.       bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-09-07T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cs-os-sync-async/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 42</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (13)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (15)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Operating System - Sync, Async</h1>
+    
+    <h3 id="race-condition">Race condition</h3>
+<ul>
+  <li>여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다.</li>
+  <li>동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다.</li>
+  <li>critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
+  entry section <span class="c"># critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간</span>
+    critical section
+  <span class="nb">exit </span>section <span class="c"># 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간</span>
+    remainder section
+<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>True<span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다.</li>
+  <li>critical section problem의 해결책을 위한 조건은 다음과 같습니다.
+    <ol>
+      <li>mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다.</li>
+      <li>progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다.</li>
+      <li>bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="lock">Lock</h3>
+<ul>
+  <li>mutual exclusion을 보장하도록 하는 방법입니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
+  acquire lock
+    critical section
+  release lock
+    remainder section
+<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>TRUE<span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>atomic 명령어: 실행 중간에 간섭받거나 중단되지 않으며, 같은 메모리 영역에 대해 동시에 실행되지 않습니다. 이는, CPU 내부에서 함수를 동작시키는 원리입니다.</li>
+  <li>mutual exclusion만 사용한다면 뮤텍스를, 작업 간의 실행 순서에 대한 동기화가 필요하다면 세마포어 사용을 권장합니다.</li>
+</ul>
+
+<p><strong>Spin lock</strong></p>
+<ul>
+  <li>무한루프(while True)를 사용해서 lock을 획득할 떄까지 기다리는 방식입니다.</li>
+  <li>기다리는 동안 CPU를 낭비하게 되는 단점이 있습니다. 다른 작업을 위해 사용해야하는 CPU를 락을 확인하는데 사용하고 있기 때문입니다.</li>
+  <li>멀티코어 환경이고, critical section에서의 작업이 컨텍스트 스위칭보다 더 빨리 끝나면 스핀락이 뮤텍스보다 이점을 갖습니다.</li>
+</ul>
+
+<p><strong>Mutex</strong></p>
+<ul>
+  <li>뮤텍스의 기본 원리는 아래와 같습니다. 락을 가질 수 있을 때까지 휴식을 취하다가 락을 쥐면 그때 깨어나서 critical section에 진입합니다.
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">lock</span><span class="p">();</span>
+<span class="p">...</span> <span class="n">critical</span> <span class="n">section</span>
+<span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">unlock</span><span class="p">();</span>
+
+<span class="c1">//---</span>
+
+<span class="k">class</span> <span class="nc">Mutex</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Mutex</span><span class="o">::</span><span class="n">lock</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Mutex</span><span class="o">::</span><span class="n">unlock</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="n">lock</span><span class="err">을</span> <span class="err">해제</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="p">}</span>
+  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>Point1. 스레드들은 lock을 갖기 위해 경합을 하며, <code class="language-plaintext highlighter-rouge">value</code>가 0인 경우, 무한루프를 돌리지 않고, 스레드를 큐에 넣는 작업을 합니다.</li>
+      <li>Point2. CPU 레벨에서 지원하는 atomic 명령어인 <code class="language-plaintext highlighter-rouge">test_and_set</code>을 사용하여 작업합니다.</li>
+    </ul>
+  </li>
+  <li>priority inheritance 속성을 가집니다. 따라서, 스케쥴러가 스케쥴링을 할 때 우선순위를 조정하여 critical section을 빠져나오도록 할 수 있습니다. (세마포어는 이런 동작 불가능)</li>
+</ul>
+
+<p><strong>Semaphore</strong></p>
+<ul>
+  <li>signal mechanism을 가진 하나 이상의 프로세스/스레드가 critical section에 접근 가능한 장치입니다.
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//---</span>
+
+<span class="k">class</span> <span class="nc">Semaphore</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Semaphore</span><span class="o">::</span><span class="n">wait</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Semaphore</span><span class="o">::</span><span class="n">signal</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">그</span> <span class="err">중</span> <span class="err">하나를</span> <span class="err">깨워서</span> <span class="err">작업을</span> <span class="err">위한</span> <span class="err">준비를</span> <span class="err">진행시키기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+  <span class="p">}</span>
+  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">value</code>를 0과 1만 가지는 경우에는 바이너리 세마포어, 1외에 값을 가질 수 있는 경우는 카운팅 세마포어라고 합니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">value</code>가 1 외에도 여러값을 가져서, critical section에 하나 이상의 프로세스/스레드가 접근하여 작업이 가능하도록 합니다.</li>
+    </ul>
+  </li>
+  <li>세마포어는 순서를 정해줄 때 사용할 수 있습니다. 예를 들어 task의 진행 방식이 아래와 같다고 생각해봅시다. (signal mechanism을 가짐)
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>task1 <span class="o">{</span>
+  semaphore-&gt;signal<span class="o">()</span>
+<span class="o">}</span>
+
+task2
+semaphore-&gt;wait<span class="o">()</span>
+task3
+</code></pre></div>    </div>
+    <ul>
+      <li>task3를 실행하기 위해, task2가 끝나고 task3을 수행하려면, task1을 먼저 수행하여 <code class="language-plaintext highlighter-rouge">signal</code>을 얻어 와야합니다.</li>
+    </ul>
+  </li>
+  <li>위 예시와 같이 <code class="language-plaintext highlighter-rouge">wait()</code>와 <code class="language-plaintext highlighter-rouge">signal()</code>이 반드시 같은 프로세스나 스레드 안에서 실행될 필요가 없다는 특징이 있습니다.</li>
+  <li>뮤텍스는 락을 가진 프로세스/스레드만 락을 해제할 수 있지만, 세마포어는 <code class="language-plaintext highlighter-rouge">wait</code>를 하는 프로세스와 <code class="language-plaintext highlighter-rouge">signal</code>을 날리는 프로세스가 달라도 됩니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<ul>
+  <li><a href="https://youtu.be/vp0Gckz3z64?si=diBWEAzKVzTrjK9u">쉬운코드님 운영체제 - 동기화의 목적</a></li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

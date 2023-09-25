@@ -2,7 +2,8 @@
 layout: archive
 title:  "[Django] Push Notification은 어떤식으로 구현할 수 있을까?"
 date:   2023-09-24 00:05:07 +0900
-categories: [Strategy]
+categories: 
+    - Strategy
 ---
 
 ## 글을 작성하게 된 계기
@@ -192,15 +193,13 @@ def process_celery_task_result(sender, instance, **kwargs):
 
 ### 간단한 client html,js 작성
 ```html
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
-    <script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
+    <script src="static/django_eventstream/eventsource.min.js"></script>
+    <script src="/static/django_eventstream/reconnecting-eventsource.js"></script>
     <title>Push Alarm</title>
 </head>
 <body>

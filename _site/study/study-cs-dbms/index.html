@@ -1,0 +1,740 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] Database - TRIGGER, Transaction - Yam’s Dev Logs</title>
+<meta name="description" content="SQL Trigger    데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.   INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)   애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다.   트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] Database - TRIGGER, Transaction">
+<meta property="og:url" content="http://localhost:4000/study/study-cs-dbms/">
+
+
+  <meta property="og:description" content="SQL Trigger    데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.   INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)   애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다.   트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-09-11T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-cs-dbms/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 42</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (13)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (15)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] Database - TRIGGER, Transaction</h1>
+    
+    <h2 id="sql-trigger">SQL Trigger</h2>
+<ul>
+  <li>데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.</li>
+  <li>INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)</li>
+  <li>애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다.</li>
+  <li>트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.</li>
+</ul>
+
+<h4 id="사용자-닉네임-변경-이력-기록">사용자 닉네임 변경 이력 기록</h4>
+<ul>
+  <li>사용자의 닉네임 변경 이력을 저장하는 트리거를 작성한다면,
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">log_user_nickname_trigger</span>
+<span class="k">BEFORE</span> <span class="k">UPDATE</span>
+<span class="k">ON</span> <span class="n">users</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+<span class="k">BEGIN</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_log</span> <span class="k">values</span><span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="k">OLD</span><span class="p">.</span><span class="n">nickname</span><span class="p">,</span> <span class="n">NOW</span><span class="p">());</span>
+<span class="k">END</span>
+<span class="err">$$</span>
+<span class="k">delimiter</span> <span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>닉네임이 UPDATE 될 때마다 그 전에 트리거를 동작시킵니다.</li>
+  <li>users 테이블에 대해 업데이트가 발생하면, 트리거가 동작하여 각 ROW에 대해 액션을 실행합니다.</li>
+  <li>닉네임이 업데이트될 때마다 기존의 닉네임을 users_log 테이블에 저장하게 됩니다.<br />
+(<code class="language-plaintext highlighter-rouge">OLD</code> 업데이트되기 전의 users의 tuple을 가리킴.)</li>
+</ul>
+
+<h4 id="사용자-누적-구매-비용-저장-통계-기록">사용자 누적 구매 비용 저장 통계 기록</h4>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">sum_buy_prices_trigger</span>
+<span class="k">AFTER</span> <span class="k">INSERT</span>
+<span class="k">ON</span> <span class="n">buy</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+<span class="k">BEGIN</span>
+  <span class="k">DECLARE</span> <span class="n">total</span> <span class="nb">INT</span><span class="p">;</span>
+  <span class="k">DECLARE</span> <span class="n">user_id</span> <span class="nb">INT</span> <span class="k">DEFAULT</span> <span class="k">NEW</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
+
+  <span class="k">select</span> <span class="k">sum</span><span class="p">(</span><span class="n">price</span><span class="p">)</span> <span class="k">into</span> <span class="n">total</span> <span class="k">from</span> <span class="n">buy</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
+  <span class="k">update</span> <span class="n">user_buy_stats</span> <span class="k">set</span> <span class="n">price_sum</span> <span class="o">=</span> <span class="n">total</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
+<span class="k">END</span>
+<span class="err">$$</span>
+<span class="k">delimiter</span> <span class="p">;</span>
+</code></pre></div></div>
+<ul>
+  <li>INSERT 이벤트가 발생한 후에 액션을 수행합니다.</li>
+  <li>total이라는 INT 변수를 선언하고, user_id라는 INT 변수를 선언합니다. 이 때, 초기 값으로 user_id에 insert된 tuple의 user_id를 넣어줍니다.</li>
+</ul>
+
+<h4 id="임직원-평균-연봉-구하기-postgresql">임직원 평균 연봉 구하기 (PostgreSQL)</h4>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">avg_empl_salary_trigger</span>
+  <span class="k">AFTER</span> <span class="k">INSERT</span> <span class="k">OR</span> <span class="k">UPDATE</span> <span class="k">OR</span> <span class="k">DELETE</span>
+  <span class="k">ON</span> <span class="n">employee</span>
+  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">STATEMENT</span>
+  <span class="n">EXCUTE</span> <span class="k">FUNCTION</span> <span class="n">update_avg_empl_salary</span><span class="p">();</span>
+</code></pre></div></div>
+<ul>
+  <li>[MySQL X] 하나 이상의 이벤트가 발생하는 조건에 대해서 트리거를 진행할 수 있습니다.</li>
+  <li>[MySQL X] <code class="language-plaintext highlighter-rouge">FOR EACH ROW</code>와 <code class="language-plaintext highlighter-rouge">FOR EACH STATEMENT</code>의 차이점에 대해서 학습해 보기.</li>
+</ul>
+
+<h2 id="transaction">Transaction</h2>
+<ul>
+  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
+  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
+  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
+  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
+</ul>
+
+<h3 id="특징-acid">특징 (ACID)</h3>
+<ul>
+  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
+  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
+  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
+  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다. (power faile이나 DB crash가 발생하더라도. 이는 DBMS가 보장합니다.)
+    <h4 id="추가">추가</h4>
+  </li>
+  <li>일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
+  <li>Isolation을 엄격하게 구현한다면, DB 서버의 성능에 영향을 주는 요소이기 때문에 여러 종류의 isolationlevel을 제공합니다.</li>
+</ul>
+
+<h3 id="autocommit">Autocommit</h3>
+<ul>
+  <li>각각의 SQL문을 자동으로 transaction 처리하는 개념으로, SQL문이 성공적으로 실행하면 자동으로 commit 합니다. 실패 시, 자동으로 rollback 합니다.</li>
+  <li>MySQL의 경우, autocommit이 기본적으로 활성화되어 있으며, transaction 시작 시 autocommit 기능을 off합니다.</li>
+  <li>autocommit을 off하게 되면, commit을 할 때까지 영구적인 반영이 되는 것은 아니기 때문에, rollback 시 원래 상태로 돌이킬 수 있습니다.</li>
+</ul>
+
+<h3 id="일반적인-사용-패턴">일반적인 사용 패턴</h3>
+<ol>
+  <li>transaction을 시작(begin) 합니다. (autocommit을 off 상태로 변경)</li>
+  <li>데이터를 읽거나 쓰는 등의 SQL 문들을 포함하여 로직을 수행합니다.</li>
+  <li>일련의 과정들이 문제없이 동작했다면 transaction을 commit 합니다.</li>
+  <li>문제가 발생했다면, transaction을 rollback 합니다.</li>
+  <li>commit 및 rollback 후에 autocommit을 on 상태로 변경합니다.</li>
+</ol>
+
+<h2 id="concurrency-control">Concurrency Control</h2>
+<ul>
+  <li>Schedule: 여러 트랜잭션들이 동시에 실행될 때 각 트랜잭션에 속한 operation들의 실행 순서를 의미합니다. 이 때, 각각의 트랜잭션 내의 operation들의 순서는 바뀌지 않습니다.</li>
+  <li>고민거리: 성능 때문에 여러 transaction들을 겹쳐서 실행(nonserial schedule)하면 좋겠지만, 의도치 않은 결과가 발생하는 상황이 생깁니다.</li>
+  <li>해결방법: conflict serializable한 경우에 대해서는 nonserial schedule를 허용합니다.</li>
+  <li>즉, 어떤 스케쥴이라도 serializable하도록 동작하게 만드는 제어기법을 의미합니다.</li>
+</ul>
+
+<h2 id="serializability">Serializability</h2>
+
+<h4 id="serial-schedule">Serial schedule</h4>
+<ul>
+  <li>트랜잭션들이 겹치지 않고 한 번에 하나씩 실행되는 스케쥴을 의미합니다.</li>
+  <li>저장공간에 대해 I/O 작업을 수행하는 동안에 CPU는 쉬고 있지만 serial은 다른 동작을 수행시키지 않으므로 동시성이 없고 좋은 성능을 내지 못합니다.</li>
+</ul>
+
+<h4 id="nonserial-schedule">Nonserial schedule</h4>
+<ul>
+  <li>트랜잭션들이 겹쳐서 실행되는 스케쥴을 의미합니다.</li>
+  <li>I/O 작업 중 다른 트랜잭션을 수행하기 때문에 동시성이 높아져 같은 시간동안 더 많은 트랜잭션을 처리할 수 있습니다.</li>
+  <li>단점: 트랜잭션들이 어떤 형태로 겹쳐서 실행되는지에 따라 결과값이 변경될 우려가 있습니다.</li>
+</ul>
+
+<h4 id="conflict">Conflict</h4>
+<ul>
+  <li>Conflict란, 아래의 세 조건을 만족하는 경우입니다.
+    <ol>
+      <li>두 오퍼레이션이 서로 다른 트랜잭션 소속인 경우</li>
+      <li>두 오퍼레이션이 같은 데이터에 접근하는 경우</li>
+      <li>두 오퍼레이션 중 최소한 하나는 쓰기 오퍼레이션인 경우</li>
+    </ol>
+  </li>
+  <li>두 오퍼레이션 중 하나의 오퍼레이션은 읽는 경우, 다른 하나의 오퍼레이션은 쓰는 경우 발생하는 컨플릭트를 read-write conflict라고 합니다.</li>
+  <li>두 오퍼레이션 모두 쓰는 오퍼레이션이라면 write-write conflict라고 합니다.</li>
+  <li>conflict operation은 순서가 바뀌게 될 때 결과도 바뀝니다.</li>
+  <li>Conflict equivalent란, 아래의 두 조건을 모두 만족하는 경우입니다.
+    <ol>
+      <li>두 스케쥴이 같은 트랜잭션들을 가지는 경우</li>
+      <li>트랜잭션들의 모든 conflicting operation들의 순서가 양쪽 스케쥴 모두 동일한 경우<br />
+(conflicting operation: read-write/write-wr ite conflict)</li>
+    </ol>
+  </li>
+  <li>Serial schedule과 conflict equivalent일 때 Conflict serializable이라고 할 수 있습니다.</li>
+</ul>
+
+<h3 id="conflict-serializable-확인방법-구현">Conflict serializable 확인방법 구현</h3>
+<ul>
+  <li>여러개의 트랜잭션을 동시에 실행하더라도 스케쥴이 conflict serializable 하다는 것이 보장되는 스케줄만 실행되도록 하는 프로토콜을 적용합니다.</li>
+</ul>
+
+<h2 id="unrecoverability">Unrecoverability</h2>
+<ul>
+  <li>스케쥴 내에서 커밋된 트랜잭션(1번)이 “rollback된 트랜잭션(2번)이 수정했던 데이터”를 읽은 경우를 의미합니다. 즉, 1번 트랜잭션은 유효하지 않은 2번 트랜잭션의 데이터에 작업을 하게된 경우입니다. -&gt; unrecoverable schedule</li>
+  <li>위의 상황에서, rollback을 하더라도 이전 상태로 회복 불가능하기 때문에, 이런 스케줄은 DBMS에서 허용하면 안됩니다.</li>
+</ul>
+
+<h4 id="recoverable한-스케쥴">Recoverable한 스케쥴</h4>
+<ul>
+  <li>스케쥴 내에서 그 어떤 트랜잭션도 자신이 읽은 데이터를 수정한 트랜잭션이 먼저 커밋/롤백 되기 전까지 커밋하지 않는 경우에 recoverable한 스케쥴이라 할 수 있습니다.</li>
+  <li>트랜잭션 간에 의존성이 있는 경우, 의존하는 트랜잭션은</li>
+</ul>
+
+<h2 id="isolation-level-격리수준">Isolation Level (격리수준)</h2>
+<p><strong>Read Uncommitted (Level 0)</strong></p>
+<ul>
+  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
+  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
+  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
+</ul>
+
+<p><strong>Read Committed (Level 1)</strong></p>
+<ul>
+  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
+  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
+  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
+</ul>
+
+<p><strong>Repeatable Read (Level 2)</strong></p>
+<ul>
+  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
+  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
+(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
+  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
+  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
+  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
+  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
+</ul>
+
+<p><strong>Serializable (Level 3)</strong></p>
+<ul>
+  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
+  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
+  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
+</ul>
+
+<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
+
+<p><strong>Dirty Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Uncommitted</li>
+  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
+  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
+</ul>
+
+<p><strong>Non-Repeatable Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
+  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
+</ul>
+
+<p><strong>Phantom Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
+  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
+  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
+</ul>
+
+<h3 id="dbms의-구조">DBMS의 구조</h3>
+<ul>
+  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
+  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
+  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
+</ul>
+
+<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
+<ul>
+  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
+  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
+</ul>
+
+<h3 id="undo">UNDO</h3>
+<ul>
+  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
+  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="redo">REDO</h3>
+<ul>
+  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="참고자료">참고자료</h3>
+<ul>
+  <li><a href="https://youtu.be/mEeGf4ZWQKI?si=cTzyiw9E9bCI4DFS">쉬운코드님 trigger 강의</a></li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

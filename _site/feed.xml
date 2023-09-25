@@ -1,4 +1,852 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-08-30T15:45:04+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django] DRF에서 Viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/strategy/django-strategy-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Viewset은 어떻게 사용할까?" /><published>2023-08-29T00:05:07+09:00</published><updated>2023-08-29T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-view</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-view/"><![CDATA[<h2 id="글을-작성하는-이유">글을 작성하는 이유</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-09-25T16:17:25+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django] Push Notification은 어떤식으로 구현할 수 있을까?</title><link href="http://localhost:4000/strategy/django-strategy-push-notification/" rel="alternate" type="text/html" title="[Django] Push Notification은 어떤식으로 구현할 수 있을까?" /><published>2023-09-24T00:05:07+09:00</published><updated>2023-09-24T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-push-notification</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-push-notification/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<ul>
+  <li>진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다.</li>
+  <li>이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다.</li>
+  <li>하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.</li>
+</ul>
+
+<h3 id="사용한-기술-스택">사용한 기술 스택</h3>
+<ul>
+  <li>Celery, Redis</li>
+  <li>Django Eventstream, Django signal</li>
+</ul>
+
+<h3 id="동작-순서">동작 순서</h3>
+<ol>
+  <li>[wsgi] wsgi에서 API request 전달 받습니다.</li>
+  <li>[asgi] celery에서 특정 작업에 대한 동작을 처리하도록 합니다.</li>
+  <li>[asgi] celery에서 특정 작업에 대한 동작을 처리 후, task result 테이블에 해당 내역을 기록합니다.<br />
+(이 때, event stream에서 클라이언트에게 전달하기 위한 <code class="language-plaintext highlighter-rouge">채널명(ex. user.username)</code>을 함께 기록합니다.)</li>
+  <li>[asgi] task result DB를 모니터링 하다가, signal이 발생하면 wsgi 서버로 처리가 완료되었음을 request 요청합니다. <br />
+(ex. <code class="language-plaintext highlighter-rouge">requests.get("http://127.0.0.1:8000/tasks/&lt;task_id&gt;/")</code> <code class="language-plaintext highlighter-rouge">task_id</code>는 wsgi에서 파싱)</li>
+  <li>[wsgi] asgi의 request 내에 기록된 task 정보(task_id)를 통해 DB에서 어떤 태스크가 완료되었는지 판단합니다.</li>
+  <li>[wsgi] task result DB에 기록할 때, 추가 입력한 <code class="language-plaintext highlighter-rouge">user.username(채널명)</code>를 통해 event stream으로 클라이언트에게 작업이 완료되었음을 알립니다.</li>
+</ol>
+
+<h2 id="구현-예시">구현 예시</h2>
+<h3 id="들어가기-전">들어가기 전</h3>
+<ul>
+  <li>작업환경 설정 부분은 공식 홈페이지의 방식을 따랐습니다.
+    <ul>
+      <li><a href="https://docs.djangoproject.com/en/4.2/topics/signals/">django signal 관련 설정</a></li>
+      <li><a href="https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html">django-celery 관련 설정</a>
+        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip <span class="nb">install </span>celery[redis] django-celery-results
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>구체적인 설정 예시는 부록에 남기겠습니다.</li>
+  <li>구현 시나리오: <code class="language-plaintext highlighter-rouge">/</code> 페이지 접속 후, 버튼 클릭시 5초 타이머가 celery task에서 작동하고, 태스크 종료 후에 alert 이벤트가 발생합니다.</li>
+</ul>
+
+<h3 id="task-작성">task 작성</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@shared_task</span><span class="p">(</span>
+    <span class="n">bind</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">ignore_result</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">task_sleep</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="n">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+    <span class="nf">sleep</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">task_result</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="nb">id</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">states</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">,</span>
+        <span class="n">meta</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="sh">'</span><span class="s">channel_name</span><span class="sh">'</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">True</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">task_sleep</code>을 wsgi 서버에서 호출할 때, 인자로 데이터와 <code class="language-plaintext highlighter-rouge">channel_name</code>을 함께 대입하고 이를 메타데이터에 저장합니다.</li>
+  <li>이후, 태스크에 따라 발생시키고자 하는 알람을 구분하여 <code class="language-plaintext highlighter-rouge">send_event</code> 해주기 위한 채널명으로 사용됩니다.</li>
+  <li>해당 태스크를 실행시킬 때, TaskResult 모델(django-celery-results 모듈에서 생성한 테이블)을 통해 <code class="language-plaintext highlighter-rouge">django_celery_results_taskresult</code>테이블에 레코드를 기록합니다.</li>
+</ul>
+
+<h3 id="task-실행-로직">task 실행 로직</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
+</span>
+<span class="k">class</span> <span class="nc">TaskCreateAPIView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">channel_name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">yamkant</span><span class="sh">'</span>
+        <span class="n">task_sleep</span><span class="p">.</span><span class="nf">delay</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">channel_name</span><span class="o">=</span><span class="n">channel_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nc">Response</span><span class="p">({})</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tasks/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TaskCreateAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">task-create</span><span class="sh">"</span><span class="p">),</span>
+    <span class="bp">...</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/tasks/</code>로 POST 요청을 보내는 경우 task가 실행됩니다.</li>
+  <li>이 때, 앞서 강조한 바와 같이 channel 이름을 함께 대입하여, 태스크 종료 후 알람을 줄 채널을 지정합니다.</li>
+</ul>
+
+<h3 id="task-종료-후-시그널-캐치">task 종료 후 시그널 캐치</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">apps</span><span class="p">.</span><span class="n">mycelery</span><span class="p">.</span><span class="n">signals</span><span class="p">.</span><span class="n">py</span>
+
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">TaskResult</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">process_celery_task_result</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">instance</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">states</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">:</span>
+        <span class="n">requests</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">http://127.0.0.1:8000/tasks/</span><span class="si">{</span><span class="n">instance</span><span class="p">.</span><span class="nb">id</span><span class="si">}</span><span class="s">/</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">task_sleep</code>이 마무리 되면, post_save 이벤트를 통해 signal 발생을 감지합니다.</li>
+  <li>이 때, 인자로 <code class="language-plaintext highlighter-rouge">TaskResult</code> 모델의 인스턴스가 바로 들어오므로 이를 사용하여 wsgi 서버에 마무리된 태스크를 전달해줍니다.</li>
+</ul>
+
+<h3 id="태스크-호출-클라이언트에-태스크-종료-상황-전달">태스크 호출 클라이언트에 태스크 종료 상황 전달</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># config.urls.py
+</span>
+<span class="k">class</span> <span class="nc">TaskRetrieveAPIView</span><span class="p">(</span><span class="n">RetrieveAPIView</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">TaskResult</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">])</span>
+        <span class="n">channel_name</span> <span class="o">=</span> <span class="n">instance</span><span class="p">.</span><span class="n">meta</span>
+        <span class="nf">send_event</span><span class="p">(</span><span class="n">channel_name</span><span class="p">,</span> <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">,</span> <span class="p">{</span><span class="sh">"</span><span class="s">msg</span><span class="sh">"</span><span class="p">:</span> <span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">instance</span><span class="p">.</span><span class="n">task_id</span><span class="si">}</span><span class="s"> Task Finished</span><span class="sh">"</span><span class="p">})</span>
+        <span class="k">return</span> <span class="nc">Response</span><span class="p">({})</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="bp">...</span>
+    <span class="nf">path</span><span class="p">(</span><span class="sh">"</span><span class="s">tasks/&lt;int:id&gt;/</span><span class="sh">"</span><span class="p">,</span> <span class="n">TaskRetrieveAPIView</span><span class="p">.</span><span class="nf">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">task-detail</span><span class="sh">"</span><span class="p">),</span>
+    <span class="bp">...</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">task</code>의 id를 asgi 서버에서 wsgi 서버로 전달하였고, wsgi는 이를 캐치하여 태스크 결과를 DB에서 확인 후 <code class="language-plaintext highlighter-rouge">send_event</code>를 통해 저장된 채널로 알람을 줍니다.</li>
+  <li>현재는 string으로 반환하여 task 종료에 대한 내역만 표시했지만, case에 따라서 client가 다른 처리를 하도록 작성할 수 있습니다.</li>
+</ul>
+
+<h2 id="부록">부록</h2>
+<h3 id="celery-관련-설정">celery 관련 설정</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.__init__.py
+</span>  <span class="kn">from</span> <span class="n">.celery</span> <span class="kn">import</span> <span class="n">app</span> <span class="k">as</span> <span class="n">celery_app</span>
+
+  <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="sh">'</span><span class="s">celery_app</span><span class="sh">'</span><span class="p">,)</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.settings.py
+</span>  <span class="c1"># CELERY SETTINGS
+</span>  <span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="sh">'</span><span class="s">redis://127.0.0.1:6379</span><span class="sh">'</span>
+  <span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="sh">'</span><span class="s">django-db</span><span class="sh">'</span>
+  <span class="n">CELERY_CACHE_BACKEND</span> <span class="o">=</span> <span class="sh">'</span><span class="s">defualt</span><span class="sh">'</span>
+
+  <span class="n">CELERY_APP</span><span class="o">=</span><span class="sh">'</span><span class="s">config.celery</span><span class="sh">'</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># config.celery.py
+</span>
+  <span class="kn">from</span> <span class="n">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+  <span class="kn">import</span> <span class="n">os</span>
+  <span class="kn">from</span> <span class="n">celery</span> <span class="kn">import</span> <span class="n">Celery</span>
+
+  <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">(</span><span class="sh">'</span><span class="s">DJANGO_SETTINGS_MODULE</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">config.settings</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">app</span> <span class="o">=</span> <span class="nc">Celery</span><span class="p">(</span>
+      <span class="sh">'</span><span class="s">config</span><span class="sh">'</span><span class="p">,</span>
+      <span class="n">broker_connection_retry_on_startup</span><span class="o">=</span><span class="bp">True</span>
+  <span class="p">)</span>
+  <span class="n">app</span><span class="p">.</span><span class="nf">config_from_object</span><span class="p">(</span><span class="sh">'</span><span class="s">django.conf:settings</span><span class="sh">'</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="sh">'</span><span class="s">CELERY</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">app</span><span class="p">.</span><span class="nf">autodiscover_tasks</span><span class="p">()</span>
+
+  <span class="n">app</span><span class="p">.</span><span class="n">conf</span><span class="p">.</span><span class="n">timezone</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Asia/Seoul</span><span class="sh">"</span>
+  <span class="n">app</span><span class="p">.</span><span class="n">conf</span><span class="p">.</span><span class="n">task_track_started</span> <span class="o">=</span> <span class="bp">True</span>
+  <span class="n">app</span><span class="p">.</span><span class="n">conf</span><span class="p">.</span><span class="n">task_time_limit</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span>
+  <span class="n">app</span><span class="p">.</span><span class="n">conf</span><span class="p">.</span><span class="n">task_serializer</span> <span class="o">=</span> <span class="sh">'</span><span class="s">json</span><span class="sh">'</span>
+
+
+
+  <span class="nd">@app.task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ignore_result</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">debug_task</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">Request: </span><span class="si">{</span><span class="n">self</span><span class="p">.</span><span class="n">request</span><span class="si">!r}</span><span class="sh">'</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<h3 id="signal-관련-설정">signal 관련 설정</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps.mycelery.apps.py
+</span>
+<span class="kn">from</span> <span class="n">django.apps</span> <span class="kn">import</span> <span class="n">AppConfig</span>
+
+<span class="k">class</span> <span class="nc">MyceleryConfig</span><span class="p">(</span><span class="n">AppConfig</span><span class="p">):</span>
+    <span class="n">default_auto_field</span> <span class="o">=</span> <span class="sh">'</span><span class="s">django.db.models.BigAutoField</span><span class="sh">'</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">apps.mycelery</span><span class="sh">'</span>
+
+    <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="n">.</span> <span class="kn">import</span> <span class="n">signals</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># apps.mycelery.signals.py
+</span>
+<span class="kn">from</span> <span class="n">django.db.models.signals</span> <span class="kn">import</span> <span class="n">post_save</span>
+<span class="kn">from</span> <span class="n">django.dispatch</span> <span class="kn">import</span> <span class="n">receiver</span>
+<span class="kn">from</span> <span class="n">django_celery_results.models</span> <span class="kn">import</span> <span class="n">TaskResult</span>
+<span class="kn">from</span> <span class="n">celery</span> <span class="kn">import</span> <span class="n">states</span>
+
+<span class="c1"># NOTE: Signal after celery work -&gt; to wsgi server 
+</span><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">TaskResult</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">process_celery_task_result</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">instance</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">states</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">SAVED CELERY RESULT</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="간단한-client-htmljs-작성">간단한 client html,js 작성</h3>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"static/django_eventstream/eventsource.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/static/django_eventstream/reconnecting-eventsource.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Push Alarm<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;h1&gt;</span>Hello World!<span class="nt">&lt;/h1&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">"onClick(this)"</span><span class="nt">&gt;</span>Run Task!<span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;script&gt;</span>
+        <span class="k">async</span> <span class="kd">function</span> <span class="nf">start</span><span class="p">(</span><span class="nx">username</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">es</span> <span class="o">=</span> <span class="nf">setEventSource</span><span class="p">(</span><span class="nx">username</span><span class="p">)</span>
+            <span class="nx">es</span><span class="p">.</span><span class="nf">addEventListener</span><span class="p">(</span><span class="dl">'</span><span class="s1">message</span><span class="dl">'</span><span class="p">,</span> <span class="nf">function </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">Task Finished!</span><span class="dl">"</span><span class="p">)</span>
+            <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="kd">function</span> <span class="nf">setEventSource</span><span class="p">(</span><span class="nx">channelName</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">es</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ReconnectingEventSource</span><span class="p">(</span><span class="s2">`/events/</span><span class="p">${</span><span class="nx">channelName</span><span class="p">}</span><span class="s2">/`</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">es</span>
+        <span class="p">}</span>
+        <span class="nb">window</span><span class="p">.</span><span class="nf">addEventListener</span><span class="p">(</span><span class="dl">'</span><span class="s1">load</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nf">start</span><span class="p">(</span><span class="dl">""</span><span class="p">)</span>
+        <span class="p">});</span>
+
+        <span class="kd">const</span> <span class="nx">onClick</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nf">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://127.0.0.1:8000/tasks/</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+                <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+                <span class="na">headers</span><span class="p">:</span> <span class="p">{</span>
+                <span class="dl">'</span><span class="s1">Content-Type</span><span class="dl">'</span><span class="p">:</span> <span class="dl">'</span><span class="s1">application/x-www-form-urlencoded</span><span class="dl">'</span>
+                <span class="p">},</span>
+                <span class="na">body</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">})</span>
+            <span class="p">.</span><span class="nf">then</span><span class="p">(</span><span class="nx">res</span> <span class="o">=&gt;</span> <span class="nx">res</span><span class="p">.</span><span class="nf">json</span><span class="p">())</span>
+        <span class="p">}</span>
+    <span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+<ul>
+  <li>load 직 후, event source를 설정하여, 서버와의 연결을 유지합니다.</li>
+  <li>버튼 클릭시, post 요청을 통해 task를 실행시킵니다.</li>
+</ul>
+
+<h2 id="발생한-오류">발생한 오류</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TypeError: __init__() missing 1 required positional argument: 'get_response'
+HTTP GET /events/yamkant/ 500 [0.59, 127.0.0.1:55482]
+</code></pre></div></div>
+<ul>
+  <li>module간 dependency 때문에 일어나는 현상입니다. 아래와 같이 모듈 버전을 맞춰주세요
+```shell
+Django==4.2.5
+django-celery-results==2.5.1
+django-eventstream==4.5.1
+django-grip==3.4.0
+djangorestframework==3.14.0</li>
+</ul>
+
+<p>celery==5.3.4
+channels==3.0.4
+channels-redis==4.1.0
+```</p>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때 이미지에 따라 이미지 프로세싱에 대한 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 방식을 Celery를 활용한 비동기적으로 처리하는 것으로 수정하여, 기존 동작은 이상없이 수행하도록 작성하였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 알람을 받도록 하는 것이 효율적일 것이라고 생각하게 되었습니다.]]></summary></entry><entry><title type="html">[Study] Database - TRIGGER, Transaction</title><link href="http://localhost:4000/study/study-cs-dbms/" rel="alternate" type="text/html" title="[Study] Database - TRIGGER, Transaction" /><published>2023-09-11T00:05:07+09:00</published><updated>2023-09-11T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-dbms</id><content type="html" xml:base="http://localhost:4000/study/study-cs-dbms/"><![CDATA[<h2 id="sql-trigger">SQL Trigger</h2>
+<ul>
+  <li>데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.</li>
+  <li>INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)</li>
+  <li>애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다.</li>
+  <li>트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.</li>
+</ul>
+
+<h4 id="사용자-닉네임-변경-이력-기록">사용자 닉네임 변경 이력 기록</h4>
+<ul>
+  <li>사용자의 닉네임 변경 이력을 저장하는 트리거를 작성한다면,
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">log_user_nickname_trigger</span>
+<span class="k">BEFORE</span> <span class="k">UPDATE</span>
+<span class="k">ON</span> <span class="n">users</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+<span class="k">BEGIN</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_log</span> <span class="k">values</span><span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="k">OLD</span><span class="p">.</span><span class="n">nickname</span><span class="p">,</span> <span class="n">NOW</span><span class="p">());</span>
+<span class="k">END</span>
+<span class="err">$$</span>
+<span class="k">delimiter</span> <span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>닉네임이 UPDATE 될 때마다 그 전에 트리거를 동작시킵니다.</li>
+  <li>users 테이블에 대해 업데이트가 발생하면, 트리거가 동작하여 각 ROW에 대해 액션을 실행합니다.</li>
+  <li>닉네임이 업데이트될 때마다 기존의 닉네임을 users_log 테이블에 저장하게 됩니다.<br />
+(<code class="language-plaintext highlighter-rouge">OLD</code> 업데이트되기 전의 users의 tuple을 가리킴.)</li>
+</ul>
+
+<h4 id="사용자-누적-구매-비용-저장-통계-기록">사용자 누적 구매 비용 저장 통계 기록</h4>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">sum_buy_prices_trigger</span>
+<span class="k">AFTER</span> <span class="k">INSERT</span>
+<span class="k">ON</span> <span class="n">buy</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+<span class="k">BEGIN</span>
+  <span class="k">DECLARE</span> <span class="n">total</span> <span class="nb">INT</span><span class="p">;</span>
+  <span class="k">DECLARE</span> <span class="n">user_id</span> <span class="nb">INT</span> <span class="k">DEFAULT</span> <span class="k">NEW</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
+
+  <span class="k">select</span> <span class="k">sum</span><span class="p">(</span><span class="n">price</span><span class="p">)</span> <span class="k">into</span> <span class="n">total</span> <span class="k">from</span> <span class="n">buy</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
+  <span class="k">update</span> <span class="n">user_buy_stats</span> <span class="k">set</span> <span class="n">price_sum</span> <span class="o">=</span> <span class="n">total</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
+<span class="k">END</span>
+<span class="err">$$</span>
+<span class="k">delimiter</span> <span class="p">;</span>
+</code></pre></div></div>
+<ul>
+  <li>INSERT 이벤트가 발생한 후에 액션을 수행합니다.</li>
+  <li>total이라는 INT 변수를 선언하고, user_id라는 INT 변수를 선언합니다. 이 때, 초기 값으로 user_id에 insert된 tuple의 user_id를 넣어줍니다.</li>
+</ul>
+
+<h4 id="임직원-평균-연봉-구하기-postgresql">임직원 평균 연봉 구하기 (PostgreSQL)</h4>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">avg_empl_salary_trigger</span>
+  <span class="k">AFTER</span> <span class="k">INSERT</span> <span class="k">OR</span> <span class="k">UPDATE</span> <span class="k">OR</span> <span class="k">DELETE</span>
+  <span class="k">ON</span> <span class="n">employee</span>
+  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">STATEMENT</span>
+  <span class="n">EXCUTE</span> <span class="k">FUNCTION</span> <span class="n">update_avg_empl_salary</span><span class="p">();</span>
+</code></pre></div></div>
+<ul>
+  <li>[MySQL X] 하나 이상의 이벤트가 발생하는 조건에 대해서 트리거를 진행할 수 있습니다.</li>
+  <li>[MySQL X] <code class="language-plaintext highlighter-rouge">FOR EACH ROW</code>와 <code class="language-plaintext highlighter-rouge">FOR EACH STATEMENT</code>의 차이점에 대해서 학습해 보기.</li>
+</ul>
+
+<h2 id="transaction">Transaction</h2>
+<ul>
+  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
+  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
+  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
+  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
+</ul>
+
+<h3 id="특징-acid">특징 (ACID)</h3>
+<ul>
+  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
+  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
+  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
+  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다. (power faile이나 DB crash가 발생하더라도. 이는 DBMS가 보장합니다.)
+    <h4 id="추가">추가</h4>
+  </li>
+  <li>일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
+  <li>Isolation을 엄격하게 구현한다면, DB 서버의 성능에 영향을 주는 요소이기 때문에 여러 종류의 isolationlevel을 제공합니다.</li>
+</ul>
+
+<h3 id="autocommit">Autocommit</h3>
+<ul>
+  <li>각각의 SQL문을 자동으로 transaction 처리하는 개념으로, SQL문이 성공적으로 실행하면 자동으로 commit 합니다. 실패 시, 자동으로 rollback 합니다.</li>
+  <li>MySQL의 경우, autocommit이 기본적으로 활성화되어 있으며, transaction 시작 시 autocommit 기능을 off합니다.</li>
+  <li>autocommit을 off하게 되면, commit을 할 때까지 영구적인 반영이 되는 것은 아니기 때문에, rollback 시 원래 상태로 돌이킬 수 있습니다.</li>
+</ul>
+
+<h3 id="일반적인-사용-패턴">일반적인 사용 패턴</h3>
+<ol>
+  <li>transaction을 시작(begin) 합니다. (autocommit을 off 상태로 변경)</li>
+  <li>데이터를 읽거나 쓰는 등의 SQL 문들을 포함하여 로직을 수행합니다.</li>
+  <li>일련의 과정들이 문제없이 동작했다면 transaction을 commit 합니다.</li>
+  <li>문제가 발생했다면, transaction을 rollback 합니다.</li>
+  <li>commit 및 rollback 후에 autocommit을 on 상태로 변경합니다.</li>
+</ol>
+
+<h2 id="concurrency-control">Concurrency Control</h2>
+<ul>
+  <li>Schedule: 여러 트랜잭션들이 동시에 실행될 때 각 트랜잭션에 속한 operation들의 실행 순서를 의미합니다. 이 때, 각각의 트랜잭션 내의 operation들의 순서는 바뀌지 않습니다.</li>
+  <li>고민거리: 성능 때문에 여러 transaction들을 겹쳐서 실행(nonserial schedule)하면 좋겠지만, 의도치 않은 결과가 발생하는 상황이 생깁니다.</li>
+  <li>해결방법: conflict serializable한 경우에 대해서는 nonserial schedule를 허용합니다.</li>
+  <li>즉, 어떤 스케쥴이라도 serializable하도록 동작하게 만드는 제어기법을 의미합니다.</li>
+</ul>
+
+<h2 id="serializability">Serializability</h2>
+
+<h4 id="serial-schedule">Serial schedule</h4>
+<ul>
+  <li>트랜잭션들이 겹치지 않고 한 번에 하나씩 실행되는 스케쥴을 의미합니다.</li>
+  <li>저장공간에 대해 I/O 작업을 수행하는 동안에 CPU는 쉬고 있지만 serial은 다른 동작을 수행시키지 않으므로 동시성이 없고 좋은 성능을 내지 못합니다.</li>
+</ul>
+
+<h4 id="nonserial-schedule">Nonserial schedule</h4>
+<ul>
+  <li>트랜잭션들이 겹쳐서 실행되는 스케쥴을 의미합니다.</li>
+  <li>I/O 작업 중 다른 트랜잭션을 수행하기 때문에 동시성이 높아져 같은 시간동안 더 많은 트랜잭션을 처리할 수 있습니다.</li>
+  <li>단점: 트랜잭션들이 어떤 형태로 겹쳐서 실행되는지에 따라 결과값이 변경될 우려가 있습니다.</li>
+</ul>
+
+<h4 id="conflict">Conflict</h4>
+<ul>
+  <li>Conflict란, 아래의 세 조건을 만족하는 경우입니다.
+    <ol>
+      <li>두 오퍼레이션이 서로 다른 트랜잭션 소속인 경우</li>
+      <li>두 오퍼레이션이 같은 데이터에 접근하는 경우</li>
+      <li>두 오퍼레이션 중 최소한 하나는 쓰기 오퍼레이션인 경우</li>
+    </ol>
+  </li>
+  <li>두 오퍼레이션 중 하나의 오퍼레이션은 읽는 경우, 다른 하나의 오퍼레이션은 쓰는 경우 발생하는 컨플릭트를 read-write conflict라고 합니다.</li>
+  <li>두 오퍼레이션 모두 쓰는 오퍼레이션이라면 write-write conflict라고 합니다.</li>
+  <li>conflict operation은 순서가 바뀌게 될 때 결과도 바뀝니다.</li>
+  <li>Conflict equivalent란, 아래의 두 조건을 모두 만족하는 경우입니다.
+    <ol>
+      <li>두 스케쥴이 같은 트랜잭션들을 가지는 경우</li>
+      <li>트랜잭션들의 모든 conflicting operation들의 순서가 양쪽 스케쥴 모두 동일한 경우<br />
+(conflicting operation: read-write/write-wr ite conflict)</li>
+    </ol>
+  </li>
+  <li>Serial schedule과 conflict equivalent일 때 Conflict serializable이라고 할 수 있습니다.</li>
+</ul>
+
+<h3 id="conflict-serializable-확인방법-구현">Conflict serializable 확인방법 구현</h3>
+<ul>
+  <li>여러개의 트랜잭션을 동시에 실행하더라도 스케쥴이 conflict serializable 하다는 것이 보장되는 스케줄만 실행되도록 하는 프로토콜을 적용합니다.</li>
+</ul>
+
+<h2 id="unrecoverability">Unrecoverability</h2>
+<ul>
+  <li>스케쥴 내에서 커밋된 트랜잭션(1번)이 “rollback된 트랜잭션(2번)이 수정했던 데이터”를 읽은 경우를 의미합니다. 즉, 1번 트랜잭션은 유효하지 않은 2번 트랜잭션의 데이터에 작업을 하게된 경우입니다. -&gt; unrecoverable schedule</li>
+  <li>위의 상황에서, rollback을 하더라도 이전 상태로 회복 불가능하기 때문에, 이런 스케줄은 DBMS에서 허용하면 안됩니다.</li>
+</ul>
+
+<h4 id="recoverable한-스케쥴">Recoverable한 스케쥴</h4>
+<ul>
+  <li>스케쥴 내에서 그 어떤 트랜잭션도 자신이 읽은 데이터를 수정한 트랜잭션이 먼저 커밋/롤백 되기 전까지 커밋하지 않는 경우에 recoverable한 스케쥴이라 할 수 있습니다.</li>
+  <li>트랜잭션 간에 의존성이 있는 경우, 의존하는 트랜잭션은</li>
+</ul>
+
+<h2 id="isolation-level-격리수준">Isolation Level (격리수준)</h2>
+<p><strong>Read Uncommitted (Level 0)</strong></p>
+<ul>
+  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
+  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
+  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
+</ul>
+
+<p><strong>Read Committed (Level 1)</strong></p>
+<ul>
+  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
+  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
+  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
+</ul>
+
+<p><strong>Repeatable Read (Level 2)</strong></p>
+<ul>
+  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
+  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
+(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
+  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
+  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
+  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
+  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
+</ul>
+
+<p><strong>Serializable (Level 3)</strong></p>
+<ul>
+  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
+  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
+  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
+</ul>
+
+<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
+
+<p><strong>Dirty Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Uncommitted</li>
+  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
+  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
+</ul>
+
+<p><strong>Non-Repeatable Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
+  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
+</ul>
+
+<p><strong>Phantom Read</strong></p>
+<ul>
+  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
+  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
+  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
+</ul>
+
+<h3 id="dbms의-구조">DBMS의 구조</h3>
+<ul>
+  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
+  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
+  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
+</ul>
+
+<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
+<ul>
+  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
+  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
+</ul>
+
+<h3 id="undo">UNDO</h3>
+<ul>
+  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
+  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="redo">REDO</h3>
+<ul>
+  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
+  <li>Buffer 관리 정책에 영향을 받습니다.</li>
+</ul>
+
+<h3 id="참고자료">참고자료</h3>
+<ul>
+  <li><a href="https://youtu.be/mEeGf4ZWQKI?si=cTzyiw9E9bCI4DFS">쉬운코드님 trigger 강의</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL Trigger 데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다. INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능) 애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다. 트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Sync, Async</title><link href="http://localhost:4000/study/study-cs-os-sync-async/" rel="alternate" type="text/html" title="[Study] Operating System - Sync, Async" /><published>2023-09-07T00:05:07+09:00</published><updated>2023-09-07T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-sync-async</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-sync-async/"><![CDATA[<h3 id="race-condition">Race condition</h3>
+<ul>
+  <li>여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다.</li>
+  <li>동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다.</li>
+  <li>critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
+  entry section <span class="c"># critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간</span>
+    critical section
+  <span class="nb">exit </span>section <span class="c"># 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간</span>
+    remainder section
+<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>True<span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다.</li>
+  <li>critical section problem의 해결책을 위한 조건은 다음과 같습니다.
+    <ol>
+      <li>mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다.</li>
+      <li>progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다.</li>
+      <li>bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="lock">Lock</h3>
+<ul>
+  <li>mutual exclusion을 보장하도록 하는 방법입니다.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
+  acquire lock
+    critical section
+  release lock
+    remainder section
+<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>TRUE<span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>atomic 명령어: 실행 중간에 간섭받거나 중단되지 않으며, 같은 메모리 영역에 대해 동시에 실행되지 않습니다. 이는, CPU 내부에서 함수를 동작시키는 원리입니다.</li>
+  <li>mutual exclusion만 사용한다면 뮤텍스를, 작업 간의 실행 순서에 대한 동기화가 필요하다면 세마포어 사용을 권장합니다.</li>
+</ul>
+
+<p><strong>Spin lock</strong></p>
+<ul>
+  <li>무한루프(while True)를 사용해서 lock을 획득할 떄까지 기다리는 방식입니다.</li>
+  <li>기다리는 동안 CPU를 낭비하게 되는 단점이 있습니다. 다른 작업을 위해 사용해야하는 CPU를 락을 확인하는데 사용하고 있기 때문입니다.</li>
+  <li>멀티코어 환경이고, critical section에서의 작업이 컨텍스트 스위칭보다 더 빨리 끝나면 스핀락이 뮤텍스보다 이점을 갖습니다.</li>
+</ul>
+
+<p><strong>Mutex</strong></p>
+<ul>
+  <li>뮤텍스의 기본 원리는 아래와 같습니다. 락을 가질 수 있을 때까지 휴식을 취하다가 락을 쥐면 그때 깨어나서 critical section에 진입합니다.
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">lock</span><span class="p">();</span>
+<span class="p">...</span> <span class="n">critical</span> <span class="n">section</span>
+<span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">unlock</span><span class="p">();</span>
+
+<span class="c1">//---</span>
+
+<span class="k">class</span> <span class="nc">Mutex</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Mutex</span><span class="o">::</span><span class="n">lock</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Mutex</span><span class="o">::</span><span class="n">unlock</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="n">lock</span><span class="err">을</span> <span class="err">해제</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="p">}</span>
+  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>Point1. 스레드들은 lock을 갖기 위해 경합을 하며, <code class="language-plaintext highlighter-rouge">value</code>가 0인 경우, 무한루프를 돌리지 않고, 스레드를 큐에 넣는 작업을 합니다.</li>
+      <li>Point2. CPU 레벨에서 지원하는 atomic 명령어인 <code class="language-plaintext highlighter-rouge">test_and_set</code>을 사용하여 작업합니다.</li>
+    </ul>
+  </li>
+  <li>priority inheritance 속성을 가집니다. 따라서, 스케쥴러가 스케쥴링을 할 때 우선순위를 조정하여 critical section을 빠져나오도록 할 수 있습니다. (세마포어는 이런 동작 불가능)</li>
+</ul>
+
+<p><strong>Semaphore</strong></p>
+<ul>
+  <li>signal mechanism을 가진 하나 이상의 프로세스/스레드가 critical section에 접근 가능한 장치입니다.
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//---</span>
+
+<span class="k">class</span> <span class="nc">Semaphore</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Semaphore</span><span class="o">::</span><span class="n">wait</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Semaphore</span><span class="o">::</span><span class="n">signal</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span> <span class="err">그</span> <span class="err">중</span> <span class="err">하나를</span> <span class="err">깨워서</span> <span class="err">작업을</span> <span class="err">위한</span> <span class="err">준비를</span> <span class="err">진행시키기</span><span class="p">;</span>
+    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+  <span class="p">}</span>
+  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">value</code>를 0과 1만 가지는 경우에는 바이너리 세마포어, 1외에 값을 가질 수 있는 경우는 카운팅 세마포어라고 합니다.</li>
+      <li><code class="language-plaintext highlighter-rouge">value</code>가 1 외에도 여러값을 가져서, critical section에 하나 이상의 프로세스/스레드가 접근하여 작업이 가능하도록 합니다.</li>
+    </ul>
+  </li>
+  <li>세마포어는 순서를 정해줄 때 사용할 수 있습니다. 예를 들어 task의 진행 방식이 아래와 같다고 생각해봅시다. (signal mechanism을 가짐)
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>task1 <span class="o">{</span>
+  semaphore-&gt;signal<span class="o">()</span>
+<span class="o">}</span>
+
+task2
+semaphore-&gt;wait<span class="o">()</span>
+task3
+</code></pre></div>    </div>
+    <ul>
+      <li>task3를 실행하기 위해, task2가 끝나고 task3을 수행하려면, task1을 먼저 수행하여 <code class="language-plaintext highlighter-rouge">signal</code>을 얻어 와야합니다.</li>
+    </ul>
+  </li>
+  <li>위 예시와 같이 <code class="language-plaintext highlighter-rouge">wait()</code>와 <code class="language-plaintext highlighter-rouge">signal()</code>이 반드시 같은 프로세스나 스레드 안에서 실행될 필요가 없다는 특징이 있습니다.</li>
+  <li>뮤텍스는 락을 가진 프로세스/스레드만 락을 해제할 수 있지만, 세마포어는 <code class="language-plaintext highlighter-rouge">wait</code>를 하는 프로세스와 <code class="language-plaintext highlighter-rouge">signal</code>을 날리는 프로세스가 달라도 됩니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<ul>
+  <li><a href="https://youtu.be/vp0Gckz3z64?si=diBWEAzKVzTrjK9u">쉬운코드님 운영체제 - 동기화의 목적</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Race condition 여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다. 동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다. critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다. do { entry section # critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간 critical section exit section # 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간 remainder section } while (True) 하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다. critical section problem의 해결책을 위한 조건은 다음과 같습니다. mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다. progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다. bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread, System call</title><link href="http://localhost:4000/study/study-cs-os-process-thread-new/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread, System call" /><published>2023-09-07T00:05:07+09:00</published><updated>2023-09-07T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread-new</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread-new/"><![CDATA[<h2 id="컴퓨터의-구조-코어와-스레드">컴퓨터의 구조 (코어와 스레드)</h2>
+<ul>
+  <li>OS kernel은 사용자 프로그램과 Memory, CPU, Device를 다루는 연결고리 역할을 합니다.</li>
+</ul>
+
+<h3 id="코어와-스레드">코어와 스레드</h3>
+<ul>
+  <li>코어는 코어 자체의 연산작업에 비해, 메모리에서 데이터를 기다리는 시간이 오래 걸립니다. 이는 결국 코어의 자원 낭비로 이어집니다.</li>
+  <li>Q. OS 스레드 여덟 개를 하이퍼 스레딩이 적용된 인텔 듀얼코드 위에서 동작시키려면 OS 스레드들을 어떻게 코어에 균등하게 할 수 있을까요? 라는 질문의 답을 찾을 수 있습니다.</li>
+</ul>
+
+<h3 id="하드웨어-스레드">하드웨어 스레드</h3>
+<ul>
+  <li>메모리에서 데이터를 기다리는 중에도 계속해서 작업을 하고자 합니다. 따라서 병렬적인 작업을 실행하기 위한 처리, 즉 하드웨어 스레드 개념이 등장합니다.<br />
+(인텔은 이를 Hyper-threading이라고 명명하였으며, 물리적인 코어마다 하드웨어 스레드가 두 개인 경우를 의미합니다.)</li>
+  <li>Hardware thread는 OS 관점에서 볼 때는 가상의(logical) <code class="language-plaintext highlighter-rouge">코어</code>입니다. 따라서, 싱글 코어 CPU에서 하드웨어 스레드가 두 개라면 OS는 CPU를 듀얼코어로 인식합니다. 이에 맞춰 OS 레벨의 스레드들을 스케줄링합니다.</li>
+</ul>
+
+<h3 id="os-스레드">OS 스레드</h3>
+<ul>
+  <li>일반적으로 알고 있는 스레드 개념으로, OS 커널 레벨에서 생성되고 관리되는 스레드입니다.</li>
+  <li>네이티브 스레드, 커널 스레드, 커널-레벨 스레드, OS-레벨 스레드로 불리기도 합니다.</li>
+  <li>CPU에서 실제로 실행되는 단위이며 CPU 스케줄링의 단위가 OS 스레드입니다.</li>
+  <li>OS 스레드의 컨텍스트 스위칭은 커널이 주도적으로 진행합니다. [유저모드 -&gt; 커널모드] -&gt; 커널코드 CPU에서 실행(CPU 리소스 사용) -&gt; [커널모드 -&gt; 유저모드]</li>
+  <li>System call 유저모드는 System call을 통해 커널 모드로 진입하고, 커널코드를 실행시킬 수 있게 됩니다. 사용자 코드와 커널코드 모두 OS 스레드에서 실행됩니다. ㅎ</li>
+  <li>A. OS는 가상의 코어를 4개라고 생각하기 때문에 각각의 코어의 OS 스레드를 2개씩 사용하여 8개의 스레드를 균등하게 배치할 수 있습니다.</li>
+</ul>
+
+<h3 id="user-thread">User Thread</h3>
+<ul>
+  <li>유저-레벨 스레드라고 불리며, 스레드 개념을 프로그래밍 레벨에서 추상화한 것을 의미합니다. OS와는 독립적으로 유저레벨에서 스케줄링되는 스레드입니다.</li>
+  <li>유저 스레드가 CPU에서 실행되려면 OS 스레드와 반드시 연결돼야 합니다.</li>
+  <li>Java에서 <code class="language-plaintext highlighter-rouge">Thread.start()</code>라는 코드를 통해 OS의 system call의 clone(리눅스의 경우)이라는 호출되고 OS level의 thread를 생성하여 연결됩니다.</li>
+  <li>유저 스레드와 OS 스레드를 어떻게 연결시킬 것인가?</li>
+</ul>
+
+<p><strong>One-to-One Model</strong></p>
+<ul>
+  <li>시스템 콜을 통해 유저 스레드와 OS 레벨의 스레드를 1:1로 연결되는 모델로, 스케쥴링을 포함한 스레드 관리를 OS에 위임합니다.</li>
+  <li>따라서, 커널 레벨에서 스레드가 아닌 코어를 할당하는 경우에도 같은 방식으로 작업이 진행됩니다.</li>
+  <li>한 스레드가 블락되어도 다른 스레드는 잘 동작합니다.</li>
+  <li>실행 방법에 따라 race condition이 발생할 확률이 높습니다.</li>
+</ul>
+
+<p><strong>Many-to-One Model</strong></p>
+<ul>
+  <li>여러 유저-레벨 스레드가 하나의 OS 스레드와 연결되는 경우입니다.</li>
+  <li>커널이 개입하지 않기 때문에 유저 스레드 간 context switching 속도가 빠릅니다.</li>
+  <li>배정되는 OS 스레드가 하나이기 때문에 멀티코어를 활용할 수 없습니다.</li>
+  <li>한 스레드가 블락될 때 모든 스레드가 블락됩니다. (-&gt; non block I/O를 사용하기 됨)</li>
+  <li>race condition이 발생할 확률이 낮습니다.</li>
+</ul>
+
+<p><strong>Many-toMany Model</strong></p>
+<ul>
+  <li>위의 두 모델의 장점을 합쳐 사용하는 경우입니다.</li>
+  <li>유저 스레드 간에 스위칭이 빠르면서 멀티 코어를 활용하게 되고, 하나의 OS 스레드가 블락되더라도 다른 스레드를 사용할 수 있습니다.</li>
+  <li>하지만 구현이 어렵다는 단점이 있습니다.</li>
+</ul>
+
+<h3 id="green-thread">Green Thread</h3>
+<ul>
+  <li>과거에는 자바의 초창기 스레딩 모델의 초창기 스레드 모델로, Many-to-One 모델의 스레드를 의미합니다.</li>
+  <li>현재는 OS와는 독립적으로 유저 레벨에서 스케쥴링되는 스레드로, Many-to-One, Many-to-Many 모델을 사용하는 유저 스레드를 의미합니다.</li>
+</ul>
+
+<h3 id="kernel-thread">Kernel Thread</h3>
+<ul>
+  <li>OS 커널의 역할을 수행하는 스레드를 의미하기도 하지만, 커널 코드(시스템콜)를 실제로 실행하는 OS 커널의 역할을 담당하는 스레드로 해석할 수도 있습니다.</li>
+</ul>
+
+<h2 id="thread-pool">Thread Pool</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Thread per request model</code>: 하나의 쓰레드가 하나의 리퀘스트를 사용하는 방식입니다. 만약, 이 모델에서 요청마다 스레드를 새로 만들어서 처리하고 처리가 끝난 스레드는 버리는 식으로 동작한다면? 스레드 생성에 소요되는 시간 때문에 요청 처리가 오래 걸릴 것입니다.</li>
+  <li>처리 속도보다 빠르게 요청이 늘어나는 경우, 스레드 수 증가에 따른 컨텍스트 스위칭 빈도 급증, CPU 오버헤드 증가와 같은 문제가 발생할 수 있습니다.</li>
+  <li>위의 문제들을 해결하기 위해 스레드 풀이라는 개념이 등장합니다. 정해진 개수만큼의 스레드를 미리 생성하고, 들어오는 요청들을 서버 내부에서 관리하게 됩니다. (제한된 개수의 스레드를 운용하므로써 무제한으로 스레드가 생성되는 것을 방지합니다.)</li>
+  <li>사용하는 경우
+    <ul>
+      <li>thread per request 모델의 task를 subtask로 나누어 동시에 처리하고 싶은 경우</li>
+      <li>순서에 상관없이 동시 실행이 가능한 task를 처리하는 경우</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="사용시-고려사항">사용시 고려사항</h3>
+<p><strong>몇 개의 스레드를 만드는 것이 적절할까?</strong></p>
+<ul>
+  <li>CPU 코어 개수와 task의 성향(CPU-bound / I/O-bound)에 따라 다릅니다.
+    <ul>
+      <li>CPU-bound task의 경우: 코어 개수만큼 혹은 그보다 몇 개 더 많은 정도
+코어개수보다 스레드를 아무리 만들어도 CPU 작업을 주로 하기 때문에 별로 의미가 없습니다. (CPU-bound: cpu를 많이 사용하는 태스크)</li>
+      <li>I/O-bound task의 경우: 코어개수의 몇 배가 적당할지를 경험적으로 찾아야 합니다.</li>
+    </ul>
+  </li>
+  <li>스레드 풀에서 실행될 task의 개수에 제한이 없다면, 스레드 풀 큐의 사이즈가 제한이 있는지 확인해야합니다.
+    <ul>
+      <li>만약, 제한이 없다면 큐에 계속해서 요청이 쌓일 것이고 이를 모두 해결할 수 없기 때문에 전체 시스템이 망가지는 경우가 발생할 수 있습니다.</li>
+      <li>따라서, 제한을 두어 몇 개의 요청은 버리더라도 전체 시스템을 안전하게 하는 식으로 처리합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="pool">Pool</h3>
+<ul>
+  <li>Thread Pool 외에도 Connection Pool, Process Pool이 있습니다.</li>
+  <li>특히 파이썬에서는, Global Interpreter Lock이라는 개념 때문에, 동시에 여러 개의 쓰레드가 CPU에서는 실행될 수 없기 때문에 Process Pool을 사용해야 합니다.</li>
+</ul>
+
+<h2 id="유저모드-커널모드">유저모드, 커널모드</h2>
+<ul>
+  <li>우리가 개발하는 프로그램은 유저모드에서 실행됩니다.</li>
+  <li>프로그램 실행 중, 인터럽트(interrupt)나 시스템 콜(system call)이 발생하면 커널모드에 진입합니다.</li>
+  <li>커널모드로 진입 시, 다시 유저모드로 돌아와 작업할 수 있도록 하기 위해, 프로그램의 현재 CPU의 상태를 저장하는 작업도 함께 수행합니다.</li>
+  <li>커널 모드에서는 커널이 인터럽트나 시스템 콜을 직접 처리합니다. 모든 처리가 완료되면 중단되었던 프로그램의 CPU 상태를 복원하고, 유저 모드에 실행권을 넘깁니다.</li>
+</ul>
+
+<h3 id="커널">커널</h3>
+<ul>
+  <li>운영체제의 핵심으로, 시스템의 전반을 관리/감독하는 역할을 합니다.</li>
+  <li>하드웨어(device)와 관련된 작업을 직접 수행합니다.</li>
+  <li>유저와 하드웨어 사이에서 안정적으로 시스템을 사용하도록 제어하기 위해 존재합니다.</li>
+</ul>
+
+<h3 id="인터럽트">인터럽트</h3>
+<ul>
+  <li>시스템에서 발생한 다양한 종류의 이벤트 혹은 이벤트를 알리는 메커니즘</li>
+  <li>전원에 발생한 문제, I/O 작업 완료 시, timer가 측정하는 시간이 만료될 때 등의 종류가 있습니다.</li>
+  <li>0으로 나누어질 때, 잘못된 메모리 공간에 접근을 시도할 때 -&gt; 프로그램 레벨에서 발생하는 인터럽트로, 보통 트랩이라고 불립니다.</li>
+  <li>인터럽트 발생 시, CPU에서는 즉각적으로 커널코드를 커널 모드에서 실행합니다.</li>
+</ul>
+
+<h3 id="시스템콜">시스템콜</h3>
+<ul>
+  <li>프로그램이 OS 커널이 제공하는 서비스를 이용하고자 할 때 사용하는 기능입니다.</li>
+  <li>프로세스/스레드 제어(생성/삭제) 관련, 파일 I/O 관련, 소켓 관련, 장치(device) 관련(키보드 인풋 등), 프로세스 통신 관련 등의 종류가 있습니다.</li>
+</ul>
+
+<h2 id="컨텍스트-스위칭">컨텍스트 스위칭</h2>
+<ul>
+  <li>CPU/코어에서 실행 중이던 프로세스가 다른 프로세스로, 스레드가 다른 스레드로 교체되는 것을 의미하며, 여러 프로그램을 동시에 실행시키기 위해 필요합니다.</li>
+  <li>컨텍스트란 무엇인가? 프로세스 혹은 스레드의 상태로, CPU(레지스터들)나 메모리의 상태입니다.</li>
+  <li>컨텍스트 스위칭은 언제 발생할까?
+    <ul>
+      <li>주어진 time slice(quantum)를 다 사용한 경우</li>
+      <li>I/O 작업을 해야 하는 경우</li>
+      <li>다른 리소스를 기다리는 경우</li>
+    </ul>
+  </li>
+  <li>OS 커널(각종 리소스를 관리 및 감독하는 역할을 함)에 의해 컨텍스트 스위칭은 실행됩니다. (통제권을 커널이 가짐)</li>
+  <li>프로세스 컨텍스트 스위칭과 스레드 컨텍스트 스위칭 두 종류가 있습니다. 둘 다 커널모드에서 실행되며, CPU의 레지스터 상태(프로그램이 어디까지 실행되었는지에 대한 정보를 저장)를 교체한다는 공통점이 있습니다.</li>
+  <li>컨텍스트 스위칭이 미치는 간접적인 영향은 캐시가 오염된다는 것입니다. 일반적으로 프로그램이 실행되면, 메모리에 자주 접근하는 것을 피하기 위해 캐시를 사용하는데, 컨텍스트 스위칭 발생시 캐시에 있는 값이 오염될 수 있습니다.</li>
+  <li>따라서, 몇몇 CPU 아키텍처는 프로세스 컨텍스트 스위칭이 발생할 때 캐시까지 비우기도 합니다.</li>
+</ul>
+
+<h3 id="프로세스-컨텍스트-스위칭">프로세스 컨텍스트 스위칭</h3>
+<ul>
+  <li>멀티 프로세스 작업의 경우, 서로 다른 프로그램이 서로 다른 메모리 주소를 가지므로, 가상 메모리 주소 체계가 다릅니다.</li>
+  <li>따라서 가상 메모리 주소 관련 처리를 추가적으로 수행하기 때문에 쓰레드 컨텍스트 스위칭보다 느립니다. (참고: MMV, TLB를 비워줘야 함)</li>
+</ul>
+
+<h2 id="cpu-bound-io-bound">CPU bound, I/O bound</h2>
+<ul>
+  <li>CPU: 프로세스의 명령어를 해석하고 실행하는 장치입니다.</li>
+  <li>IO: 파일을 읽고 쓰거나 네트워크의 어딘가에 있는 데이터를 주고받거나, 입출력 장치와 데이터를 주고받는 것을 의미합니다.</li>
+  <li>버스트: 버스트란 어떤 현상이 짧은 시간 안에 집중적으로 일어나는 것입니다.</li>
+  <li>CPU 버스트: 메모리에 올라가 있는 프로세스가 자신의 차례가 되어 CPU에서 실행되었을 때, 자신의 명령어가 CPU에서 한 번에 연속적으로 실행되는 시간을 의미합니다.</li>
+  <li>I/O 버스트: 프로세스가 I/O 작업을 요청하고 그 결과를 기다리는 시간을 의미합니다.</li>
+  <li>따라서, 프로세스는 CPU 버스트와 I/O 버스트의 연속적인 과정으로 볼 수 있습니다.</li>
+</ul>
+
+<h3 id="cpu-bound-프로세스">CPU bound 프로세스</h3>
+<ul>
+  <li>CPU 버스트가 많은 프로세스를 의미합니다.</li>
+  <li>CPU 버스트가 많은 프로세스
+    <ul>
+      <li>동영상 편집 프로그램</li>
+      <li>머신러닝 프로그램: 연산작업이 많기 때문에, CPU도 부족하여 GPU를 활용한 병렬처리 작업을 수행합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="io-bound-프로세스">I/O bound 프로세스</h3>
+<ul>
+  <li>I/O 버스트가 많은 프로세스를 의미합니다.</li>
+  <li>일반적인 백엔드 API 서버로, HTTP request를 받으면 DB 서버나 캐시 서버에 데이터를 요청하여 요청 데이터를 받은 후, 이를 가공하여 응답합니다.</li>
+  <li>DB 서버 및 캐시 서버를 요청하는 작업이 I/O 작업입니다. 이는 CPU에서 명령을 수십 개 처리하는 것보다 시간이 오래 걸립니다.</li>
+</ul>
+
+<h3 id="적당한-코어-및-스레드-할당량">적당한 코어 및 스레드 할당량</h3>
+<ul>
+  <li>컨텍스트 스위칭과 연관이 있습니다. 스레드를 많이 만든다고 무조건 좋은 것이 아닙니다. 어떤 바운드이냐에 따라 전략을 다르게 가져가야 합니다.</li>
+  <li>CPU bound 프로그램에서 적절한 스레드 수는 CPU의 수 + 1입니다. (Goetz)</li>
+  <li>API 서버가 thread per request 방식이라면 스레드의 수를 미리 정해야 하는데, 이때 여러 상황을 고려하여 그 개수를 결정하는 것이 필요합니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<ul>
+  <li><a href="https://youtu.be/vorIqiLM7jc?si=Dg18EAWVIsaatwHc">쉬운코드님 운영체제 - 스레드 종류</a></li>
+  <li><a href="https://youtu.be/B4Of4UgLfWc?si=o8eit1DoM0_S-IRe">쉬운코드님 운영체제 - 스레드풀</a></li>
+  <li><a href="https://youtu.be/Xh9Nt7y07FE?si=OtGfc4S82qOJ2U2d">쉬운코드님 운영체제 - 컨텍스트 스위칭</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[컴퓨터의 구조 (코어와 스레드) OS kernel은 사용자 프로그램과 Memory, CPU, Device를 다루는 연결고리 역할을 합니다.]]></summary></entry><entry><title type="html">[Django] DRF에서 Viewset은 어떻게 사용할까?</title><link href="http://localhost:4000/strategy/django-strategy-view/" rel="alternate" type="text/html" title="[Django] DRF에서 Viewset은 어떻게 사용할까?" /><published>2023-08-29T00:05:07+09:00</published><updated>2023-08-29T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-view</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-view/"><![CDATA[<h2 id="글을-작성하는-이유">글을 작성하는 이유</h2>
 <ul>
   <li>Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다.</li>
   <li>프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다.</li>
@@ -251,7 +1099,66 @@
 <h3 id="참고">참고</h3>
 <ul>
   <li><a href="https://velog.io/@mynghn/%EC%A0%9C%EB%84%A4%EB%A6%AD-%EB%B7%B0%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-API-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0">mynghn님 블로그</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까? (query count 포함)</title><link href="http://localhost:4000/strategy/django-strategy-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까? (query count 포함)" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-test</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-test/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하는 이유 Django의 ViewSet은 유저의 요청에 알맞은 반환값을 반환하도록 동작합니다. 프레임워크 내부적으로 중복되는 부분을 최소화시키기 위해 웬만한 기능들이 구현되어 있기 때문에, 상황에 맞는 기능을 찾아서 적절히 사용하는 것이 중요합니다. 따라서, ViewSet을 작성하는데 있어, 필수적인 기능과 유용한 기능들을 정리해 보고 상황에 맞게 참고하여 사용하기 위해 글을 작성합니다.]]></summary></entry><entry><title type="html">[Django] permissions</title><link href="http://localhost:4000/strategy/study-django-strategy-permissions/" rel="alternate" type="text/html" title="[Django] permissions" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/strategy/study-django-strategy-permissions</id><content type="html" xml:base="http://localhost:4000/strategy/study-django-strategy-permissions/"><![CDATA[<h3 id="글을-작성한-계기">글을 작성한 계기</h3>
+<ul>
+  <li>최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다.</li>
+  <li>ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다.</li>
+  <li>아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.</li>
+</ul>
+
+<h2 id="django-permissions">Django Permissions</h2>
+<ul>
+  <li>ModelViewSet등 APIView 기반의 뷰를 사용하기 위해 권한이 있는 사용자만 사용할 수 있도록 제한해야하는 경우가 있습니다.</li>
+</ul>
+
+<h3 id="기본적인-형태">기본적인 형태</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">UserViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="p">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">UserSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
+    <span class="c1"># permission_classes = [IsAccountAdminOrReadOnly]
+</span>
+    <span class="k">def</span> <span class="nf">get_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="sh">'</span><span class="s">list</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAuthenticated</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAdminUser</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nf">permission</span><span class="p">()</span> <span class="k">for</span> <span class="n">permission</span> <span class="ow">in</span> <span class="n">permission_classes</span><span class="p">]</span>
+</code></pre></div></div>
+<ul>
+  <li>ViewSet 내의 모든 메서드에 공통적인 Permission Class를 적용하기 위해서는 ViewSet의 클래스 변수로 처리합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">permission_classes</code>에 custom permission 클래스들을 추가하여 원하는 권한에 해당하는 사용자만 메서드를 이용할 수 있도록 전처리할 수 있습니다.</li>
+  <li>이 때, ViewSet의 클래스 메서드인 <code class="language-plaintext highlighter-rouge">get_queryset</code>는 필수적입니다.</li>
+  <li>method에 따라 적용하는 권한이 변경된다면, <code class="language-plaintext highlighter-rouge">get_permissions</code> 메서드를 이용합니다.</li>
+</ul>
+
+<h3 id="custom-permission-class">Custom Permission Class</h3>
+<ul>
+  <li>DRF에서 제공하는 <code class="language-plaintext highlighter-rouge">BasePermission</code>를 상속받는 커스텀 Permission은 아래와 같은 형태를 가지며, <code class="language-plaintext highlighter-rouge">has_permission</code> 또는 <code class="language-plaintext highlighter-rouge">has_object_permission</code>를 override하여 사용합니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">BasePermission</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">BasePermissionMetaclass</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="bp">True</span>
+
+      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+          <span class="k">return</span> <span class="bp">True</span>
+
+  <span class="n">SAFE_METHODS</span> <span class="o">=</span> <span class="p">(</span><span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">HEAD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">OPTIONS</span><span class="sh">'</span><span class="p">)</span>
+  <span class="k">class</span> <span class="nc">ReadOnly</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+
+  <span class="k">class</span> <span class="nc">IsOwner</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+
+      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">obj</span><span class="p">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">request</span><span class="p">.</span><span class="n">user</span>
+</code></pre></div>    </div>
+  </li>
+  <li>권한이 있으면 True를, 아니면 False를 반환하도록 설계합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">has_object_permission</code>는 <code class="language-plaintext highlighter-rouge">has_permission</code> 검사를 통과한 이 후에 실행됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 상속받는 <code class="language-plaintext highlighter-rouge">GenericAPIView</code>에 <code class="language-plaintext highlighter-rouge">get_object</code> 메서드 내부에 <code class="language-plaintext highlighter-rouge">self.check_object_permissions</code>는 해당 object가 지정해둔 permission에 따라 권한을 갖는지를 판단합니다.</li>
+  <li>Django의 mixins 모듈을 살펴보면, <code class="language-plaintext highlighter-rouge">get_object</code> 메서드를 사용하는 믹스인은 detail 관련 <code class="language-plaintext highlighter-rouge">Retrieve</code>(조회), <code class="language-plaintext highlighter-rouge">Update</code>(수정), <code class="language-plaintext highlighter-rouge">Destroy</code>(삭제) 모듈에서 사용하게 되며, 이 때 object-level Permission을 확인합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까? (query count 포함)</title><link href="http://localhost:4000/strategy/django-strategy-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까? (query count 포함)" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-test</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-test/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
 <ul>
   <li>테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다.</li>
   <li>서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 <code class="language-plaintext highlighter-rouge">python3 manage.py test ~</code> 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다.</li>
@@ -389,66 +1296,235 @@
 </code></pre></div>    </div>
   </li>
   <li><code class="language-plaintext highlighter-rouge">self.serializer_test</code>의 결과로 반환되는 serializer의 내용들을 활용하여 테스트합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다. 구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.]]></summary></entry><entry><title type="html">[Django] permissions</title><link href="http://localhost:4000/strategy/study-django-strategy-permissions/" rel="alternate" type="text/html" title="[Django] permissions" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/strategy/study-django-strategy-permissions</id><content type="html" xml:base="http://localhost:4000/strategy/study-django-strategy-permissions/"><![CDATA[<h3 id="글을-작성한-계기">글을 작성한 계기</h3>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다. 구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.]]></summary></entry><entry><title type="html">[Study] Network - TCP</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - TCP" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="tcp-통신이란">TCP 통신이란?</h3>
 <ul>
-  <li>최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다.</li>
-  <li>ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다.</li>
-  <li>아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.</li>
+  <li>네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다.</li>
+  <li>unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다.</li>
+  <li>network congetion avoidance algorithm을 사용합니다.</li>
 </ul>
 
-<h2 id="django-permissions">Django Permissions</h2>
+<p><strong>reliable network를 보장한다? 아래 문제들을 해결하는 것</strong></p>
 <ul>
-  <li>ModelViewSet등 APIView 기반의 뷰를 사용하기 위해 권한이 있는 사용자만 사용할 수 있도록 제한해야하는 경우가 있습니다.</li>
+  <li>packet이 손실될 수 있는 문제</li>
+  <li>packet의 순서가 바뀌는 문제</li>
+  <li>네트워크가 혼잡하게(congestion) 되는 문제</li>
+  <li>receiver가 과부화(overload) 되는 문제</li>
 </ul>
 
-<h3 id="기본적인-형태">기본적인 형태</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">UserViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="p">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">UserSerializer</span>
-    <span class="n">queryset</span> <span class="o">=</span> <span class="n">User</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">all</span><span class="p">()</span>
-    <span class="c1"># permission_classes = [IsAccountAdminOrReadOnly]
-</span>
-    <span class="k">def</span> <span class="nf">get_permissions</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="sh">'</span><span class="s">list</span><span class="sh">'</span><span class="p">:</span>
-            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAuthenticated</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsAdminUser</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="nf">permission</span><span class="p">()</span> <span class="k">for</span> <span class="n">permission</span> <span class="ow">in</span> <span class="n">permission_classes</span><span class="p">]</span>
-</code></pre></div></div>
+<h3 id="흐름제어">흐름제어</h3>
 <ul>
-  <li>ViewSet 내의 모든 메서드에 공통적인 Permission Class를 적용하기 위해서는 ViewSet의 클래스 변수로 처리합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">permission_classes</code>에 custom permission 클래스들을 추가하여 원하는 권한에 해당하는 사용자만 메서드를 이용할 수 있도록 전처리할 수 있습니다.</li>
-  <li>이 때, ViewSet의 클래스 메서드인 <code class="language-plaintext highlighter-rouge">get_queryset</code>는 필수적입니다.</li>
-  <li>method에 따라 적용하는 권한이 변경된다면, <code class="language-plaintext highlighter-rouge">get_permissions</code> 메서드를 이용합니다.</li>
+  <li>송신측과 수신측의 데이터 처리 속도 차이를 해결하는 것</li>
+  <li>송신측이 수신측보다 데이터 처리 속도가 빠르게 되면 문제가 발생합니다.</li>
+  <li>수신측에서 제한된 저장 용량을 초과한 이후에 도착하는 데이터(packet)는 손실될 수 있습니다. 이를 위해 송신 측의 데이터 전송량을 조절해야 합니다.</li>
+  <li>receiver가 sender에게 상태를 feedback 합니다.</li>
 </ul>
 
-<h3 id="custom-permission-class">Custom Permission Class</h3>
+<p><strong>전송의 전체 과정</strong></p>
+<ol>
+  <li>Application Layer에서 데이터 전송 시, sender의 애플리케이션은 소켓에 데이터를 씁니다.</li>
+  <li>이 데이터는 Transport Layer로 전달되어 세그먼트(Segment)라는 단위로 나뉩니다.</li>
+  <li>전송 계층은 이 세그먼트를 Network Layer에 넘깁니다.</li>
+  <li>전송된 데이터는 수신자 쪽으로 전달되고 수신자는 수신 버퍼에 데이터를 저장합니다.<br />
+(이때, 수신자 쪽에서는 수신 버퍼의 용량을 넘치지 않도록 조절해야 합니다.)</li>
+  <li>수신자 쪽에서는 자신의 수신 버퍼의 남은 용량을 송신자에게 알려주는데, 이를 수신 윈도우(receive window)라고 합니다.</li>
+  <li>송신자는 수신자의 수신 윈도우를 확인하여 수신자의 수신 버퍼 용량을 초과하지 않도록 데이터를 전송합니다.</li>
+  <li>데이터 전송 중에 수신 버퍼가 넘치는 현상을 방지하면서, 안정적인 데이터 전송을 보장하며, 이를 흐름제어(Flow Control)이라고 합니다.</li>
+</ol>
+
+<p><strong>해결방법</strong></p>
 <ul>
-  <li>DRF에서 제공하는 <code class="language-plaintext highlighter-rouge">BasePermission</code>를 상속받는 커스텀 Permission은 아래와 같은 형태를 가지며, <code class="language-plaintext highlighter-rouge">has_permission</code> 또는 <code class="language-plaintext highlighter-rouge">has_object_permission</code>를 override하여 사용합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">BasePermission</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">BasePermissionMetaclass</span><span class="p">):</span>
-      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
-          <span class="k">return</span> <span class="bp">True</span>
+  <li>Stop and Wait: 매번 전송한 패킷에 대해 확인 응답을 받은 후에만 그다음 패킷을 전송하는 방법입니다.</li>
+  <li>Sliding Window(Go Back N ARQ): 수신측에서 설정한 윈도우 크기만큼 송신측에서 확인/응답 없이 세그먼트를 전송할 수 있도록 데이터 흐름을 동적으로 조절하는 제어 방법입니다.</li>
+</ul>
 
-      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-          <span class="k">return</span> <span class="bp">True</span>
+<p><strong>Sliding Window</strong></p>
+<ul>
+  <li>목적: 전송은 되었지만, ACK 패킷을 받지 못한 byte의 숫자를 파악하기 위해 사용하는 프로토콜입니다.</li>
+  <li>동작방식: 윈도우에 포함되는 모든 패킷을 전송 후, 그 패킷들의 전달이 확인되는 대로 윈도우를 이동시키며 그다음 패킷을 전송합니다.</li>
+</ul>
 
-  <span class="n">SAFE_METHODS</span> <span class="o">=</span> <span class="p">(</span><span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">HEAD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">OPTIONS</span><span class="sh">'</span><span class="p">)</span>
-  <span class="k">class</span> <span class="nc">ReadOnly</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
-      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+<h3 id="혼잡제어">혼잡제어</h3>
+<ul>
+  <li>송신측의 데이터 전달과 네트워크의 데이터 처리 속도 차이를 해결하기 위한 방법입니다.</li>
+  <li>송신측의 데이터는 지역망이나 인터넷으로 연결된 대형 네트워크를 통해 전달됩니다. 따라서, 만약 한 라우터에 데이터가 몰리면, 자신에게 온 데이터를 모두 처리할 수 없게 됩니다.</li>
+  <li>따라서, 이러한 네트워크의 혼잡을 피하기 위해 송신측에서 보내는 데이터의 전송속도를 강제로 줄이게 되며, 이를 혼잡제어라고 합니다.</li>
+</ul>
 
-  <span class="k">class</span> <span class="nc">IsOwner</span><span class="p">(</span><span class="n">BasePermission</span><span class="p">):</span>
-      <span class="k">def</span> <span class="nf">has_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">request</span><span class="p">.</span><span class="n">method</span> <span class="ow">in</span> <span class="n">SAFE_METHODS</span>
+<p><strong>해결방법</strong></p>
 
-      <span class="k">def</span> <span class="nf">has_object_permission</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">obj</span><span class="p">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">request</span><span class="p">.</span><span class="n">user</span>
-</code></pre></div>    </div>
-  </li>
-  <li>권한이 있으면 True를, 아니면 False를 반환하도록 설계합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">has_object_permission</code>는 <code class="language-plaintext highlighter-rouge">has_permission</code> 검사를 통과한 이 후에 실행됩니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 상속받는 <code class="language-plaintext highlighter-rouge">GenericAPIView</code>에 <code class="language-plaintext highlighter-rouge">get_object</code> 메서드 내부에 <code class="language-plaintext highlighter-rouge">self.check_object_permissions</code>는 해당 object가 지정해둔 permission에 따라 권한을 갖는지를 판단합니다.</li>
-  <li>Django의 mixins 모듈을 살펴보면, <code class="language-plaintext highlighter-rouge">get_object</code> 메서드를 사용하는 믹스인은 detail 관련 <code class="language-plaintext highlighter-rouge">Retrieve</code>(조회), <code class="language-plaintext highlighter-rouge">Update</code>(수정), <code class="language-plaintext highlighter-rouge">Destroy</code>(삭제) 모듈에서 사용하게 되며, 이 때 object-level Permission을 확인합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread/"><![CDATA[<h2 id="프로세스">프로세스</h2>
+<p>참고: window size는 단위시간당 전송 패킷 수</p>
+
+<p>AMID(Additive Increase / Multiplicate Decrease)</p>
+<ul>
+  <li>처음에 패킷을 하나씩 보내다 문제가 없으면, window size를 1씩 증가시키며 전송하는 방법입니다.</li>
+  <li>패킷 전송에 실패하거나 일정 시간을 넘으면, 패킷의 전송 속도를 절반으로 줄입니다.</li>
+  <li>시간이 흐르면 평형상태로 수렴하게 되는 공평한 방식입니다. (여러 호스트가 한 네트워크를 공유하면 나중에 진입하는 쪽이 불리)</li>
+  <li>초기에 높은 대역폭을 사용하지 못하기 때문에, 오랜 시간이 걸리며, 네트워크 혼잡 상황을 미리 파악하기 힘듭니다.</li>
+  <li>따라서, 네트워크가 혼잡해진 후에야 대역폭을 줄일 수 있습니다.</li>
+</ul>
+
+<p>Slow Start</p>
+<ul>
+  <li>AIMD와 마찬가지로 패킷을 하나씩 보내면서 시작하고, 패킷이 문제없이 도착하면 각각의 ACK 패킷마다 window size를 늘립니다. 한 주기가 지나면 window size가 2배가 됩니다.</li>
+  <li>따라서, 전송속도는 AIMD에 비해 지수 함수 꼴로 증가하지만, 혼잡 현상이 발생하면 window size를 1로 떨어뜨립니다.</li>
+  <li>한 번 혼잡 현상이 발생하고 나면 네트워크의 수용량을 어느 정도 예상할 수 있습니다.</li>
+  <li>그래서, 혼잡 현상이 발생하였던 window size의 절반까지는 이전처럼 지수함수 꼴로 증가시키고, 그 이후부터는 완만하게 1씩 증가시킵니다.</li>
+</ul>
+
+<p>Fast Retransmit</p>
+<ul>
+  <li>패킷을 받는 쪽에서 먼저 도착해야 할 패킷이 도착하지 않고 다음 패킷이 도착한 경우에도 ACK 패킷을 보냅니다.</li>
+  <li>순서대로 잘 도착한 마지막 패킷의 다음 패킷 순번을 ACK 패킷에 실어서 보내므로, 중간에 하나가 손실되면 송신 측에서는 순번이 중복된 ACK를 받게 됩니다.</li>
+  <li>이를 감지하는 순간, 문제가 되는 순번의 패킷을 재전송합니다.</li>
+  <li>중복된 순번의 패킷 3개를 받으면 재전송을 하게 되고, 혼잡 상황이라 판단 후, window size를 줄입니다.</li>
+</ul>
+
+<p>Fast Recovery</p>
+<ul>
+  <li>혼잡 상태가 되면 window size를 1로 줄이지 않고 반으로 줄이고 선형 증가시키는 방법입니다.</li>
+  <li>이를 적용하면 혼잡 상황을 한 번 겪은 후 AIMD 방식으로 동작합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[TCP 통신이란? 네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다. unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다. network congetion avoidance algorithm을 사용합니다.]]></summary></entry><entry><title type="html">[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication</title><link href="http://localhost:4000/study/study-cs-database/" rel="alternate" type="text/html" title="[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-database</id><content type="html" xml:base="http://localhost:4000/study/study-cs-database/"><![CDATA[<h2 id="sql과-nosql">SQL과 NoSQL</h2>
+
+<h3 id="sql">SQL</h3>
+<ul>
+  <li>데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다.</li>
+  <li>데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다.</li>
+  <li>관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>스키마가 경직되어 있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야 하여 스키마를 변경해야 합니다.</li>
+  <li>RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이때, 데이터들을 함께 가져오기 위해서는 <code class="language-plaintext highlighter-rouge">JOIN</code>을 사용해야 하고, DB의 CPU와 메모리를 많이 사용하게 됩니다.</li>
+  <li>대체적으로 수평적 확장(scale-out)이 힘들기 떄문에, 수직적 확장(scale-up)이 많습니다.</li>
+  <li>스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다.</li>
+  <li>결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다.</li>
+  <li>transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다. Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>관계를 맺고 있는 데이터가 자주 변경되는 애플리케이션인 경우입니다.
+(NoSQL은 중복된 값을 변경하려면 모든 컬렉션에서 수행해야하기 때문입니다.)</li>
+  <li>변경될 여지가 없고, 명확한 스키마가 사용자와 데이터에게 중요한 경우입니다.</li>
+</ul>
+
+<h3 id="nosql">NoSQL</h3>
+
+<p><strong>배경</strong></p>
+<ul>
+  <li>인터넷 사용량이 늘어나고 글로벌 사용자가 늘어남에 따라, high-throughput이 요구되었습니다.</li>
+  <li>기존과 다른 비정형 데이터가 증가하게 됨에 따라, 새로운 형태의 데이터가 발생합니다.</li>
+  <li>Not only SQL: 기존의 SQL을 커버할 뿐만 아니라 그 외의 기능들도 커버합니다.</li>
+</ul>
+
+<p><strong>특징</strong></p>
+<ul>
+  <li>NoSQL에서는 레코드를 도큐멘트라고 부릅니다.</li>
+  <li>정해진 스키마를 따르지 않으면 데이터를 추가할 수 없는 SQL과 달리, 다른 구조의 데이터를 같은 컬렉션에 추가할 수 있습니다.</li>
+  <li>도큐멘트는 Json과 비슷한 형태로 가지며, RDB와 같이 여러 테이블에 나누어 담는 것이 아닌, 동일한 컬렉션에 넣게 됩니다. 즉, JOIN할 필요 없이 이미 모든 것을 갖춘 문서를 작성하는 것이 기본 철학입니다.</li>
+  <li>ACID의 일부를 포기하고 high-throughput, low-latency를 추구합니다. 따라서 안정성을 확보하기에는 불리하므로 금융 시스템 처리와 같이 Consistency가 중요한 환경에서 사용하기 조심스럽습니다.</li>
+</ul>
+
+<p><strong>장점</strong></p>
+<ul>
+  <li>스키마가 없기 때문에 유연하며, 언제든지 저장된 데이터를 조정하고 새로운 필드를 추가할 수 있습니다.</li>
+  <li>데이터는 애플리케이션이 필요로 하는 형식으로 저장되며, 읽는 속도가 빨라집니다.</li>
+  <li>scale-out이 쉽기 때문에, 여러 대의 서버(각각의 서버에 데이터를 나누어 저장합니다.)를 사용하여 하나의 클러스터를 구성합니다.</li>
+</ul>
+
+<p><strong>단점</strong></p>
+<ul>
+  <li>너무 유연한 나머지, 데이터 구조를 결정하지 않고 사용하게 될 수 있습니다.</li>
+  <li>데이터가 여러 컬렉션에 중복되어 있기 때문에 중복된 값 수정 시 모든 컬렉션에서 수행해야 합니다.</li>
+</ul>
+
+<p><strong>주로 사용하는 경우</strong></p>
+<ul>
+  <li>정확한 데이터 구조를 알 수 없거나 변경/확장이 될 수 있는 경우입니다.</li>
+  <li>데이터 조회를 자주 하지만, 데이터 수정은 적은 경우입니다.</li>
+  <li>막대한 양의 데이터를 다루기 위해 데이터베이스를 수평적으로 확장해야하는 경우입니다.</li>
+</ul>
+
+<h3 id="데이터베이스의-확장">데이터베이스의 확장</h3>
+<p><strong>수직적 확장 (Scale up)</strong></p>
+<ul>
+  <li>단일 서버의 스펙(성능)을 단순히 향상시키는 것으로, CPU를 업그레이드하는 것입니다.</li>
+  <li>서버의 스펙을 업그레이드 하는 동안 발생하는 다운타임(시스템 이용불가 시간)을 피할 수 없습니다.</li>
+  <li>하나의 서버로 부하가 집중된다는 문제가 발생하며, 단일 장애점(Single Point of Failure, SPOF)을 갖게 됩니다.</li>
+</ul>
+
+<p><strong>수평적 확장 (Scale out)</strong></p>
+<ul>
+  <li>하나의 서버가 처리하는 일을 여러대의 서버가 처리하도록 만듭니다.</li>
+  <li>한 서버처럼 사용하기 위한 클러스터링 작업에 추가비용이 발생하게 됩니다.
+(예를 들어, 로드밸런스 등 네트워크 구축이 있습니다.)</li>
+  <li>기술적으로나 관리적으로나 수직확장에 비해 까다롭습니다.</li>
+  <li>수직적 확장과 다르게 단일 장애점을 가지고 있지 않기 때문에 장애상황에 치명적이지 않습니다.</li>
+  <li>이론적으로 확장에 제한이 없기 때문에 무한대로 확장해나갈 수 있습니다.</li>
+</ul>
+
+<h3 id="추가-redis의-특징">추가: Redis의 특징</h3>
+<ul>
+  <li>in-memory key-value database: 메모리를 사용하여 key-value 형태로 값을 저장하는 DB입니다. 보통 DB보다 메모리나 캐시로 많이 사용합니다.</li>
+  <li>value의 data type: strings, lists, sets hashes, sorted sets 등 다양한 형태를 지원합니다.</li>
+  <li>hash-based sharded cluster</li>
+  <li>High Availability (replication, automatic failover)</li>
+  <li>보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.</li>
+  <li>memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.</li>
+</ul>
+
+<h2 id="partitioning--sharding--replication">Partitioning / Sharding / Replication</h2>
+
+<h3 id="partitioning">Partitioning</h3>
+<ul>
+  <li>DB 테이블을 더 작은 크기의 테이블들로 나누는 것입니다.</li>
+  <li>Vertical partitioning: column을 기준으로 테이블을 나누는 방식입니다.</li>
+  <li>Horizontal partitioning: row를 기준으로 테이블을 나누는 방식입니다.</li>
+</ul>
+
+<h4 id="viertical-partition">Viertical Partition</h4>
+<ul>
+  <li>게시판 테이블이 있을 때, 목록 페이지에서 게시판 내용을 보여주지 않아도 되는 경우가 있습니다. 이 때, post.content 열을 조회하지 않기 위해 <code class="language-plaintext highlighter-rouge">SELECT</code> 문에서 필터링하더라도, DB는 HDD, SSD에서 I/O를 일단 수행하게 됩니다.</li>
+  <li>이를 위해 vertical partion을 구성하여, 목록을 보여줄 때는 <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">title</code>, <code class="language-plaintext highlighter-rouge">writer</code>등으로 한 테이블을 묶고, <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">content</code>로 한 테이블을 묶어서 관리할 수 있습니다.</li>
+</ul>
+
+<h4 id="horizontal-partition">Horizontal Partition</h4>
+<ul>
+  <li>row를 기준으로 테이블을 나누기 때문에 헤드는 유지됩니다. 나뉘어진 테이블은 하나의 DB 내에 존재합니다.</li>
+  <li>한 테이블의 row가 너무 많은 경우에 인덱스의 크기가 커지게 되므로, 풀스캔 및 인덱스에서 읽기/쓰기 처리 시간이 늘어나게 됩니다.</li>
+  <li>가장 많이 사용되는 방법: hash 기반의 파티셔닝. 예를들어 pk를 기준(파티션 키)으로 한다면, pk를 해시함수의 input으로 하여 출력된 파티션 테이블 번호에 저장합니다.</li>
+  <li>해시 기반의 파티셔닝을 사용한다면, 파티션 키를 기준으로 테이블이 나뉘게 되므로 이를 기준으로 조회하게 되면 나위어진 테이블 중 하나만 조회하면 된다는 장점이 있지만, 파티션 키를 기준으로 조회하지 않는 경우에 결국 모든 테이블을 다 조회해야한다는 단점이 있습니다.</li>
+  <li>따라서, 가장 많이 사용될 패턴에 따라서 파티션 키를 정하는 것이 중요하며, 데이터가 균등하게 여러 테이블에 잘 분배될 수 있도록 해시함수를 정하는 것이 중요합니다.</li>
+  <li>해시 기반의 horizontal 파티션은 한번 파티션이 나뉘어진 후에는 파티션을 추가하기가 까다롭다는 단점이 있습니다.</li>
+</ul>
+
+<h3 id="sharding">Sharding</h3>
+<ul>
+  <li>실제로 동작 자체는 horizontal partition처럼 동작하지만, 나뉘어진 각 테이블들이 독립된 DB 서버에 저장됩니다.</li>
+  <li>트래픽에 따라서 DB 접근을 나누어 분배할 수 있기 때문에, DB 서버의 부하(load)를 분산시킬 수 있습니다.</li>
+  <li>이 때의 파티션 키는 Shard Key라고 부릅니다.</li>
+</ul>
+
+<h3 id="replication">Replication</h3>
+<ul>
+  <li>새로운 DB 서버를 만든 후, 데이터를 실시간으로 복제하여 복사본을 유지하는 보조 서버입니다.</li>
+  <li>주가되는 master/primary/leader DB 서버와 slave/secondary/replica DB 서버로 나뉘고, 복제된 서버는 여러대가 될 수 있습니다.</li>
+  <li>만약 주 서버에 문제가 발생하면 빠르게 <code class="language-plaintext highlighter-rouge">Fail over</code> 하여 보조서버에 연결을 유지하므로, 서비스에 타격이 없게 만들 수 있습니다. 이를 고가용성(High availability)를 보장할 수 있습니다.</li>
+  <li>대부분의 서버는 write 트래픽보다 read 트래픽이 많습니다. 이 때, replication으로 구성하면 DB 서버가 받는 트래픽을 나누어 처리할 수 있기 때문에 이점이 있습니다.</li>
+</ul>
+
+<h3 id="참고자료">참고자료</h3>
+<ul>
+  <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
+  <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
+  <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread-old/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread-old</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread-old/"><![CDATA[<h2 id="프로세스">프로세스</h2>
 <ul>
   <li>메모리 상에서 실행 중인 프로그램입니다.</li>
   <li>디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다.</li>
@@ -701,691 +1777,4 @@
   <li>교착상태에 빠진 모든 프로세스를 중단시키는 방법이 있지만, 연산중이던 프로세스들도 모두 일시에 중단되므로, 작업 중인 부분 결과가 폐기될 수 있습니다.</li>
   <li>프로세스를 중단시킬 때마다 탐지 알고리즘으로 데드락을 탐지하며 회복시키는 방법이 있습니다. 매번 탐지 알고리즘을 호출 및 수행해야하기 때문에 부담되는 작업일 수 있습니다.</li>
   <li>프로세스에 할당된 자원을 선점하여 데드락을 해결할 때까지 해당 자원을 다른 프로세스에 할당하는 방법이 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적 할당 시 사용하는 (new(), malloc()) 영역입니다. Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역) 함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다. 하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.]]></summary></entry><entry><title type="html">[Study] Network - TCP</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - TCP" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="tcp-통신이란">TCP 통신이란?</h3>
-<ul>
-  <li>네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다.</li>
-  <li>unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다.</li>
-  <li>network congetion avoidance algorithm을 사용합니다.</li>
-</ul>
-
-<p><strong>reliable network를 보장한다? 아래 문제들을 해결하는 것</strong></p>
-<ul>
-  <li>packet이 손실될 수 있는 문제</li>
-  <li>packet의 순서가 바뀌는 문제</li>
-  <li>네트워크가 혼잡하게(congestion) 되는 문제</li>
-  <li>receiver가 과부화(overload) 되는 문제</li>
-</ul>
-
-<h3 id="흐름제어">흐름제어</h3>
-<ul>
-  <li>송신측과 수신측의 데이터 처리 속도 차이를 해결하는 것</li>
-  <li>송신측이 수신측보다 데이터 처리 속도가 빠르게 되면 문제가 발생합니다.</li>
-  <li>수신측에서 제한된 저장 용량을 초과한 이후에 도착하는 데이터(packet)는 손실될 수 있습니다. 이를 위해 송신 측의 데이터 전송량을 조절해야 합니다.</li>
-  <li>receiver가 sender에게 상태를 feedback 합니다.</li>
-</ul>
-
-<p><strong>전송의 전체 과정</strong></p>
-<ol>
-  <li>Application Layer에서 데이터 전송 시, sender의 애플리케이션은 소켓에 데이터를 씁니다.</li>
-  <li>이 데이터는 Transport Layer로 전달되어 세그먼트(Segment)라는 단위로 나뉩니다.</li>
-  <li>전송 계층은 이 세그먼트를 Network Layer에 넘깁니다.</li>
-  <li>전송된 데이터는 수신자 쪽으로 전달되고 수신자는 수신 버퍼에 데이터를 저장합니다.<br />
-(이때, 수신자 쪽에서는 수신 버퍼의 용량을 넘치지 않도록 조절해야 합니다.)</li>
-  <li>수신자 쪽에서는 자신의 수신 버퍼의 남은 용량을 송신자에게 알려주는데, 이를 수신 윈도우(receive window)라고 합니다.</li>
-  <li>송신자는 수신자의 수신 윈도우를 확인하여 수신자의 수신 버퍼 용량을 초과하지 않도록 데이터를 전송합니다.</li>
-  <li>데이터 전송 중에 수신 버퍼가 넘치는 현상을 방지하면서, 안정적인 데이터 전송을 보장하며, 이를 흐름제어(Flow Control)이라고 합니다.</li>
-</ol>
-
-<p><strong>해결방법</strong></p>
-<ul>
-  <li>Stop and Wait: 매번 전송한 패킷에 대해 확인 응답을 받은 후에만 그다음 패킷을 전송하는 방법입니다.</li>
-  <li>Sliding Window(Go Back N ARQ): 수신측에서 설정한 윈도우 크기만큼 송신측에서 확인/응답 없이 세그먼트를 전송할 수 있도록 데이터 흐름을 동적으로 조절하는 제어 방법입니다.</li>
-</ul>
-
-<p><strong>Sliding Window</strong></p>
-<ul>
-  <li>목적: 전송은 되었지만, ACK 패킷을 받지 못한 byte의 숫자를 파악하기 위해 사용하는 프로토콜입니다.</li>
-  <li>동작방식: 윈도우에 포함되는 모든 패킷을 전송 후, 그 패킷들의 전달이 확인되는 대로 윈도우를 이동시키며 그다음 패킷을 전송합니다.</li>
-</ul>
-
-<h3 id="혼잡제어">혼잡제어</h3>
-<ul>
-  <li>송신측의 데이터 전달과 네트워크의 데이터 처리 속도 차이를 해결하기 위한 방법입니다.</li>
-  <li>송신측의 데이터는 지역망이나 인터넷으로 연결된 대형 네트워크를 통해 전달됩니다. 따라서, 만약 한 라우터에 데이터가 몰리면, 자신에게 온 데이터를 모두 처리할 수 없게 됩니다.</li>
-  <li>따라서, 이러한 네트워크의 혼잡을 피하기 위해 송신측에서 보내는 데이터의 전송속도를 강제로 줄이게 되며, 이를 혼잡제어라고 합니다.</li>
-</ul>
-
-<p><strong>해결방법</strong></p>
-
-<p>참고: window size는 단위시간당 전송 패킷 수</p>
-
-<p>AMID(Additive Increase / Multiplicate Decrease)</p>
-<ul>
-  <li>처음에 패킷을 하나씩 보내다 문제가 없으면, window size를 1씩 증가시키며 전송하는 방법입니다.</li>
-  <li>패킷 전송에 실패하거나 일정 시간을 넘으면, 패킷의 전송 속도를 절반으로 줄입니다.</li>
-  <li>시간이 흐르면 평형상태로 수렴하게 되는 공평한 방식입니다. (여러 호스트가 한 네트워크를 공유하면 나중에 진입하는 쪽이 불리)</li>
-  <li>초기에 높은 대역폭을 사용하지 못하기 때문에, 오랜 시간이 걸리며, 네트워크 혼잡 상황을 미리 파악하기 힘듭니다.</li>
-  <li>따라서, 네트워크가 혼잡해진 후에야 대역폭을 줄일 수 있습니다.</li>
-</ul>
-
-<p>Slow Start</p>
-<ul>
-  <li>AIMD와 마찬가지로 패킷을 하나씩 보내면서 시작하고, 패킷이 문제없이 도착하면 각각의 ACK 패킷마다 window size를 늘립니다. 한 주기가 지나면 window size가 2배가 됩니다.</li>
-  <li>따라서, 전송속도는 AIMD에 비해 지수 함수 꼴로 증가하지만, 혼잡 현상이 발생하면 window size를 1로 떨어뜨립니다.</li>
-  <li>한 번 혼잡 현상이 발생하고 나면 네트워크의 수용량을 어느 정도 예상할 수 있습니다.</li>
-  <li>그래서, 혼잡 현상이 발생하였던 window size의 절반까지는 이전처럼 지수함수 꼴로 증가시키고, 그 이후부터는 완만하게 1씩 증가시킵니다.</li>
-</ul>
-
-<p>Fast Retransmit</p>
-<ul>
-  <li>패킷을 받는 쪽에서 먼저 도착해야 할 패킷이 도착하지 않고 다음 패킷이 도착한 경우에도 ACK 패킷을 보냅니다.</li>
-  <li>순서대로 잘 도착한 마지막 패킷의 다음 패킷 순번을 ACK 패킷에 실어서 보내므로, 중간에 하나가 손실되면 송신 측에서는 순번이 중복된 ACK를 받게 됩니다.</li>
-  <li>이를 감지하는 순간, 문제가 되는 순번의 패킷을 재전송합니다.</li>
-  <li>중복된 순번의 패킷 3개를 받으면 재전송을 하게 되고, 혼잡 상황이라 판단 후, window size를 줄입니다.</li>
-</ul>
-
-<p>Fast Recovery</p>
-<ul>
-  <li>혼잡 상태가 되면 window size를 1로 줄이지 않고 반으로 줄이고 선형 증가시키는 방법입니다.</li>
-  <li>이를 적용하면 혼잡 상황을 한 번 겪은 후 AIMD 방식으로 동작합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[TCP 통신이란? 네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다. unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다. network congetion avoidance algorithm을 사용합니다.]]></summary></entry><entry><title type="html">[Study] Network - OSI 계층</title><link href="http://localhost:4000/study/study-cs-network-osi/" rel="alternate" type="text/html" title="[Study] Network - OSI 계층" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-osi</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-osi/"><![CDATA[<h3 id="osi-7계층">OSI 7계층</h3>
-<p><strong>7 계층 - Application Layer</strong></p>
-<ul>
-  <li>사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다.</li>
-  <li>애플리케이션 목적에 맞는 통신 방법을 제공합니다.</li>
-  <li>HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.</li>
-</ul>
-
-<p><strong>6 계층 - Presentation Layer</strong></p>
-<ul>
-  <li>애플리케이션 통신에서 메시지 포맷을 관리하는 계층입니다.</li>
-  <li>데이터를 안전하게 전송하기 위해 암호화, 복호화하여 소통합니다.</li>
-</ul>
-
-<p><strong>5 게층 - Session Layer</strong></p>
-<ul>
-  <li>애플리케이션 통신에서 세션을 관리하는 계층입니다.</li>
-  <li>예시로 RPC(remote procedure call)가 있습니다.</li>
-</ul>
-
-<p><strong>4 계층 - Transport Layer</strong></p>
-<ul>
-  <li>애플리케이션 통신을 담당하며, 실제로 목적지 애필리케이션으로 데이터를 전송합니다.</li>
-  <li>TCP, UDP 프로토콜을 사용합니다.</li>
-  <li>TCP: 안정적이고 신뢰할 수 있는 데이터 전송을 보장합니다.</li>
-  <li>UDP: 데이터가 중간에 유실되거나 순서가 꼬일 수 있지만, 데이터를 무조건 전송합니다.</li>
-  <li>Network Layer의 기능을 사용하여 데이터를 전송합니다.</li>
-</ul>
-
-<p><strong>3 계층 - Network Layer</strong></p>
-<ul>
-  <li>호스트 간의 통신을 담당합니다. (IP 프로토콜)</li>
-  <li>목적지 호스트로 데이터를 전송합니다.</li>
-  <li>네트워크 간의 최적의 경로를 결정합니다.</li>
-  <li>Data Link Layer의 기능을 사용하여 기능을 구현합니다.</li>
-</ul>
-
-<p><strong>2 계층 - Data Link Layer</strong></p>
-<ul>
-  <li>IP 주소가 아닌 MAC 주소 기반으로 통신합니다.</li>
-  <li>ARP: IP 주소를 MAC 주소로 변환하는 프로토콜입니다.</li>
-</ul>
-
-<p><strong>1 계층 - Physical Layer</strong></p>
-<ul>
-  <li>
-    <p>bits 단위로 데이터를 전송합니다.</p>
-  </li>
-  <li>서로 다른 컴퓨터가 통신을 할 떄 역시, 7계층을 기반으로 통신합니다.</li>
-  <li>라우터는 Network Layer, Data Link Layer, Physical Layer에 있는 프로토콜을 구현합니다.</li>
-  <li>유튜브 댓글 작성시 유튜브 서버까지 어떻게 전달되는지 살펴보기
-    <ol>
-      <li>애플리케이션 레이어에 메시지를 전송하기 위해 처리과정을 거칩니다. 부가적인 정보들을 애플리케이션 헤더에 담습니다.</li>
-      <li>presentation layer 관련 데이터들을 헤더에 담고, 담긴 정보를 Session Layer로 보냅니다.</li>
-    </ol>
-  </li>
-</ul>
-
-<h2 id="구글을-주소창에서-입력하면-일어나는-일">구글을 주소창에서 입력하면 일어나는 일</h2>
-<ul>
-  <li>DNS (Domain Name System Servers): URL들의 이름과 IP 주소를 저장하고 있는 데이터 베이스로, 웹사이트를 위한 주소록입니다. 숫자로된 IP를 사용자가 편리한 주소로 맵핑합니다. 최종적으로 사용자를 어떤 서버에 연결할 것인지 제어하는 요청을 쿼리라고 부릅니다.</li>
-  <li>DNS query: DNS 서버들을 검색해서 해당 사이트의 IP 주소를 찾습니다. 재귀적으로 서로 다른 DNS 서버를 오가며 에러가 날 때까지 반복적으로 요청합니다. (recursive search)</li>
-  <li>TCIP/IP (Transmission Control Protocol / Internet Protocol): 이를 따른다는 것은, IP 주소 체계를 따르며 TCP의 특성을 활용해 송신자와 수신자의 논리적 연결을 생성하고 신뢰성을 유지할 수 있도록 하겠다는 의미입니다.</li>
-  <li>HTTP(Hypertext Transfer Protocol):</li>
-</ul>
-
-<ol>
-  <li>사용자가 웹브라우저 검색창에 www.google.com을 입력</li>
-  <li>웹브라우저는 캐싱된 DNS 기록들을 통해 도메인 주소와 대응하는 IP 주소응답 (캐시에 없다면 3, 있다면 4로)</li>
-  <li>웹브라우저가 HTTP를 사용하여 DNS에 입력된 도메인 주소 요청 및 IP 주소 응답</li>
-  <li>웹브라우저가 웹서버에게 IP 주소를 통해 html 문서를 요청합니다. (TCP/IP)</li>
-  <li>웹어플리케이션서버(WAS)와 데이터베이스에서 우선적으로 웹페이지 작업을 처리합니다.</li>
-  <li>처리된 작업의 결과를 웹서버로 전송합니다.</li>
-  <li>웹서버는 브라우저에게 html 문셔 결과를 응답합니다.</li>
-  <li>웹브라우저는 화면에 웹페이지 내용을 출력합니다.</li>
-</ol>
-
-<h2 id="웹서버--어플리케이션-서버--웹컨테이너">웹서버 / 어플리케이션 서버 / 웹컨테이너</h2>
-<p><strong>웹서버</strong></p>
-<ul>
-  <li>웹서버 소프트웨어와 HTML, CSS, JavaScript파일과 같은 정적 파일들을 저장하는 하드웨어</li>
-  <li>Client가 어떻게 호스트 파일들에 접근하는지 관리하는 소프트웨어</li>
-  <li>URI(Uniform Resource Identifier)와 HTTP(브라우저가 웹 페이지를 보여주기 위해 사용하는 프로토콜) 소프트웨어의 일부</li>
-  <li>HTTP를 통해 웹브라우저에서 요청하는 HTML 문서나 오브젝트들을 전송해주는 서비스 프로그램을 말합니다. 이 때, 다른 가공없이 파일을 그대로 전송하기만 하면 되기 때문에 정적(static)이라고 합니다.</li>
-  <li>단순히 데이터만 반환하면 되기 떄문에 처리 속도가 빠르며, 트래픽의 과부하를 잘 처리할 수 있습니다.
-<strong>애플리케이션 서버</strong></li>
-  <li>웹 서비스가 복잡해지고 기능이 다양함에 따라서 데이터를 가공해서 처리하는 비즈니스 로직이 필요하게 됩니다.</li>
-  <li>웹서버 하나에서 다른 로직까지 처리하기에 부하가 크기 때문에, 로직을 처리하는 서버가 필요하게 되어 만들어집니다.</li>
-  <li>애플리케이션 서버가 HTTP 서버를 통해 브라우저에게 요청된 데이터를 전송하기 전에, 애플리케이션 서버가 데이터를 가공하기 때문에 동적이라고 부릅니다.
-<strong>웹 컨테이너</strong></li>
-  <li>웹 서버에서 동적인 데이터를 반환하려면 요청에 알맞는 프로그램이 필요합니다. 또한, 그 프로그램에 인자를 전달하기 위한 규약이 필요합니다.</li>
-  <li>CGI(Common Gateway Interface)는 프로그램 사이에 데이터를 전달하는 중간자 역할에 필요한 통신규약을 의미합니다.</li>
-  <li></li>
-</ul>
-
-<h3 id="django에서의-wsgi-cgi">Django에서의 wsgi, cgi</h3>
-<p><strong>CGI(Common Gateway Interface)</strong></p>
-<ul>
-  <li>www 서버와 서버 상에 등장하는 다른 프로그램등 HTML에서는 불가능한 동적인 요소를 홈페이지에 받아들여 쓸 수 있도록하는 웹서버와 웹어플리케이션 사이를 이어주는 미들웨어입니다.</li>
-  <li>CGI는 요청이 들어올 때마다 스레드를 생성하여 웹 어플리케이션을 동작시키게 됩니다. 이는 부하가 너무 크고, 10000개 이상의 동시 요청을 처리할 수 없다는 단점이 있습니다.</li>
-</ul>
-
-<p><strong>WSGI(Web Server Gateway Interface)</strong></p>
-<ul>
-  <li>웹 서버 소프트웨어와 파이썬으로 작성된 스크립트(웹 응용 프로그램) 간 통신을 위한 표준 인터페이스입니다.</li>
-  <li>즉, Nginx로 들어오는 http request를 파이썬이 이해할 수 있도록 통역합니다.</li>
-  <li>CGI의 단점을 보완하여 클라이언트 요청에 대해 멀티 스레드를 생성하여 효율적으로 처리합니다.</li>
-  <li>Django 진영에서는 uwsgi, gunicon 등을 사용하고 있습니다.</li>
-  <li>동작 과정: 클라이언트 요청 -&gt; server side에서 middleware component 호출 -&gt; middleware component가 application side의 application 호출</li>
-</ul>
-
-<p><strong>uWSGI와 Gunicorn</strong><br />
-uWSGI</p>
-<ul>
-  <li>C 언어로 작성된 웹서버이며, 파이썬 애플리케이션을 외부 웹서버와 연결하여 오청을 처리하는 방식입니다.</li>
-  <li>다양한 프로그래밍 언어를 지원하며 고성능 및 확장성이 뛰어납니다.</li>
-  <li>여러 프로세스 또는 스레드를 사용하여 동시에 여러 요청을 처리할 수 있습니다.</li>
-  <li>초기설정 옵션이 다양하지만 복잡합니다. 유연성과 강력한 기능을 제공합니다.</li>
-  <li>다양한 플러그인과 확장 기능을 제공하여 다양한 요구 사항에 대응할 수 있습니다.</li>
-</ul>
-
-<p>Gunicorn</p>
-<ul>
-  <li>Python으로 작성된 웹서버이며, 독자적으로 애플리케이션을 실행하고 관리하는 단일서버로, 프론트엔드 웹서버와 직접 연결하여 사용합니다.</li>
-  <li>단일 프로세스에서 동작하며, 작은 규모의 애플리케이션을 처리하는데 적합합니다.</li>
-  <li>간단하고 설정이 쉽습니다. 추가설정 없이도 동작합니다.</li>
-  <li>파이썬 애플리케이션에 초점을 맞춘 경량 웹서버입니다.</li>
-</ul>
-
-<p>참고 블로그</p>
-<ul>
-  <li>biunx님: <a href="https://binux.tistory.com/32">웹서버와 웹어플리케이션서버</a></li>
-  <li>waonderboy님: <a href="https://velog.io/@waoderboy/%EC%9B%B9-%EC%84%9C%EB%B2%84-WAS-%EC%9B%B9-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88">웹 서버, WAS, 웹 컨테이너</a></li>
-  <li>stg0123님: <a href="https://stg0123.github.io/study/41/">uwsgi를 django와 연결하기</a></li>
-  <li>elastic7327님: <a href="https://elastic7327.medium.com/python%EA%B0%9C%EB%B0%9C%EC%9E%90-uwsgi%EB%A5%BC-%EB%B2%84%EB%A6%AC%EA%B3%A0-gunicorn%EC%9C%BC%EB%A1%9C-%EA%B0%88%EC%95%84%ED%83%80%EB%8B%A4-df1c95f220c5">uwsgi를 버린 이유</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[OSI 7계층 7 계층 - Application Layer 사용자에게 보이는 부분으로, 최종 사용자에게 가장 가까운 계층으로, 사용자와 직접적으로 상호작용합니다. 애플리케이션 목적에 맞는 통신 방법을 제공합니다. HTTP, DNS, SMTP, FTP등의 대표적인 프로토콜이 해당 레이어에 속합니다.]]></summary></entry><entry><title type="html">[Study] Database</title><link href="http://localhost:4000/study/study-cs-database/" rel="alternate" type="text/html" title="[Study] Database" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-database</id><content type="html" xml:base="http://localhost:4000/study/study-cs-database/"><![CDATA[<h2 id="sql과-nosql">SQL과 NoSQL</h2>
-
-<h3 id="sql">SQL</h3>
-<ul>
-  <li>데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다.</li>
-  <li>데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다.</li>
-</ul>
-
-<p><strong>장점</strong></p>
-<ul>
-  <li>명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다.</li>
-  <li>관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다.</li>
-</ul>
-
-<p><strong>단점</strong></p>
-<ul>
-  <li>스키마가 정의되어 있기 때문에 덜 유연하며 스키마를 변경하려면 데이터들을 수정해야하는 문제가 발생할 수 있습니다.</li>
-  <li>테이블 간에 관계를 맺고 있기 때문에, JOIN이 많은 복잡한 쿼리가 만들어지게 될 수 있습니다.</li>
-  <li>대체적으로 수평적 확장이 힘들기 떄문에, 수직적 확장이 많습니다.</li>
-</ul>
-
-<p><strong>주로 사용하는 경우</strong></p>
-<ul>
-  <li>관계를 맺고 있는 데이터가 자주 변경되는 애플리케이션인 경우입니다.
-(NoSQL은 중복된 값을 변경하려면 모든 컬렉션에서 수행해야하기 때문입니다.)</li>
-  <li>변경될 여지가 없고, 명확한 스키마가 사용자와 데이터에게 중요한 경우입니다.</li>
-</ul>
-
-<h3 id="nosql">NoSQL</h3>
-<ul>
-  <li>NoSQL에서는 레코드를 도큐멘트라고 부릅니다.</li>
-  <li>정해진 스키마를 따르지 않으면 데이터를 추가할 수 없는 SQL과 달리, 다른 구조의 데이터를 같은 컬렉션에 추가할 수 있습니다.</li>
-  <li>도큐멘트는 Json과 비슷한 형태로 가지며, RDB와 같이 여러 테이블에 나누어 담는 것이 아닌, 동일한 컬렉션에 넣게 됩니다. 즉, JOIN할 필요 없이 이미 모든 것을 갖춘 문서를 작성하는 것이 기본 철학입니다.</li>
-</ul>
-
-<p><strong>장점</strong></p>
-<ul>
-  <li>스키마가 없기 때문에 유연하며, 언제든지 저장된 데이터를 조정하고 새로운 필드를 추가할 수 있습니다.</li>
-  <li>데이터는 애플리케이션이 필요로 하는 형식으로 저장되며, 읽는 속도가 빨라집니다.</li>
-  <li>수직 및 수평 확장이 가능하기 때문에 애플리케이션이 발생시키는 모든 읽기/쓰기 
-요청을 처리할 수 있습니다.</li>
-</ul>
-
-<p><strong>단점</strong></p>
-<ul>
-  <li>너무 유연한 나머지, 데이터 구조를 결정하지 않고 사용하게 될 수 있습니다.</li>
-  <li>데이터가 여러 컬렉션에 중복되어 있기 때문에 중복된 값 수정 시 모든 컬렉션에서 수행해야 합니다.</li>
-</ul>
-
-<p><strong>주로 사용하는 경우</strong></p>
-<ul>
-  <li>정확한 데이터 구조를 알 수 없거나 변경/확장이 될 수 있는 경우입니다.</li>
-  <li>데이터 조회를 자주 하지만, 데이터 수정은 적은 경우입니다.</li>
-  <li>막대한 양의 데이터를 다루기 위해 데이터베이스를 수평적으로 확장해야하는 경우입니다.</li>
-</ul>
-
-<h3 id="데이터베이스의-확장">데이터베이스의 확장</h3>
-<p><strong>수직적 확장 (Scale up)</strong></p>
-<ul>
-  <li>단일 서버의 스펙(성능)을 단순히 향상시키는 것으로, CPU를 업그레이드하는 것입니다.</li>
-  <li>서버의 스펙을 업그레이드 하는 동안 발생하는 다운타임(시스템 이용불가 시간)을 피할 수 없습니다.</li>
-  <li>하나의 서버로 부하가 집중된다는 문제가 발생하며, 단일 장애점(Single Point of Failure, SPOF)을 갖게 됩니다.</li>
-</ul>
-
-<p><strong>수평적 확장 (Scale out)</strong></p>
-<ul>
-  <li>하나의 서버가 처리하는 일을 여러대의 서버가 처리하도록 만듭니다.</li>
-  <li>한 서버처럼 사용하기 위한 클러스터링 작업에 추가비용이 발생하게 됩니다.
-(예를 들어, 로드밸런스 등 네트워크 구축이 있습니다.)</li>
-  <li>기술적으로나 관리적으로나 수직확장에 비해 까다롭습니다.</li>
-  <li>수직적 확장과 다르게 단일 장애점을 가지고 있지 않기 때문에 장애상황에 치명적이지 않습니다.</li>
-  <li>이론적으로 확장에 제한이 없기 때문에 무한대로 확장해나갈 수 있습니다.</li>
-</ul>
-
-<h2 id="transaction">Transaction</h2>
-<ul>
-  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
-  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
-  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
-  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
-</ul>
-
-<p><strong>특징</strong></p>
-<ul>
-  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
-  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
-  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
-  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다.</li>
-  <li>추가: 일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
-</ul>
-
-<h3 id="isolation-level-격리수준">Isolation Level (격리수준)</h3>
-<p><strong>Read Uncommitted (Level 0)</strong></p>
-<ul>
-  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
-  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
-  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
-</ul>
-
-<p><strong>Read Committed (Level 1)</strong></p>
-<ul>
-  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
-  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
-  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
-</ul>
-
-<p><strong>Repeatable Read (Level 2)</strong></p>
-<ul>
-  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
-  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
-(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
-  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
-  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
-  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
-  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
-</ul>
-
-<p><strong>Serializable (Level 3)</strong></p>
-<ul>
-  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
-  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
-  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
-</ul>
-
-<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
-
-<p><strong>Dirty Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Read Uncommitted</li>
-  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
-  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
-</ul>
-
-<p><strong>Non-Repeatable Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
-  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
-</ul>
-
-<p><strong>Phantom Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
-  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
-  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
-</ul>
-
-<h3 id="dbms의-구조">DBMS의 구조</h3>
-<ul>
-  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
-  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
-  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
-</ul>
-
-<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
-<ul>
-  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
-  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
-</ul>
-
-<h3 id="undo">UNDO</h3>
-<ul>
-  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
-  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
-  <li>Buffer 관리 정책에 영향을 받습니다.</li>
-</ul>
-
-<h3 id="redo">REDO</h3>
-<ul>
-  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
-  <li>Buffer 관리 정책에 영향을 받습니다.</li>
-</ul>
-
-<h3 id="참고자료">참고자료</h3>
-<ul>
-  <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
-  <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
-  <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Django - 코딩 스타일</title><link href="http://localhost:4000/django%20study/study-django-coding-style/" rel="alternate" type="text/html" title="[Study] Django - 코딩 스타일" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-coding-style</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-coding-style/"><![CDATA[<h3 id="pre-commit-checks">Pre-commit checks</h3>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">flake8</code> 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">git hook</code>: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">pre-commit</code>은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.</li>
-</ul>
-
-<h3 id="python-style">Python style</h3>
-<ul>
-  <li>모든 파일은 <code class="language-plaintext highlighter-rouge">black auto-fomatter</code>를 사용하여 포맷되어야합니다.</li>
-  <li>프로젝트 레포지토리는 <code class="language-plaintext highlighter-rouge">.editorconfig</code> 파일을 포함해야합니다.</li>
-  <li>장고 운영진은 whitespace 이슈들을 피하기 위해 <code class="language-plaintext highlighter-rouge">EditorConfig</code>와 함께 텍스트 에디터를 사용하는 것을 추천합니다.</li>
-  <li>만약 구체적으로 정한 부분이 없으면 대체적으로, <code class="language-plaintext highlighter-rouge">PEP 8</code> 따릅니다.</li>
-  <li>스트링 값은 <code class="language-plaintext highlighter-rouge">%-formatting</code>, <code class="language-plaintext highlighter-rouge">f-string</code>, <code class="language-plaintext highlighter-rouge">str.format()</code> 형태로 사용하는 것을 권장합니다. (가독성) 또한, <code class="language-plaintext highlighter-rouge">f-string</code> 사용시 plain variable로 사용해야합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># Disallowed
-</span>  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="nf">get_user</span><span class="p">()</span><span class="si">}</span><span class="sh">"</span>
-    
-  <span class="c1"># Allowed
-</span>  <span class="n">user</span> <span class="o">=</span> <span class="nf">get_user</span><span class="p">()</span>
-  <span class="sa">f</span><span class="sh">"</span><span class="s">hello </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="sh">""</span><span class="s">
-</span></code></pre></div>    </div>
-  </li>
-  <li>camel 표기법 보다 snake 표기법을 권장합니다.</li>
-  <li>docstring은 <code class="language-plaintext highlighter-rouge">PEP 257</code> 스타일을 따릅니다.</li>
-  <li>테스트 수행 시, <code class="language-plaintext highlighter-rouge">assertRaises()</code>를 사용하기 보다, <code class="language-plaintext highlighter-rouge">assertRaisesMessage()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsMessage()</code>를 사용하여, 예외에 대한 경고 메시지까지 함꼐 봅니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">assertRaisesRegex()</code>와 <code class="language-plaintext highlighter-rouge">assertWarnsRegex()</code>는 정규식 매칭이 필요한 경우에만 사용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">assertTrue()</code>와 <code class="language-plaintext highlighter-rouge">assertFalse()</code> 보다 <code class="language-plaintext highlighter-rouge">assertIs(..., True/False)</code>를 사용합니다.</li>
-</ul>
-
-<h3 id="imports">Imports</h3>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">isort</code> 모듈을 사용하여 import를 자동으로 소팅합니다.</li>
-  <li>아래와 같이 그룹별로 모듈을 묶어서 import 합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># future
-</span>  <span class="bp">...</span>
-  <span class="c1"># standard library
-</span>  <span class="bp">...</span>
-  <span class="c1"># third-party
-</span>  <span class="bp">...</span>
-  <span class="c1"># Django
-</span>  <span class="bp">...</span>
-  <span class="c1"># local Django
-</span>  <span class="bp">...</span>
-  <span class="c1"># try/except
-</span>  <span class="bp">...</span>
-</code></pre></div>    </div>
-  </li>
-  <li><code class="language-plaintext highlighter-rouge">import ...</code>만 사용하는 경우를 <code class="language-plaintext highlighter-rouge">from ... import ...</code>로 모듈을 호출하는 경우들보다 상위에 위치시킵니다.</li>
-  <li>알파벳 순서로 모듈을 호출하는 것을 권장합니다.</li>
-  <li>너무 긴 모듈 호출은 끊어서 구분합니다. (4 space와 trailing comma 사용)</li>
-</ul>
-
-<h3 id="template-style">Template style</h3>
-<ul>
-  <li>중괄호 사이의 tag comment들 사이에는 공백을 삽입합니다.
-(<code class="language-plaintext highlighter-rouge"> -&gt; </code>)</li>
-</ul>
-
-<h3 id="view-style">View style</h3>
-<ul>
-  <li>view 함수의 첫 번째 파라미터는 <code class="language-plaintext highlighter-rouge">req</code>가 아닌 <code class="language-plaintext highlighter-rouge">request</code>로 확실히 표기합니다.</li>
-</ul>
-
-<h3 id="model-style">Model style</h3>
-<ul>
-  <li>필드명은 소문자 snake 표기법을 사용하여 정의합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">class Meta</code>는 필드 정의 뒤에 single line을 공백으로 둔 후, 정의합니다.</li>
-  <li>모델 메서드의 정의 순서는 아래와 같습니다.
-    <ul>
-      <li>All database fields</li>
-      <li>Custom manager attributes</li>
-      <li><code class="language-plaintext highlighter-rouge">class Meta</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def __str__()</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def save()</code></li>
-      <li><code class="language-plaintext highlighter-rouge">def get_absolute_url()</code></li>
-      <li>Any custom method</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="djangoconfsettings-사용하기"><code class="language-plaintext highlighter-rouge">django.conf.settings</code> 사용하기</h3>
-<ul>
-  <li>모듈들은 일반적으로 최상위 레벨의 <code class="language-plaintext highlighter-rouge">django.conf.settings</code>에 저장된 설정들을 사용하지 않도록 해야합니다.</li>
-  <li>환경변수인 <code class="language-plaintext highlighter-rouge">DJANGO_SETTINGS_MODULE</code>에 의존하지 않도록 설정해야합니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
-  <span class="n">setting</span><span class="p">.</span><span class="nf">configure</span><span class="p">({},</span> <span class="n">SOME_SETTING</span><span class="o">=</span><span class="sh">"</span><span class="s">foo</span><span class="sh">"</span><span class="p">)</span>
-</code></pre></div>    </div>
-  </li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[Pre-commit checks flake8 모듈을 사용하여 코딩 컨벤션을 확인하는 방법도 있습니다. git hook: git과 관련된 이벤트 발생시, 특정 스크립트를 실행할 수 있도록 하는 기능입니다. pre-commit은 pre-commit hook들을 관리하는 프레임워크로, 이를 통해 리뷰를 위한 코드 커밋 전, 간단한 이슈들을 확인할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] Django - 설계 철학</title><link href="http://localhost:4000/django%20study/study-django-philosophy/" rel="alternate" type="text/html" title="[Study] Django - 설계 철학" /><published>2023-08-15T00:05:07+09:00</published><updated>2023-08-15T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-philosophy</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-philosophy/"><![CDATA[<h3 id="기본을-충실히-하자">기본을 충실히 하자!</h3>
-<ul>
-  <li>구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다.</li>
-  <li>프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다.</li>
-</ul>
-
-<h2 id="설계-철학">설계 철학</h2>
-
-<h3 id="django를-선택하는-이유">Django를 선택하는 이유</h3>
-<ul>
-  <li>개발이 빠릅니다. Django는 포괄적인 도구와 라이브러리를 제공하여 새로운 프로젝트를 신속하게 구축할 수 있도록 합니다.</li>
-  <li>확장성이 좋습니다. 트래픽이 증가하는 등 요구사항이 증가함에 따라 쉽게 확장할 수 있도록 설계되어있습니다.</li>
-  <li>보안에 대해 강조합니다. 사이트 간 스크립팅(XSS), 요청 위조(CSRF), SQL 인젝션 등과 같은 취약점에 대해 내장된 보호 기능을 갖추고 있습니다.</li>
-  <li>서드파티 패키지나 플러그인을 함께 사용하기 편리합니다.</li>
-</ul>
-
-<h3 id="일반">일반</h3>
-<ul>
-  <li>Django는 Python을 사용한 견고하고 확장 가능한 웹어플리케이션을 개발하기 위한 고수준 오픈소스 웹 프레임워크입니다.</li>
-  <li>Django 스택의 근본적인 목표는, 느슨한 결합과 탄탄한 응집으로 프레임워크의 각 계층이 서로 알지 못하도록 하는 것이 기본 원칙입니다.</li>
-  <li>Django는 가능한 한 최소한의 코드를 사용하고, 틀에 박힌 코드를 배제하며, Python의 동적인 기능(ex. introspection)을 최대한 활용합니다.
-    <blockquote>
-      <p>introspection이란, 런타임 동안 객체의 타입을 결정하는 능력입니다. 파이썬의 모든 것은 객체이고, 객체가 지원하는 내장 함수와 모듈들이 있습니다.</p>
-    </blockquote>
-  </li>
-  <li>DRY: 중복성을 최소화하고, 최소한의 것들을 가지고 최대한의 것을 만들어내도록 합니다.</li>
-  <li>명시적인 것이 묵시적인 것보다 낫다는 PEP20을 따릅니다.</li>
-  <li>프레임워크는 모든 수준에서 일관적이어야 합니다. 이는 저수준(python code style)에서 고수준(django framework)에 이르기까지 적용됩니다.</li>
-</ul>
-
-<h3 id="모델">모델</h3>
-<ul>
-  <li>명시적인 것이 묵시적인 것보다 나음으로, 필드의 성질은 키워드 인자에 근거해야 하며, 경우에 따라서는 필드의 유형에 근거해야합니다.</li>
-  <li>활성 레코드 디자인 패턴에 따라 “객체”의 모든 aspect를 캡슐화해야합니다.</li>
-  <li>데이터를 모델로 표현하고, 모델을 이해하는 데 요구되는 모든 정보가 모델 내에 있어야 합니다.</li>
-</ul>
-
-<h3 id="데이터베이스-api">데이터베이스 API</h3>
-<ul>
-  <li>SQL문은 가능한 적은 횟수로 실행해야 하며, 내부적으로 최적화해야합니다.</li>
-  <li>프레임워크에서 <code class="language-plaintext highlighter-rouge">save()</code>를 조용히 처리하는 것이 아닌, 개발자가 명시적으로 <code class="language-plaintext highlighter-rouge">save()</code>를 호출하도록 되어 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">join</code> 명령어가 요구될 때에는 겉으로 드러나지 않게 자동으로 수행되어야 합니다.</li>
-  <li>모든 객체는 시스템의 모든 관련 객체에 접근할 수 있어야 하며, 이러한 접근은 양방향이어야합니다.</li>
-  <li>필요할 경우에 SQL 문을 직접 작성하기 쉽게 설계해야합니다.</li>
-</ul>
-
-<h3 id="url-설계">URL 설계</h3>
-<ul>
-  <li>Django 앱의 URL을 Python 함수 이름과 같게 만드는 것은 좋지 않습니다.</li>
-  <li>웹페이지 URL에 파일 확장자를 넣는 것은 지양해야합니다.</li>
-  <li>기술적으로 <code class="language-plaintext highlighter-rouge">foo.com/bar</code>와 <code class="language-plaintext highlighter-rouge">foo.com/bar/</code>는 서로 다른 URL이며, 검색 엔진 로봇은 이를 별도로 취급합니다.</li>
-  <li>따라서, APPEND_SLASH 설정을 True로 하는 경우, <code class="language-plaintext highlighter-rouge">/</code>가 붙지 않더라도 리다이렉션 시킵니다.
-    <blockquote>
-      <p>주의: POST 메서드를 사용하는 경우 리다이렉트를 사용해버리면 데이터가 소실될 가능성도 있습니다.</p>
-    </blockquote>
-  </li>
-</ul>
-
-<h3 id="django의-mvt-아키텍처-model-view-template">Django의 MVT 아키텍처 (Model View Template)</h3>
-
-<p><strong>Model</strong></p>
-<ul>
-  <li>데이터의 구조를 나타내며, CRUD에 대해 정의합니다.</li>
-  <li>테이블의 구조와 각 테이블 간의 관계를 정의하는 Python 클래스입니다.</li>
-</ul>
-
-<p><strong>View</strong></p>
-<ul>
-  <li>사용자 요청을 처리하고 적절한 응답을 반환합니다.</li>
-  <li>데이터를 검색한 뒤, HTTP 응답을 반환하는 Python 함수로, Template이나 Json을 반환합니다.</li>
-</ul>
-
-<p><strong>Template</strong></p>
-<ul>
-  <li>클라이언트로 전송되는 HTML의 구조와 레이아웃을 정의합니다.</li>
-  <li>텍스트 파일로서, HTML 구조를 응용하여 동적 컨텐츠를 포함할 수 있도록합니다.</li>
-</ul>
-
-<h3 id="template">Template</h3>
-<ul>
-  <li>표현과 로직을 분리해야합니다.</li>
-  <li>대다수의 동적인 웹사이트는 공통 헤더, 푸터, 네비게이션 바와 같은 사이트의 공통 디자인을 갖습니다. Django 템플릿 시스템은 이러한 요소를 한 곳에 저장하기 쉽게하여 중복 코드를 없애야합니다.</li>
-  <li>템플릿은 HTML 뿐만 아니라, 텍스트 기반 포맷 또는 일반 텍스트도 잘 생성할 수 있어야 합니다.</li>
-  <li>XML을 템플릿 언어로 사용하지 않아야 합니다.</li>
-  <li>템플릿은 데이터베이스의 레코드를 삭제하는 명령과 같은 악의적인 코드를 포함할 수 없어야 합니다.</li>
-</ul>
-
-<h3 id="view">View</h3>
-<ul>
-  <li>함수로 처리할 수 있는 일을 하기 위해 클래스의 인스턴스를 굳이 생성하지 않아도 됩니다.</li>
-  <li>글로벌 변수의 요청 데이터에 접근하는 것이 아닌 뷰 함수에 전달된 요청 객체에 각각 접근해야합니다.</li>
-  <li>뷰는 개발자가 어떤 템플릿을 사용하는지에 무관해야합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[기본을 충실히 하자! 구현을 서둘러 하다보니, 기본적인 프레임워크의 철학과 기본기를 돌아볼 여유가 없어왔던 것 같습니다. 프레임워크에 대해서나 왜 사용하게 되었는지를 생각해 볼 때 설득력있는 설명을 할 수 있는 방법이 궁금했습니다.]]></summary></entry><entry><title type="html">[Study] Django - ORM Basic</title><link href="http://localhost:4000/django%20study/study-django-orm-basic/" rel="alternate" type="text/html" title="[Study] Django - ORM Basic" /><published>2023-08-12T00:05:07+09:00</published><updated>2023-08-12T00:05:07+09:00</updated><id>http://localhost:4000/django%20study/study-django-orm-basic</id><content type="html" xml:base="http://localhost:4000/django%20study/study-django-orm-basic/"><![CDATA[<h2 id="orm이란-무엇인가">ORM이란 무엇인가?</h2>
-
-<ul>
-  <li>객체지향 프로그래밍은 클래스를 사용하지만, 관계형 데이터베이스는 테이블을 사용하기 때문에, 객체 모델과 관계형 모델 간에 불일치가 발생합니다.</li>
-  <li>ORM은 SQL문을 자동으로 생성하여 이러한 불일치를 해결할 수 있습니다.</li>
-</ul>
-
-<h2 id="orm의-장단점">ORM의 장단점</h2>
-
-<h3 id="장점">장점</h3>
-
-<ul>
-  <li>완벽한 객체지향적인 코드
-    <ul>
-      <li>SQL문이 아닌 클래스의 메서드를 통한 데이터베이스 조작이 가능하기 때문에, 개발자가 객체 모델만을 이용해서 프로그래밍을하는데 집중할 수 있습니다.</li>
-      <li>SQL문을 사용하며 함께 필요한 선언문, 할당, 종료와 같은 부수적인 코드가 사라지거나 줄어들게 됩니다.</li>
-    </ul>
-  </li>
-  <li>재사용, 유지보수, 리팩토링이 용이합니다.</li>
-  <li>DBMS에 대한 종속성이 줄어듭니다.
-    <ul>
-      <li>객체 간의 관계를 바탕으로 SQL문을 자동으로 생성하며, 객체의 자료형 타입까지 사용할 수 있습니다.</li>
-      <li>따라서, RDBMS의 데이터 구조와 객체지향 모델 사이의 간격을 좁힐 수 있습니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="단점">단점</h3>
-
-<ul>
-  <li>프로젝트의 복잡성이 커질수록 난이도도 올라가고, 잘못 구현되는 경우 속도 저하가 발생합니다. 일관성을 무너뜨리게 될 수도 있습니다.</li>
-  <li>잘못된 사용으루 N+1 문제와 같은 비효율적인 동작을 야기할 수 있습니다.</li>
-  <li>대형 SQL문은 속도를 위해 별도의 튜닝이 필요하므로, 결국 SQL문법을 사용해야할 때가 생깁니다.</li>
-  <li>쿼리문이 복잡한 경우, SQL문 사용이 직관적이고 효율적일 수 있습니다.</li>
-</ul>
-
-<h3 id="orm을-적절하게-사용하는-방법">ORM을 적절하게 사용하는 방법</h3>
-
-<p><strong>타겟 DB를 이해하기</strong></p>
-
-<ul>
-  <li>SQL 및 DB의 locking 모델을 무시하면 안됩니다.</li>
-  <li>ORM 적용 환경에서 발생하는 많은 부류의 문제들은 DB와 SQL의 문제를 간과함에서 발생합니다.</li>
-</ul>
-
-<p><strong>필요한 경우 SQL을 사용하기</strong></p>
-
-<ul>
-  <li>Hibernate, TopLink와 같은 ORM들은 SQL 쿼리 작성 기능을 제공하지만, 경우에 따라 SQL문을 직접 작성해야합니다.</li>
-</ul>
-
-<p><strong>O-R 매핑 제품을 선택하기 전에 충분히 검토하기</strong></p>
-
-<ul>
-  <li>모든 ORM 제품이 동일한 수준의 기능을 제공하지 않기 때문에, 요구 사항을 반영하는 환경을 구축하고 제품들을 비교, 테스트 해야합니다.</li>
-  <li>엔터프라이즈 개발 과정의 다른 요소들과 마찬가지로, 프로젝트 라이프사이클 초기 단계에서 성능과 관련된 리스크를 최소화하는 것이 중요합니다.</li>
-  <li>매핑 기능에 과도한 오버헤드가 수반되지 않는지 분석해야 합니다.</li>
-</ul>
-
-<p><strong>ORM이 적절히 사용될 수 있는 상황을 이해하기</strong></p>
-
-<ul>
-  <li>ORM은 엔티티를 개별적으로 업데이트하고 간헐적으로 셋 기반 작업을 수행하는 OLTP 애플리케이션이 적합합니다.</li>
-</ul>
-
-<p><strong>ORM이 적합하지 않은 경우</strong></p>
-
-<ul>
-  <li>많은 수의 레코드에 대해 잦은 빈도로 bulk 업데이트를 수행하는 애플리케이션(OLAP 애플리케이션)</li>
-  <li>데이터 마이닝을 위해 사용되는 애플리케이션에서는 이미 데이터를 본래의 엔티티 상태로 사용하기 어렵습니다.</li>
-  <li>데이터의 인출 및 업데이트를 위해 핸드코딩으로 작성된 SQL 및 저장 프로시저를 이용하는 DB 환경</li>
-  <li>순수 SQL 기반 접근 방법을 적용하는 것이 적절한 애플리케이션
-    <ul>
-      <li>비즈니스 로직의 대부분이 DB에 이미 구현되어 있거나, 데이터베이스 무결성 제약(integrity constraint)이 적용된 경우 등입니다.</li>
-      <li>이러한 애플리케이션에서는 오브젝트 또는 ORM의 활용 여지가 적으며, 데이터베이스 테이블을 도메인 오브젝트로 모델링 함으로써 기대할 수 있는 효과가 거의 없습니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="django-orm의-특징">Django ORM의 특징</h2>
-
-<h3 id="queryset">QuerySet</h3>
-
-<ul>
-  <li>Django ORM을 통해 생성된 자료형으로, 데이터베이스의 테이블로부터 가져온 객체의 목록입니다.</li>
-</ul>
-
-<h3 id="lazy-loading">Lazy Loading</h3>
-
-<ul>
-  <li>필요한 시점에만 SQL을 호출하는 Lazy한 특성이 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">users=User.objects.all()</code> 문법을 사용하더라도, 이 때 DB를 호출하는 것이 아닌, <code class="language-plaintext highlighter-rouge">user=users[0]</code>, <code class="language-plaintext highlighter-rouge">list(users)</code>와 같이 실제 파이썬에서 해당 데이터를 사용할 때 호출됩니다.</li>
-  <li>따라서, <code class="language-plaintext highlighter-rouge">Result Cache</code>를 통해 미리 데이터를 캐싱해두는 것이 더 효율적입니다. <code class="language-plaintext highlighter-rouge">user_list=list(User.objects.all())</code></li>
-  <li>지연 로딩의 또 다른 문제는, 외래키 관계에 있는 데이터를 참조해서 호출할 때 발생합니다. lazy-loading은 쿼리문이 날라갈 때 당장 필요하지 않기 때문에 참조모델의 데이터는 가지고 오지 않고 해당 모델이 갖는 한개의 데이터를 가져옵니다.</li>
-  <li>따라서, 외래키 값을 호출할 때 한 번 더 쿼리가 날라가는 <code class="language-plaintext highlighter-rouge">N+1 문제</code>가 발생하게 됩니다.</li>
-</ul>
-
-<h3 id="eager-loading">Eager Loading</h3>
-
-<ul>
-  <li>N+1 문제를 해결하기 위해, <code class="language-plaintext highlighter-rouge">select_related()</code>와 <code class="language-plaintext highlighter-rouge">prefetch_related()</code> 메서드로 즉시 로딩할 수 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">select_related()</code>는 join을 통해 데이터를 즉시 로딩하는 방법으로, 정참조 외래키에서 사용됩니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">prefetch_related()</code>: 추가 쿼리를 수행해서 데이터를 즉시 로딩하는 방법으로, 역참조 외래키에서 사용됩니다.</li>
-</ul>
-
-<h2 id="참고">참고</h2>
-<ul>
-  <li><a href="https://bentist.tistory.com/109">bentist님의 블로그</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Study" /><summary type="html"><![CDATA[ORM이란 무엇인가?]]></summary></entry></feed>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적 할당 시 사용하는 (new(), malloc()) 영역입니다. Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역) 함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다. 하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.]]></summary></entry></feed>
