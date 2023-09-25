@@ -1,9 +1,8 @@
 ---
 layout: archive
-title:  "[Django] Push Notification은 어떤식으로 혀구혀할 수 있을까?"
+title:  "[Django] Push Notification은 어떤식으로 구현할 수 있을까?"
 date:   2023-09-24 00:05:07 +0900
-categories: 
-    - Study
+categories: [Strategy]
 ---
 
 ## 글을 작성하게 된 계기

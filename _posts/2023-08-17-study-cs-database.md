@@ -1,6 +1,6 @@
 ---
 layout: archive
-title:  "[Study] Database"
+title:  "[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication"
 date:   2023-08-16 00:05:07 +0900
 categories: 
     - Study
@@ -78,80 +78,6 @@ categories:
 - 보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.
 - memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.
 
-
-
-## Transaction
-- 데이터베이스의 상태를 변화시키기 위해 `수행하는 작업의 단위`입니다.
-- commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.
-- rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.
-- savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.
-
-**특징**
-- Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.
-- Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.
-- Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.
-- Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다.
-- 추가: 일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.
-
-### Isolation Level (격리수준)
-**Read Uncommitted (Level 0)**
-- SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.
-- 트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.
-- 데이터베이스의 일관성을 유지하는 것이 불가능합니다.
-
-**Read Committed (Level 1)**
-- 대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.
-- 커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.
-- 트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.
-
-**Repeatable Read (Level 2)**
-- MySQL에서 기본으로 사용하는 격리수준입니다.
-- 일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
-  (MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)
-- 트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라, 
-- 트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.
-- 트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.
-- 다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.
-
-**Serializable (Level 3)**
-- 여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.
-- 순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.
-- 완벽한 읽기 일관성 모드를 제공합니다.
-
-### 격리수준이 낮을 때 발생할 수 있는 문제
-
-**Dirty Read**
-- 발생 격리 수준: Read Uncommitted
-- 어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, `다른 트랜잭션에 의한 변경 사항`을 트랜잭션 수행 중 조회하게 되는 경우입니다.
-- 커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.
-
-**Non-Repeatable Read**
-- 발생 격리 수준: Read Committed, Read Uncommitted
-- 한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.
-
-**Phantom Read**
-- 발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted
-- 트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.
-- 한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.
-
-### DBMS의 구조
-- 크게 `Query Processor`와 `Storage System`이 있습니다.
-- 입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.
-- 저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.
-
-### Page Buffer Manager(or Buffer Manager)
-- DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.
-- Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.
-
-### UNDO
-- 트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.
-- 수정된 Page들이 **Buffer 교체 알고리즘에 따라 디스크에 출력**될 수 있습니다.
-- Buffer 관리 정책에 영향을 받습니다.
-
-### REDO
-- 이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.
-- Buffer 관리 정책에 영향을 받습니다.
-
 ## Partitioning / Sharding / Replication
 
 ### Partitioning
@@ -181,9 +107,6 @@ categories:
 - 주가되는 master/primary/leader DB 서버와 slave/secondary/replica DB 서버로 나뉘고, 복제된 서버는 여러대가 될 수 있습니다.
 - 만약 주 서버에 문제가 발생하면 빠르게 `Fail over` 하여 보조서버에 연결을 유지하므로, 서비스에 타격이 없게 만들 수 있습니다. 이를 고가용성(High availability)를 보장할 수 있습니다.
 - 대부분의 서버는 write 트래픽보다 read 트래픽이 많습니다. 이 때, replication으로 구성하면 DB 서버가 받는 트래픽을 나누어 처리할 수 있기 때문에 이점이 있습니다.
-
-
-
 
 
 ### 참고자료
