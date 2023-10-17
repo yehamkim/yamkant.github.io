@@ -1,0 +1,669 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] Channels란 무엇일까? - Yam’s Dev Logs</title>
+<meta name="description" content="Channels 모듈이란?    Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다.   이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다.   인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다.   이벤트 주도의 구조를 Channel Layer를 이용해 다루며, Channel Layer는 여러 프로세스 간의 통신을 용이하게 만들면서 프로젝트를 여러 개의 프로세스로 나눌 수 있도록 합니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] Channels란 무엇일까?">
+<meta property="og:url" content="http://localhost:4000/strategy/django-strategy-channels/">
+
+
+  <meta property="og:description" content="Channels 모듈이란?    Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다.   이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다.   인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다.   이벤트 주도의 구조를 Channel Layer를 이용해 다루며, Channel Layer는 여러 프로세스 간의 통신을 용이하게 만들면서 프로젝트를 여러 개의 프로세스로 나눌 수 있도록 합니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-09-24T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/strategy/django-strategy-channels/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 46</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (14)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (17)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] Channels란 무엇일까?</h1>
+    
+    <h2 id="channels-모듈이란">Channels 모듈이란?</h2>
+<ul>
+  <li>Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다.</li>
+  <li>이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다.</li>
+  <li>인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다.</li>
+  <li>이벤트 주도의 구조를 Channel Layer를 이용해 다루며, Channel Layer는 여러 프로세스 간의 통신을 용이하게 만들면서 프로젝트를 여러 개의 프로세스로 나눌 수 있도록 합니다.</li>
+</ul>
+
+<h2 id="channels-동작-원리">Channels 동작 원리</h2>
+<h3 id="tutles-all-the-way-down">Tutles All The Way Down</h3>
+<ul>
+  <li>Consumers는 채팅 메시지나 알림을 처리하는 독립적인 요소로, Channels는 기본적인 컨슈머를 작성하고, URL 라우팅에 연결하고 프로토콜을 감지하는 등의 기능을 제공합니다.</li>
+  <li>HTTP와 기존 Django의 애플리케이션을 구성요소로 활용하여, 기존의 코드를 유지한 상태로 HTTP Long-Polling이나 웹소켓을 함께 처리할 수 있습니다.</li>
+  <li>URL 라우팅, 미들웨어 모두 ASGI의 애플리케이션입니다.</li>
+</ul>
+
+<h3 id="scopes와-event">Scopes와 Event</h3>
+<ul>
+  <li>Channels와 ASGI는 들어오는 연결을 두 개의 컴포넌트(스코프, 이벤트들의 리스트)로 분리합니다.</li>
+</ul>
+
+<p>스코프</p>
+<ul>
+  <li>하나의 연결에 대한 상세 설명들의 집합입니다.</li>
+  <li>요청이 발생한 URL, 웹소켓이 열린 IP 주소, 유저 정보등으로 구성됩니다.</li>
+  <li>연결이 종료될 때까지 유지됩니다.</li>
+  <li>HTTP의 경우, 스코프는 하나의 요청동안만 유지되지만, 웹소켓의 경우에는 소켓의 수명 전체에 걸쳐 유지됩니다.</li>
+  <li>예를 들어, 챗봇 프로토콜은 챗 프로토콜이 상태를 갖지 않더라도 대화가 종료될 때까지 스코프가 유지됩니다.</li>
+</ul>
+
+<p>이벤트</p>
+<ul>
+  <li>스코프의 수명 동안 여러 이벤트들이 발생하며, 이는 유저와의 상호작용을 나타냅니다.</li>
+  <li>HTTP 요청을 보내거나 웹소켓 프레임을 전송하는 일들입니다.</li>
+  <li>ASGI 애플리케이션은 매 스코프마다 개별 인스턴스화되고, 해당 스코프 안에서 발생하는 이벤트들을 차례로 처리합니다.</li>
+</ul>
+
+<p>HTTP 예시</p>
+<ol>
+  <li>유저가 HTTP 요청 전송</li>
+  <li>HTTP의 타입 스코프를 요청 URL, 메서드, 헤더 등을 담아서 생성</li>
+  <li>http.request 이벤트를 HTTP body 데이터와 함께 전송</li>
+  <li>Channels(or ASGI 애플리케이션)이 이를 처리해 http.response 이벤트를 생성, 브라우저에 응답 및 연결 종료</li>
+  <li>HTTP 요청/응답 완결, 스코프 삭제</li>
+</ol>
+
+<p>챗봇 예시</p>
+<ol>
+  <li>유저가 챗봇에게 첫번째 메시지 전송</li>
+  <li>유저의 ID, 이름, 유저명이 담긴 스코프 생성</li>
+  <li>애플리케이션이 chat.received_message 이벤트를 텍스트 데이터와 함께 수신</li>
+  <li>유저가 챗봇에게 메시지를 수차례 전송하며 chat.received_message 이벤트들이 생성</li>
+  <li>제한시간이 지나거나 애플리케이션 프로세스 재시작시 스코프 삭제</li>
+</ol>
+
+<h3 id="컨슈머">컨슈머</h3>
+<ul>
+  <li>Channels의 기본적인 단위요소로, 이벤트를 받습니다.</li>
+  <li>요청이나 새로운 소켓 요청이 들어오면, Channels는 라우팅 테이블을 찾아 해당 연결에 대한 적절한 컨슈머를 찾고, 인스턴스를 만들어 처리합니다.</li>
+  <li>View와는 달리, 스코프가 종료되기까지 더 긴 수명을 갖도록 설계되었습니다.</li>
+</ul>
+
+<h4 id="코드로-보는-예시">코드로 보는 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChatConsumer</span><span class="p">(</span><span class="n">WebsocketConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Anonymous</span><span class="sh">"</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">accept</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="sh">"</span><span class="s">[Welcome %s!]</span><span class="sh">"</span> <span class="o">%</span> <span class="n">self</span><span class="p">.</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">text_data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text_data</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">"</span><span class="s">/name</span><span class="sh">"</span><span class="p">):</span>
+            <span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[</span><span class="mi">5</span><span class="p">:].</span><span class="nf">strip</span><span class="p">()</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="sh">"</span><span class="s">[set your username to %s]</span><span class="sh">"</span> <span class="o">%</span> <span class="n">self</span><span class="p">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">+</span> <span class="sh">"</span><span class="s">: </span><span class="sh">"</span> <span class="o">+</span> <span class="n">text_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">pass</span>
+</code></pre></div></div>
+<ul>
+  <li>각 종류의 프로토콜에서는 서로 다른 타입의 이벤트들이 발생하며, 각 타입은 서로 다른 메서드로 구분됩니다.</li>
+  <li>이벤트에 따라 처리하는 코드를 작성하면, Channels가 이들을 스케쥴링하고 병렬적으로 작동시키는 역할을 담당합니다.</li>
+  <li>내부적으로 Channels는 완전히 비동기적인 이벤트 루프를 실행합니다.</li>
+</ul>
+
+<h4 id="동기적인-처리-예시">동기적인 처리 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">LogConsumer</span><span class="p">(</span><span class="n">WebsocketConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="n">Log</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="sh">"</span><span class="s">connected</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">client</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">scope</span><span class="p">[</span><span class="sh">"</span><span class="s">client</span><span class="sh">"</span><span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+<h4 id="비동기적인-처리-예시">비동기적인 처리 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PingConsumer</span><span class="p">(</span><span class="n">AsyncConsumer</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">websocket_connect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">websocket.accept</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">websocket_receive</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">websocket.send</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">pong</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">})</span>
+</code></pre></div></div>
+
+<h3 id="라우팅-프로토콜들">라우팅, 프로토콜들</h3>
+<ul>
+  <li>라우팅을 활용하여 경로마다 기능별로 컨슈머를 사용하도록 할 수 있습니다.</li>
+  <li>각각의 프로토콜을 목적에 따른 이벤트들로 분리하여 처리할 수 있도록 합니다.
+    <h4 id="코드-예시">코드 예시</h4>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChattyBotConsumer</span><span class="p">(</span><span class="n">SyncConsumer</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">telegram_message</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">
+      Simple echo handler for telegram messages in any chat.
+      </span><span class="sh">"""</span>
+      <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+          <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">telegram.message</span><span class="sh">"</span><span class="p">,</span>
+          <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">You said: %s</span><span class="sh">"</span> <span class="o">%</span> <span class="n">message</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">],</span>
+      <span class="p">})</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChattyBotConsumer</span><span class="p">(</span><span class="n">SyncConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">telegram_message</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Simple echo handler for telegram messages in any chat.
+        </span><span class="sh">"""</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">telegram.message</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">You said: %s</span><span class="sh">"</span> <span class="o">%</span> <span class="n">message</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">],</span>
+        <span class="p">})</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">application</span> <span class="o">=</span> <span class="nc">ProtocolTypeRouter</span><span class="p">({</span>
+
+    <span class="sh">"</span><span class="s">websocket</span><span class="sh">"</span><span class="p">:</span> <span class="nc">URLRouter</span><span class="p">([</span>
+        <span class="nf">url</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">^chat/admin/$</span><span class="sh">"</span><span class="p">,</span> <span class="n">AdminChatConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">()),</span>
+        <span class="nf">url</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">^chat/$</span><span class="sh">"</span><span class="p">,</span> <span class="n">PublicChatConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">()),</span>
+    <span class="p">]),</span>
+
+    <span class="sh">"</span><span class="s">telegram</span><span class="sh">"</span><span class="p">:</span> <span class="n">ChattyBotConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">(),</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<h2 id="프로세스간-통신">프로세스간 통신</h2>
+<ul>
+  <li>표준 WSGI 서버와 같이, 애플리케이션은프로토콜 이벤트들을 서버 프로세스 안에서 처리합니다.</li>
+  <li>애플리케이션으로 들어오는 소켓이나 연결은 애플리케이션 인스턴스에 의해 처리됩니다. 애플리케이션 인스턴스는 호출되고, 클라이언트에게 다시 데이터를 직접 보내줍니다.</li>
+  <li>복잡한 애플리케이션을 구성하다보면 서로 다른 애플리케이션 인스턴스들 간의 통신이 필요한 경우가 생깁니다.</li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -250,4 +250,28 @@ var store = [{
         "tags": [],
         "url": "/strategy/django-strategy-push-notification/",
         "teaser": null
+      },{
+        "title": "[Django] Channels란 무엇일까?",
+        "excerpt":"Channels 모듈이란? Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다. 이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다. 인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다. 이벤트...","categories": ["Strategy"],
+        "tags": [],
+        "url": "/strategy/django-strategy-channels/",
+        "teaser": null
+      },{
+        "title": "[Django] web server, was, cgi, wsgi, asgi",
+        "excerpt":"각 용어의 정의 웹서버 인터넷을 통해서 요청된 웹 컨텐츠의 전달을 도와주는 하드웨어와 소프트웨어입니다. 웹서버는 기본적으로 ‘정적’인 파일을 전달합니다. 클라이언트가 HTTP 요청을 통해 리소스를 요청하면, 리소스를 그대로 보내줍니다. CGI (Common Gateway Interface) 웹서버에서 애플리케이션(프로그램, 스크립트)을 동작시키기 위한 인터페이스입니다. 정적인 웹서버를 동적으로 기능하기 위해서 등장하였으며, 서버 프로그램과 외부 프로그램 간의 인터페이스가 CGI입니다....","categories": ["Django Strategy"],
+        "tags": [],
+        "url": "/django%20strategy/django-cgi/",
+        "teaser": null
+      },{
+        "title": "[Study] elastic search 사용하기",
+        "excerpt":"설치 및 간단한 설정 $ docker pull docker.elastic.co/elasticsearch/elasticsearch:8.7.0 $ docker run -p 9200:9200 -p 9300:9300 \\ --name my-elasticsearch \\ -e \"discovery.type=single-node\" \\ docker.elastic.co/elasticsearch/elasticsearch:8.7.0 9200 포트를 통해 엘라스틱 서치에 접속할 수 있도록, 9300 포트를 통해 내부에서 통신하도록 설정합니다. 단일 노드로 실행하기 위해 discovery.type=signle-node 옵션을 추가합니다. https://localhost:9200/으로 접속하면 로그인을 통해 접속 가능합니다....","categories": ["Study"],
+        "tags": [],
+        "url": "/study/elastic-search/",
+        "teaser": null
+      },{
+        "title": "[Study] Database - 쿼리 최적화를 위한 인덱스",
+        "excerpt":"인덱스란 무엇인가? 인덱스를 사용하는 이유: 조건(WHERE)을 만족하는 튜플들을 빠르게 조회하기 위해 사용합니다. 빠르게 ORDER BY하거나 GROUP BY하기 위해 사용합니다. 인덱스 사용방법 인덱스 관련 명령어 예시 -- name column을 기준으로 인덱스를 생성합니다. CREATE INDEX player_name_idx ON player (name); -- team_id와 backnumber에 대해 복합 인덱스를 생성합니다. CREATE UNIQUE INDEX item_id_backnumber_idx ON player...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-db-index/",
+        "teaser": null
       }]

@@ -1,4 +1,174 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-09-25T20:00:56+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Django] Push 알람은 어떤식으로 구현할 수 있을까?</title><link href="http://localhost:4000/strategy/django-strategy-push-notification/" rel="alternate" type="text/html" title="[Django] Push 알람은 어떤식으로 구현할 수 있을까?" /><published>2023-09-24T00:05:07+09:00</published><updated>2023-09-24T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-push-notification</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-push-notification/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-10-17T16:25:27+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] Database - 쿼리 최적화를 위한 인덱스</title><link href="http://localhost:4000/study/study-db-index/" rel="alternate" type="text/html" title="[Study] Database - 쿼리 최적화를 위한 인덱스" /><published>2023-10-17T00:05:07+09:00</published><updated>2023-10-17T00:05:07+09:00</updated><id>http://localhost:4000/study/study-db-index</id><content type="html" xml:base="http://localhost:4000/study/study-db-index/"><![CDATA[<h3 id="인덱스란-무엇인가">인덱스란 무엇인가?</h3>
+<ul>
+  <li>인덱스를 사용하는 이유: 조건(<code class="language-plaintext highlighter-rouge">WHERE</code>)을 만족하는 튜플들을 빠르게 조회하기 위해 사용합니다.</li>
+  <li>빠르게 <code class="language-plaintext highlighter-rouge">ORDER BY</code>하거나 <code class="language-plaintext highlighter-rouge">GROUP BY</code>하기 위해 사용합니다.</li>
+</ul>
+
+<h2 id="인덱스-사용방법">인덱스 사용방법</h2>
+
+<h3 id="인덱스-관련-명령어-예시">인덱스 관련 명령어 예시</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- name column을 기준으로 인덱스를 생성합니다.</span>
+<span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">player_name_idx</span> <span class="k">ON</span> <span class="n">player</span> <span class="p">(</span><span class="n">name</span><span class="p">);</span>
+
+<span class="c1">-- team_id와 backnumber에 대해 복합 인덱스를 생성합니다.</span>
+<span class="k">CREATE</span> <span class="k">UNIQUE</span> <span class="k">INDEX</span> <span class="n">item_id_backnumber_idx</span> <span class="k">ON</span> <span class="n">player</span> <span class="p">(</span><span class="n">team_id</span><span class="p">,</span> <span class="n">backnumber</span><span class="p">);</span>
+
+<span class="c1">-- 테이블 생성시 인덱스 설정을 포함합니다.</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">player</span> <span class="p">(</span>
+  <span class="n">id</span>  <span class="nb">INT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="n">name</span>  <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">team_id</span> <span class="nb">INT</span><span class="p">,</span>
+  <span class="n">backnumber</span> <span class="nb">INT</span><span class="p">,</span>
+  <span class="k">INDEX</span> <span class="n">player_name_idx</span> <span class="p">(</span><span class="n">name</span><span class="p">),</span>
+  <span class="k">UNIQUE</span> <span class="k">INDEX</span> <span class="n">team_id_backnumber_idx</span> <span class="p">(</span><span class="n">team_id</span><span class="p">,</span> <span class="n">backnumber</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="c1">-- 해당 테이블에 대한 인덱스 정보를 알고 싶은 경우에 사용합니다.</span>
+<span class="k">SHOW</span> <span class="k">INDEX</span> <span class="k">FROM</span> <span class="n">player</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="인덱스의-동작-방식">인덱스의 동작 방식</h3>
+<ul>
+  <li>기존 방식대로라면 원본테이블에서 원하는 조건들을 만족하는 경우에 대해 풀스캔 해야하지만, 인덱스를 사용하면 다음과 같이 동작합니다.</li>
+  <li>인덱스 테이블은 인덱스 생성시 설정한 <code class="language-plaintext highlighter-rouge">INDEX(a)</code> 값에 해당하는 포인터가 원본 테이블의 a 컬럼의 값의 튜플을 가리키는 방식입니다.</li>
+  <li>a에 대한 조건이 입력될 때 인덱스 테이블에서 이에 해당하는 값을 Binary Search 형태로 검색하고, 해당 조건에 대한 인덱스 검색이 완료되면 포인터가 가리키는 원본 테이블의 튜플을 찾게 됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">WHERE a=7</code>이라는 조건으로 검색된다면, 인덱스 테이블에서 <code class="language-plaintext highlighter-rouge">a=7</code>인 값을 Binary Search로 검색하고, 해당 포인터가 가리키는 원본 테이블의 값을 불러오는 방식입니다.</li>
+</ul>
+
+<h3 id="복합-인덱스를-사용하는-이유">복합 인덱스를 사용하는 이유</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">WHERE a=7 AND b=95</code>와 같은 조건으로 검색되고 인덱스 테이블에 <code class="language-plaintext highlighter-rouge">a=7</code>을 만족하는 값이 많다면, 모든 <code class="language-plaintext highlighter-rouge">a=7</code>에 대한 포인터를 통해 원본 테이블에 찾아가서 <code class="language-plaintext highlighter-rouge">b=95</code>라는 값을 일일이 확인해야합니다.</li>
+  <li>인덱스 테이블에서 해당 조건을 재빠르게 먼저 찾아서 원본테이블을 참조하는 횟수를 줄이기 위해 복합인덱스를 구성할 수 있습니다. <code class="language-plaintext highlighter-rouge">CREATE INDEX(a,b)</code>: a 컬럼이 먼저 정렬되고, 이후 b 컬럼이 정렬됩니다.</li>
+  <li>따라서, <code class="language-plaintext highlighter-rouge">WHERE a=7 AND b=95</code> 조건에 대해 인덱스 테이블의 튜플을 검색하고 원본 테이블에 참조하게 됩니다.</li>
+  <li>하지만, 복합 인덱스만 위와 같이 설정하고 <code class="language-plaintext highlighter-rouge">WHERE b=95</code>에 대해서만 검색한다면, 결국 복합인덱스를 사용하지 않고, 원본 테이블을 풀스캔하기 때문에 조건절에 따라 인덱스를 생성하는 것이 매우 중요합니다.</li>
+</ul>
+
+<h3 id="covering-index">Covering index</h3>
+<ul>
+  <li>인덱스 테이블에서 조회하는 조건에 대한 모든 값을 가지고 있는 경우로, 조회 속도가 빠르다는 장점이 있기 때문에 의도적으로 사용하곤 합니다.</li>
+  <li>예를 들어, <code class="language-plaintext highlighter-rouge">CREATE UNIQUE INDEX item_id_backnumber_idx ON player (team_id, backnumber)</code>로 설정을 하고, <code class="language-plaintext highlighter-rouge">SELECT * team_id, backnumber FROM players WHERE team_id = 5</code>와 같이 검색하는 경우입니다.</li>
+</ul>
+
+<h3 id="hash-index">Hash index</h3>
+<ul>
+  <li>hash table을 사용하여 인덱스를 구현하는 방식으로, 시간복잡도가 O(1)로 매우 빠릅니다.</li>
+  <li>해시 테이블이 매우 커지면서 발생하는 rehashing 문제에 대한 부담이 있고, 값의 equality 비교만 가능하여 range 비교는 불가능하다는 단점이 있습니다.</li>
+  <li>복합 인덱스 설정시 <code class="language-plaintext highlighter-rouge">INDEX (a,b)</code>로 설정할 경우 (a,b)를 동시 조건으로 처리하는 경우에만 이용할 수 있습니다. (기존 방식은 첫번쨰 인덱스인 <code class="language-plaintext highlighter-rouge">a</code>만 사용해도 인덱 동작 가능)</li>
+</ul>
+
+<h3 id="인덱스-지정하는-방법">인덱스 지정하는 방법</h3>
+<ul>
+  <li>기본적으로 DBMS의 optimizer가 인덱스를 스스로 반영하여 조회에 사용하지만, 사용자가 이를 커스터마이징 하여 원하는 인덱스를 사용하도록 설정할 수 있습니다.</li>
+  <li>확인 방법: <code class="language-plaintext highlighter-rouge">EXPLAIN SELECT 스* FROM player WHERE backnumber=7;</code> 어떤 key를 이용하여 인덱스 참조했는지 분석할 수 있습니다.</li>
+  <li>제안 설정: <code class="language-plaintext highlighter-rouge">SELECT * FROM player USE INDEX (player_name_idx) WHERE name="sonny";</code></li>
+  <li>강제 설정: <code class="language-plaintext highlighter-rouge">SELECT * FROM player FORCE INDEX (player_name_idx) WHERE name="sonny";</code></li>
+  <li>제외 설정: <code class="language-plaintext highlighter-rouge">SELECT * FROM player IGNORE INDEX (player_name_idx) WHERE name="sonny";</code></li>
+</ul>
+
+<h2 id="고려사항">고려사항</h2>
+<ul>
+  <li>인덱스를 많이 만든다는 것은 인덱스 테이블을 많이 만든다는 의미와 같습니다. 따라서, 추가 저장 공간이 발생하게 됩니다.</li>
+  <li>또한, table을 수정하거나 변경할 때마다 영향을 받는 인덱스에 함께 적용되기 때문에 불필요한 인덱스를 많이 만들면 이에 대한 수정 시간도 변경되게 됩니다.</li>
+</ul>
+
+<h3 id="추가-공부">추가 공부</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ORDER BY</code>나 <code class="language-plaintext highlighter-rouge">GROUP BY</code>에 index를 사용하는 경우</li>
+  <li>이미 데이터가 매우 큰 경우에 인덱스를 추가하는 작업을 한다면 오랜 시간이 소모되어 DB 성능을 악화시킬 수 있습니다.</li>
+</ul>
+
+<h3 id="참고-자료">참고 자료</h3>
+<ul>
+  <li><a href="https://youtu.be/IMDH4iAQ6zM?si=U2NoBBtyJD5BQSGG">쉬운코드님 유튜브 영상</a></li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[인덱스란 무엇인가? 인덱스를 사용하는 이유: 조건(WHERE)을 만족하는 튜플들을 빠르게 조회하기 위해 사용합니다. 빠르게 ORDER BY하거나 GROUP BY하기 위해 사용합니다.]]></summary></entry><entry><title type="html">[Study] elastic search 사용하기</title><link href="http://localhost:4000/study/elastic-search/" rel="alternate" type="text/html" title="[Study] elastic search 사용하기" /><published>2023-10-12T00:05:07+09:00</published><updated>2023-10-12T00:05:07+09:00</updated><id>http://localhost:4000/study/elastic-search</id><content type="html" xml:base="http://localhost:4000/study/elastic-search/"><![CDATA[<h2 id="설치-및-간단한-설정">설치 및 간단한 설정</h2>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker pull docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+<span class="nv">$ </span>docker run <span class="nt">-p</span> 9200:9200 <span class="nt">-p</span> 9300:9300 <span class="se">\</span>
+  <span class="nt">--name</span> my-elasticsearch <span class="se">\</span>
+  <span class="nt">-e</span> <span class="s2">"discovery.type=single-node"</span> <span class="se">\</span>
+  docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+</code></pre></div></div>
+<ul>
+  <li>9200 포트를 통해 엘라스틱 서치에 접속할 수 있도록, 9300 포트를 통해 내부에서 통신하도록 설정합니다.</li>
+  <li>단일 노드로 실행하기 위해 <code class="language-plaintext highlighter-rouge">discovery.type=signle-node</code> 옵션을 추가합니다.</li>
+  <li>https://localhost:9200/으로 접속하면 로그인을 통해 접속 가능합니다.</li>
+</ul>
+
+<h3 id="elastic-search-로그인을-위한-비밀번호-변경">elastic search 로그인을 위한 비밀번호 변경</h3>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-it</span> my-elasticsearch /bin/bash
+<span class="nv">$ </span>elasticsearch@...:~<span class="nv">$ </span>bin/elasticsearch-setup-passwords interactive
+</code></pre></div></div>
+<ul>
+  <li>docker 컨테이너 내부에 접속하여 계정 관련 정보를 수정할 수 있습니다.</li>
+</ul>
+
+<h2 id="엘라스틱서치-데이터-삽입조회수정삭제">엘라스틱서치 데이터 삽입/조회/수정/삭제</h2>
+<h4 id="삽입">삽입</h4>
+<ul>
+  <li>방식: <code class="language-plaintext highlighter-rouge">PUT &lt;인덱스&gt;/_doc/&lt;도큐먼트번호&gt;</code></li>
+  <li>예시
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl  <span class="nt">-k</span> <span class="nt">-u</span> <span class="s2">"elastic:elastic"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "id" : "1", "message" : "1번 데이터 입니다." }'</span> <span class="se">\</span>
+  <span class="nt">-X</span> PUT https://localhost:9200/ksb/_doc/1
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="조회">조회</h4>
+<ul>
+  <li>방식: <code class="language-plaintext highlighter-rouge">GET &lt;인덱스&gt;/_doc/&lt;도큐먼트번호&gt;</code></li>
+  <li>예시:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl  <span class="nt">-k</span> <span class="nt">-u</span> <span class="s2">"elastic:elastic"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-X</span> GET https://localhost:9200/ksb/_doc/1
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="수정">수정</h4>
+<ul>
+  <li>방식: <code class="language-plaintext highlighter-rouge">POST &lt;인덱스&gt;/_update/&lt;도큐먼트번호&gt;</code></li>
+  <li>예시:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl  <span class="nt">-k</span> <span class="nt">-u</span> <span class="s2">"elastic:elastic"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "doc": { "message": "0번 데이터 입니다." } }'</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST https://localhost:9200/ksb/_doc/1
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="삭제">삭제</h4>
+<ul>
+  <li>방식: <code class="language-plaintext highlighter-rouge">DELETE &lt;인덱스&gt;/_doc/&lt;도큐먼트번호&gt;</code></li>
+  <li>예시:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl  <span class="nt">-k</span> <span class="nt">-u</span> <span class="s2">"elastic:elastic"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-X</span> DELETE https://localhost:9200/ksb/_doc/1
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="_bulk-api">_bulk API</h4>
+<ul>
+  <li>방식: <code class="language-plaintext highlighter-rouge">POST _bulk</code></li>
+  <li>얘시:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'
+  { "index" : { "_index" : "ksb", "_id" : "1" } }
+  { "field1" : "value1" }
+  { "delete" : { "_index" : "ksb", "_id" : "2" } }
+  { "create" : { "_index" : "ksb", "_id" : "3" } }
+  { "field1" : "value3" }
+  { "update" : {"_id" : "1", "_index" : "ksb"} }
+  { "doc" : {"field2" : "value2"} }
+
+  '</span> <span class="o">&gt;</span> query.json
+<span class="nv">$ </span>curl  <span class="nt">-k</span> <span class="nt">-u</span> <span class="s2">"elastic:elastic"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST https://localhost:9200/_bulk <span class="se">\</span>
+  <span class="nt">--data-binary</span> @query.json
+</code></pre></div>    </div>
+  </li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[설치 및 간단한 설정 $ docker pull docker.elastic.co/elasticsearch/elasticsearch:8.7.0 $ docker run -p 9200:9200 -p 9300:9300 \ --name my-elasticsearch \ -e "discovery.type=single-node" \ docker.elastic.co/elasticsearch/elasticsearch:8.7.0 9200 포트를 통해 엘라스틱 서치에 접속할 수 있도록, 9300 포트를 통해 내부에서 통신하도록 설정합니다. 단일 노드로 실행하기 위해 discovery.type=signle-node 옵션을 추가합니다. https://localhost:9200/으로 접속하면 로그인을 통해 접속 가능합니다.]]></summary></entry><entry><title type="html">[Django] Push 알람은 어떤식으로 구현할 수 있을까?</title><link href="http://localhost:4000/strategy/django-strategy-push-notification/" rel="alternate" type="text/html" title="[Django] Push 알람은 어떤식으로 구현할 수 있을까?" /><published>2023-09-24T00:05:07+09:00</published><updated>2023-09-24T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-push-notification</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-push-notification/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
 <ul>
   <li>진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다.</li>
   <li>이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다.</li>
@@ -257,7 +427,273 @@ django-grip<span class="o">==</span>3.4.0
 <span class="nv">celery</span><span class="o">==</span>5.3.4
 <span class="nv">channels</span><span class="o">==</span>3.0.4
 channels-redis<span class="o">==</span>4.1.0
-</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다. 이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 django-eventstream을 이용했습니다.]]></summary></entry><entry><title type="html">[Study] Database - TRIGGER, Transaction</title><link href="http://localhost:4000/study/study-cs-dbms/" rel="alternate" type="text/html" title="[Study] Database - TRIGGER, Transaction" /><published>2023-09-11T00:05:07+09:00</published><updated>2023-09-11T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-dbms</id><content type="html" xml:base="http://localhost:4000/study/study-cs-dbms/"><![CDATA[<h2 id="sql-trigger">SQL Trigger</h2>
+</code></pre></div></div>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 진행하던 사이드 프로젝트에서, 이미지를 업로드 시킬 때, 이미지에 따라 처리 시간이 오래 걸리는 현상이 있었습니다. 이미지 업로드 진행 중에도, 유저들이 사용하는데 지장이 없도록 Celery를 활용한 비동기처리는 되어있는 상태였습니다. 하지만, Celery 작업을 마친 후, wsgi 서비스에서 클라이언트에게 알람을 전달하도록 하는 것이 효율적일 것이라고 생각하게 되어서 푸시알람 구현을 고민해보게 되었습니다. 이를 위해, 클라이언트 단에서 EventSource를 사용했고, 이를 가능하게 하는 Django 모듈인 django-eventstream을 이용했습니다.]]></summary></entry><entry><title type="html">[Django] web server, was, cgi, wsgi, asgi</title><link href="http://localhost:4000/django%20strategy/django-cgi/" rel="alternate" type="text/html" title="[Django] web server, was, cgi, wsgi, asgi" /><published>2023-09-24T00:05:07+09:00</published><updated>2023-09-24T00:05:07+09:00</updated><id>http://localhost:4000/django%20strategy/django-cgi</id><content type="html" xml:base="http://localhost:4000/django%20strategy/django-cgi/"><![CDATA[<h2 id="각-용어의-정의">각 용어의 정의</h2>
+<h3 id="웹서버">웹서버</h3>
+<ul>
+  <li>인터넷을 통해서 요청된 웹 컨텐츠의 전달을 도와주는 하드웨어와 소프트웨어입니다.</li>
+  <li>웹서버는 기본적으로 ‘정적’인 파일을 전달합니다.</li>
+  <li>클라이언트가 HTTP 요청을 통해 리소스를 요청하면, 리소스를 그대로 보내줍니다.</li>
+</ul>
+
+<h3 id="cgi-common-gateway-interface">CGI (Common Gateway Interface)</h3>
+<ul>
+  <li>웹서버에서 애플리케이션(프로그램, 스크립트)을 동작시키기 위한 인터페이스입니다.</li>
+  <li>정적인 웹서버를 동적으로 기능하기 위해서 등장하였으며, 서버 프로그램과 외부 프로그램 간의 인터페이스가 CGI입니다.</li>
+  <li>기존에는 클리아이언트에서 외부 프로그램이 필요한 요청이 오면 CGI를 통해 외부 프로그램을 실행시켜 요청에 응답하도록 했지만, 현재는 웹서버에 인터프리터를 내장하여 프로세스를 fork해서 외부 프로그램을 실행시키지 않고 내부에서 처리합니다.</li>
+</ul>
+
+<h3 id="was-web-application-server">WAS (Web Application Server)</h3>
+<ul>
+  <li>동적으로 기능을 하는 웹서버로, Web Server + CGI입니다.</li>
+  <li>접속자가 많은 경우 CGI 방식보다 애플리케이션 서버 방식의 처리량(Throughput)이 더 좋습니다.</li>
+  <li>만약, 5개의 웹 브라우저가 동일한 프로그램을 요청했을 때 CGI는 5개의 요청에 대한 프로그램을 모두 메모리에 적재합니다.</li>
+  <li>애플리케이션 서버 방식은 메모리에 한번만 적재하여 CGI 방식에 비해 전체적인 메모리 사용량이 적으며, 이는 더 많은 요청을 처리할 수 있음을 의미합니다.</li>
+</ul>
+
+<h3 id="wsgiweb-server-gateway-interface">WSGI(Web Server Gateway Interface)</h3>
+<ul>
+  <li>파이썬 애플리케이션, 파이썬 스크립트가 웹서버와 통신하기 위한 인터페이스입니다.</li>
+  <li>wsgi는 서버와 게이트웨이, 애플리케이션과 프레임워크 양단으로 니눠져있습니다. wsgi 요청을 처리하려면 서버단에서 <code class="language-plaintext highlighter-rouge">환경정보</code>와 <code class="language-plaintext highlighter-rouge">콜백함수</code>를 애플리케이션단에 제공해야합니다.</li>
+  <li>역할
+    <ul>
+      <li>환경변수가 변하면 타겟 URL에 따라서 요청 경로를 지정해줍니다.</li>
+      <li>같은 프로세스에서 여러 애플리케이션과 프레임워크가 실행됩니다.</li>
+      <li>XSLT 스타일시트를 적용하는 것과 가이 전처리합니다.</li>
+    </ul>
+  </li>
+  <li>wsgi는 보통 application(=app)이라는 이름의 파이썬 함수를 웹서버에 제공합니다. 해당 함수는 다음 두가지의 매개변수를 전달받습니다.
+    <ul>
+      <li>environ: 웹서버가 제공한 환경변수와 현재 요청에 대한 정보가 포함된 Dictionary</li>
+      <li>start_response: 클라이언트로 HTTP 응답을 보내는 작업을 시작하는데 사용하는 함수
+        <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+  <span class="nf">start_response</span><span class="p">(</span><span class="sh">'</span><span class="s">200 OK</span><span class="sh">'</span><span class="p">,</span> <span class="p">[(</span><span class="sh">'</span><span class="s">Content-Type</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">text/plain</span><span class="sh">'</span><span class="p">)])</span>
+<span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="sh">'</span><span class="s">Greetings universe</span><span class="sh">'</span><span class="p">]</span>
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>방식: 요청 -&gt; 웹서버 -&gt; wsgi server (=middleware) -&gt; Djnago, Flask..</li>
+  <li>단점
+    <ul>
+      <li>한 번에 하나의 요청과 응답만 처리하며, 응답이 즉시 반환된다고 전제합니다. 따라서, 롱폴링 HTTP 연결과 같은 장시간 연결을 처리할 수 없습니다.</li>
+      <li>동기 전용으로, 멀티스레드 연결풀을 사용하더라도 응답이 반환될 때까지 각 연결이 차단됩니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="asgi">ASGI</h3>
+<ul>
+  <li>WSGI와 마찬가지로 파이썬 웹애플리케이션과 웹서버 사이에서 통신하기 위한 인터페이스입니다.</li>
+  <li>WSGI와의 차이점은 애플리케이션당 여러 개의 비동기 이벤트를 허용한다는 것이며, 동기앱과 비동기앱 모두를 지원합니다.</li>
+  <li>asgi를 사용해 새로운 비동기 웹앱을 구축하는 것뿐만 아니라 오래된 동기 wsgi 웹 앱을 asgi로 마이그레이션할 수도 있습니다.</li>
+  <li>wsgi와 다르게 3개의 매개변수를 application에 전달합니다.
+    <ul>
+      <li>scope: 현재 요청에 대한 정보가 포함된 Dictionary (wsgi의 environ과 세부 명명규칙이 다름)</li>
+      <li>send: 애플리케이션이 클라이언트로 메시지를 돌려보낼 수 이쏘록 해주는 async callable</li>
+      <li>recieve: 애플리케이션이 클라이언트로부터 메시지를 수신할 수 있도록 해주는 async collable
+```python
+async def application(scope, receive, send):
+await send({
+  ‘type’: ‘http.response.start’,
+  ‘status’: 200,
+  ‘headers’: [
+      [b’content-type’, b’text/plain’],
+  ],
+})</li>
+    </ul>
+
+    <p>await send({
+    ‘type’: ‘http.response.body’,
+    ‘body’: b’Hello, world!’,
+})
+```</p>
+    <ul>
+      <li>asgi의 가장 큰 특징은 함수 전반에서 비동기 메타포를 사용한다는 것입니다.</li>
+      <li>함수 자체는 async이며 HTTP 헤더와 응답 본문을 별도의 두가지 await send() 명령으로 보냅니다. 따라서, 많은 연결의 application 및 send 호출과 동시에 교차가 가능합니다.</li>
+      <li>receive 역시 async 함수로, 다른 작업을 차단하지 않고도 요청 본문을 받을 수 있습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="asgi에서-동기-및-비동기-함수-사용하기">ASGI에서 동기 및 비동기 함수 사용하기</h3>
+<ul>
+  <li>동기 전용 함수에 대한 장기 실행 호출은 전체 호출 체인을 차단하기 때문에, 비동기 사용의 장점이 사라집니다.</li>
+  <li>따라서, 장기 실행 동기 호출을 쓸 수 밖에 없는 상황이라면, asyncio.run_in_executor를 사용해 스레드 또는 프로세스 풀에 대한 호출을 맡깁니다.</li>
+  <li>예를 들어, Pillow 이미지 라이브러리를 사용하는 경우, run_in_executor를 프로세스 풀과 함께 사용해야합니다.</li>
+  <li>프로세스 간에 데이터를 주고받는 오버헤드가 있지만, run_in_executor는 다른 이벤트를 차단하지 않습니다.</li>
+</ul>
+
+<h3 id="wsgi-cgi-방식의-차이점">WSGI, CGI 방식의 차이점</h3>
+<ul>
+  <li>CGI 서브프로세스는 소켓과 stdout을 포함하여 OS 환경을 상속합니다.</li>
+  <li>CGI 서브프로세스가 response를 작성하고, 이를 웹서브로 응답하면 웹서브는 해당 응답을 브라우저로 전송합니다.</li>
+  <li>대부분의 CGI는 모든 요청마다 서브프로세스를 fork하게 됩니다.</li>
+</ul>
+
+<p>WSGI는 CGI 디자인 패턴에 기반한 인터페이스입니다.</p>
+<ul>
+  <li>WSGI는 모든 요청에 대해 서브프로세스를 fork하지 않습니다.</li>
+  <li>HTTP 요청 헤더를 파싱하여 이를 환경에 추가합니다.</li>
+  <li>file-like object로써 POST oriented input을 제공합니다.</li>
+  <li>사용자로 하여금 수많은 format 디테일로부터 해방시키고 response를 만들 수 있는 기능을 제공합니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[각 용어의 정의 웹서버 인터넷을 통해서 요청된 웹 컨텐츠의 전달을 도와주는 하드웨어와 소프트웨어입니다. 웹서버는 기본적으로 ‘정적’인 파일을 전달합니다. 클라이언트가 HTTP 요청을 통해 리소스를 요청하면, 리소스를 그대로 보내줍니다.]]></summary></entry><entry><title type="html">[Django] Channels란 무엇일까?</title><link href="http://localhost:4000/strategy/django-strategy-channels/" rel="alternate" type="text/html" title="[Django] Channels란 무엇일까?" /><published>2023-09-24T00:05:07+09:00</published><updated>2023-09-24T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-channels</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-channels/"><![CDATA[<h2 id="channels-모듈이란">Channels 모듈이란?</h2>
+<ul>
+  <li>Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다.</li>
+  <li>이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다.</li>
+  <li>인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다.</li>
+  <li>이벤트 주도의 구조를 Channel Layer를 이용해 다루며, Channel Layer는 여러 프로세스 간의 통신을 용이하게 만들면서 프로젝트를 여러 개의 프로세스로 나눌 수 있도록 합니다.</li>
+</ul>
+
+<h2 id="channels-동작-원리">Channels 동작 원리</h2>
+<h3 id="tutles-all-the-way-down">Tutles All The Way Down</h3>
+<ul>
+  <li>Consumers는 채팅 메시지나 알림을 처리하는 독립적인 요소로, Channels는 기본적인 컨슈머를 작성하고, URL 라우팅에 연결하고 프로토콜을 감지하는 등의 기능을 제공합니다.</li>
+  <li>HTTP와 기존 Django의 애플리케이션을 구성요소로 활용하여, 기존의 코드를 유지한 상태로 HTTP Long-Polling이나 웹소켓을 함께 처리할 수 있습니다.</li>
+  <li>URL 라우팅, 미들웨어 모두 ASGI의 애플리케이션입니다.</li>
+</ul>
+
+<h3 id="scopes와-event">Scopes와 Event</h3>
+<ul>
+  <li>Channels와 ASGI는 들어오는 연결을 두 개의 컴포넌트(스코프, 이벤트들의 리스트)로 분리합니다.</li>
+</ul>
+
+<p>스코프</p>
+<ul>
+  <li>하나의 연결에 대한 상세 설명들의 집합입니다.</li>
+  <li>요청이 발생한 URL, 웹소켓이 열린 IP 주소, 유저 정보등으로 구성됩니다.</li>
+  <li>연결이 종료될 때까지 유지됩니다.</li>
+  <li>HTTP의 경우, 스코프는 하나의 요청동안만 유지되지만, 웹소켓의 경우에는 소켓의 수명 전체에 걸쳐 유지됩니다.</li>
+  <li>예를 들어, 챗봇 프로토콜은 챗 프로토콜이 상태를 갖지 않더라도 대화가 종료될 때까지 스코프가 유지됩니다.</li>
+</ul>
+
+<p>이벤트</p>
+<ul>
+  <li>스코프의 수명 동안 여러 이벤트들이 발생하며, 이는 유저와의 상호작용을 나타냅니다.</li>
+  <li>HTTP 요청을 보내거나 웹소켓 프레임을 전송하는 일들입니다.</li>
+  <li>ASGI 애플리케이션은 매 스코프마다 개별 인스턴스화되고, 해당 스코프 안에서 발생하는 이벤트들을 차례로 처리합니다.</li>
+</ul>
+
+<p>HTTP 예시</p>
+<ol>
+  <li>유저가 HTTP 요청 전송</li>
+  <li>HTTP의 타입 스코프를 요청 URL, 메서드, 헤더 등을 담아서 생성</li>
+  <li>http.request 이벤트를 HTTP body 데이터와 함께 전송</li>
+  <li>Channels(or ASGI 애플리케이션)이 이를 처리해 http.response 이벤트를 생성, 브라우저에 응답 및 연결 종료</li>
+  <li>HTTP 요청/응답 완결, 스코프 삭제</li>
+</ol>
+
+<p>챗봇 예시</p>
+<ol>
+  <li>유저가 챗봇에게 첫번째 메시지 전송</li>
+  <li>유저의 ID, 이름, 유저명이 담긴 스코프 생성</li>
+  <li>애플리케이션이 chat.received_message 이벤트를 텍스트 데이터와 함께 수신</li>
+  <li>유저가 챗봇에게 메시지를 수차례 전송하며 chat.received_message 이벤트들이 생성</li>
+  <li>제한시간이 지나거나 애플리케이션 프로세스 재시작시 스코프 삭제</li>
+</ol>
+
+<h3 id="컨슈머">컨슈머</h3>
+<ul>
+  <li>Channels의 기본적인 단위요소로, 이벤트를 받습니다.</li>
+  <li>요청이나 새로운 소켓 요청이 들어오면, Channels는 라우팅 테이블을 찾아 해당 연결에 대한 적절한 컨슈머를 찾고, 인스턴스를 만들어 처리합니다.</li>
+  <li>View와는 달리, 스코프가 종료되기까지 더 긴 수명을 갖도록 설계되었습니다.</li>
+</ul>
+
+<h4 id="코드로-보는-예시">코드로 보는 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChatConsumer</span><span class="p">(</span><span class="n">WebsocketConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Anonymous</span><span class="sh">"</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">accept</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="sh">"</span><span class="s">[Welcome %s!]</span><span class="sh">"</span> <span class="o">%</span> <span class="n">self</span><span class="p">.</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">text_data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text_data</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">"</span><span class="s">/name</span><span class="sh">"</span><span class="p">):</span>
+            <span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[</span><span class="mi">5</span><span class="p">:].</span><span class="nf">strip</span><span class="p">()</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="sh">"</span><span class="s">[set your username to %s]</span><span class="sh">"</span> <span class="o">%</span> <span class="n">self</span><span class="p">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text_data</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">username</span> <span class="o">+</span> <span class="sh">"</span><span class="s">: </span><span class="sh">"</span> <span class="o">+</span> <span class="n">text_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">pass</span>
+</code></pre></div></div>
+<ul>
+  <li>각 종류의 프로토콜에서는 서로 다른 타입의 이벤트들이 발생하며, 각 타입은 서로 다른 메서드로 구분됩니다.</li>
+  <li>이벤트에 따라 처리하는 코드를 작성하면, Channels가 이들을 스케쥴링하고 병렬적으로 작동시키는 역할을 담당합니다.</li>
+  <li>내부적으로 Channels는 완전히 비동기적인 이벤트 루프를 실행합니다.</li>
+</ul>
+
+<h4 id="동기적인-처리-예시">동기적인 처리 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">LogConsumer</span><span class="p">(</span><span class="n">WebsocketConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="n">Log</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="sh">"</span><span class="s">connected</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">client</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">scope</span><span class="p">[</span><span class="sh">"</span><span class="s">client</span><span class="sh">"</span><span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+<h4 id="비동기적인-처리-예시">비동기적인 처리 예시</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PingConsumer</span><span class="p">(</span><span class="n">AsyncConsumer</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">websocket_connect</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">websocket.accept</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">websocket_receive</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">websocket.send</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">pong</span><span class="sh">"</span><span class="p">,</span>
+        <span class="p">})</span>
+</code></pre></div></div>
+
+<h3 id="라우팅-프로토콜들">라우팅, 프로토콜들</h3>
+<ul>
+  <li>라우팅을 활용하여 경로마다 기능별로 컨슈머를 사용하도록 할 수 있습니다.</li>
+  <li>각각의 프로토콜을 목적에 따른 이벤트들로 분리하여 처리할 수 있도록 합니다.
+    <h4 id="코드-예시">코드 예시</h4>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChattyBotConsumer</span><span class="p">(</span><span class="n">SyncConsumer</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">telegram_message</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+      <span class="sh">"""</span><span class="s">
+      Simple echo handler for telegram messages in any chat.
+      </span><span class="sh">"""</span>
+      <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+          <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">telegram.message</span><span class="sh">"</span><span class="p">,</span>
+          <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">You said: %s</span><span class="sh">"</span> <span class="o">%</span> <span class="n">message</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">],</span>
+      <span class="p">})</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ChattyBotConsumer</span><span class="p">(</span><span class="n">SyncConsumer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">telegram_message</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Simple echo handler for telegram messages in any chat.
+        </span><span class="sh">"""</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">send</span><span class="p">({</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">telegram.message</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">You said: %s</span><span class="sh">"</span> <span class="o">%</span> <span class="n">message</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">],</span>
+        <span class="p">})</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">application</span> <span class="o">=</span> <span class="nc">ProtocolTypeRouter</span><span class="p">({</span>
+
+    <span class="sh">"</span><span class="s">websocket</span><span class="sh">"</span><span class="p">:</span> <span class="nc">URLRouter</span><span class="p">([</span>
+        <span class="nf">url</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">^chat/admin/$</span><span class="sh">"</span><span class="p">,</span> <span class="n">AdminChatConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">()),</span>
+        <span class="nf">url</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">^chat/$</span><span class="sh">"</span><span class="p">,</span> <span class="n">PublicChatConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">()),</span>
+    <span class="p">]),</span>
+
+    <span class="sh">"</span><span class="s">telegram</span><span class="sh">"</span><span class="p">:</span> <span class="n">ChattyBotConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">(),</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<h2 id="프로세스간-통신">프로세스간 통신</h2>
+<ul>
+  <li>표준 WSGI 서버와 같이, 애플리케이션은프로토콜 이벤트들을 서버 프로세스 안에서 처리합니다.</li>
+  <li>애플리케이션으로 들어오는 소켓이나 연결은 애플리케이션 인스턴스에 의해 처리됩니다. 애플리케이션 인스턴스는 호출되고, 클라이언트에게 다시 데이터를 직접 보내줍니다.</li>
+  <li>복잡한 애플리케이션을 구성하다보면 서로 다른 애플리케이션 인스턴스들 간의 통신이 필요한 경우가 생깁니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[Channels 모듈이란? Django에서 기본적으로 제공하는 비동기 뷰를 감싸서 Django가 HTTP 뿐 아니라 웹소켓, 챗봇, 라디오 등의 프로토콜을 처리할 수 있도록 합니다. 이는 Django의 동기적인 방식과 양립할 수 있고, 원하는 방식으로 작성할 수 있습니다. 인증, 세션 시스템과 통합될 수 있고, HTTP 용으로 개발된 프로젝트를 다른 프로토콜로 쉽게 확장할 수 있습니다. 이벤트 주도의 구조를 Channel Layer를 이용해 다루며, Channel Layer는 여러 프로세스 간의 통신을 용이하게 만들면서 프로젝트를 여러 개의 프로세스로 나눌 수 있도록 합니다.]]></summary></entry><entry><title type="html">[Study] Database - TRIGGER, Transaction</title><link href="http://localhost:4000/study/study-cs-dbms/" rel="alternate" type="text/html" title="[Study] Database - TRIGGER, Transaction" /><published>2023-09-11T00:05:07+09:00</published><updated>2023-09-11T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-dbms</id><content type="html" xml:base="http://localhost:4000/study/study-cs-dbms/"><![CDATA[<h2 id="sql-trigger">SQL Trigger</h2>
 <ul>
   <li>데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.</li>
   <li>INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)</li>
@@ -1157,623 +1593,4 @@ task3
   <li><code class="language-plaintext highlighter-rouge">has_object_permission</code>는 <code class="language-plaintext highlighter-rouge">has_permission</code> 검사를 통과한 이 후에 실행됩니다.</li>
   <li><code class="language-plaintext highlighter-rouge">ModelViewSet</code>이 상속받는 <code class="language-plaintext highlighter-rouge">GenericAPIView</code>에 <code class="language-plaintext highlighter-rouge">get_object</code> 메서드 내부에 <code class="language-plaintext highlighter-rouge">self.check_object_permissions</code>는 해당 object가 지정해둔 permission에 따라 권한을 갖는지를 판단합니다.</li>
   <li>Django의 mixins 모듈을 살펴보면, <code class="language-plaintext highlighter-rouge">get_object</code> 메서드를 사용하는 믹스인은 detail 관련 <code class="language-plaintext highlighter-rouge">Retrieve</code>(조회), <code class="language-plaintext highlighter-rouge">Update</code>(수정), <code class="language-plaintext highlighter-rouge">Destroy</code>(삭제) 모듈에서 사용하게 되며, 이 때 object-level Permission을 확인합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry><entry><title type="html">[Django] 테스트는 어떻게 수행할까? (query count 포함)</title><link href="http://localhost:4000/strategy/django-strategy-test/" rel="alternate" type="text/html" title="[Django] 테스트는 어떻게 수행할까? (query count 포함)" /><published>2023-08-21T00:05:07+09:00</published><updated>2023-08-21T00:05:07+09:00</updated><id>http://localhost:4000/strategy/django-strategy-test</id><content type="html" xml:base="http://localhost:4000/strategy/django-strategy-test/"><![CDATA[<h2 id="글을-작성하게-된-계기">글을 작성하게 된 계기</h2>
-<ul>
-  <li>테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다.</li>
-  <li>서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 <code class="language-plaintext highlighter-rouge">python3 manage.py test ~</code> 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다.</li>
-  <li>구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.</li>
-</ul>
-
-<h3 id="serializer-test를-위한-testcase-작성">serializer test를 위한 TestCase 작성</h3>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># core.test.py
-</span>
-<span class="kn">import</span> <span class="n">logging</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="sh">"</span><span class="s">skeleton</span><span class="sh">"</span><span class="p">)</span>
-<span class="n">logger</span><span class="p">.</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
-<span class="n">logger</span><span class="p">.</span><span class="nf">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="nc">StreamHandler</span><span class="p">())</span>
-
-<span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">reset_queries</span>
-<span class="k">def</span> <span class="nf">assert_query_count</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="nd">@override_settings</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="nf">reset_queries</span><span class="p">()</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">queries</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">queries</span>
-            <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
-                <span class="n">logger</span><span class="p">.</span><span class="nf">debug</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">QUERY: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">sql</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="s">, TIME: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="sh">'</span><span class="s">time</span><span class="sh">'</span><span class="p">]</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="n">count</span><span class="p">,</span> <span class="sh">"</span><span class="s">QUERY COUNT:%d != %d</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">queries</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">ret</span>
-        <span class="k">return</span> <span class="n">wrapper</span>
-    <span class="k">return</span> <span class="n">decorator</span>
-
-<span class="k">class</span> <span class="nc">IntegrationSerializerTestCase</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">serializer_test</span><span class="p">(</span>
-        <span class="n">self</span><span class="p">,</span>
-        <span class="n">expected_query_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="n">instance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSerializer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">data</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="n">run_test</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">run_test</span>
-        <span class="k">if</span> <span class="n">expected_query_count</span><span class="p">:</span>
-            <span class="n">run_test</span> <span class="o">=</span> <span class="nf">assert_query_count</span><span class="p">(</span><span class="n">expected_query_count</span><span class="p">)(</span><span class="n">run_test</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">CreateSerializer</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nf">isinstance</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(),</span> <span class="n">UpdateSerializer</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(</span><span class="sh">"</span><span class="s">instance must be a ModelSerializer</span><span class="sh">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">serializer</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">updated_instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">serializer</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">core</code> 앱의 test 파일에 위와 같이 다른 테스트에서 상속받을 TestCase 클래스를 작성합니다. import 모듈은 생략합니다.</li>
-  <li>저는 테스트 작성시 <code class="language-plaintext highlighter-rouge">TestCase</code>를 상속받은 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받는 방식으로 테스트를 수행합니다.</li>
-  <li>클래스 변수로 지정한 <code class="language-plaintext highlighter-rouge">serializer</code>에 따라서, 검증하는 방식이 다릅니다. 테스트를 위해 더욱 구체적인 정보를 추가해야할 필요가 있다면 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>의 메서드에서 이를 관리하는 방식으로 사용합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">serializer.save()</code> 이 후 반환되는 값은 serializer.data입니다.</li>
-  <li>얼마나 많은 sql query를 호출했는지 평가하기 위해 DB 호출 부분을 <code class="language-plaintext highlighter-rouge">assert_query_count</code> 데코레이터를 사용합니다. <code class="language-plaintext highlighter-rouge">expected_query_count</code>를 인자로 추가한다면, 이에 대한 부분도 평가합니다.</li>
-  <li>테스트 함수에서 <code class="language-plaintext highlighter-rouge">isinstance</code>로 serializer를 구분하는데, 이들은 미리 <code class="language-plaintext highlighter-rouge">core.serializers.py</code>에 작성하여둔 시리얼라이저를 상속하는 방식입니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># core.serializers.py
-</span>  <span class="kn">from</span> <span class="n">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-
-  <span class="k">class</span> <span class="nc">CreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
-
-      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
-
-  <span class="k">class</span> <span class="nc">UpdateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="p">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="bp">None</span>
-
-      <span class="k">def</span> <span class="nf">to_representation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">representation_serializer_class</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">).</span><span class="n">data</span>
-</code></pre></div>    </div>
-    <ul>
-      <li>해당 클래스들을 상속받아 생성/수정 시리얼라이저를 사용하게 될 것이므로, 공통되는 추가적인 정보 기입 혹은 로깅등이 있다면 이곳에 추가합니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="구체적인-사용-예시">구체적인 사용 예시</h3>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># products.test_serializer.py
-</span>
-<span class="k">class</span> <span class="nc">ProductUpdateSerializerTestCase</span><span class="p">(</span><span class="n">IntegrationSerializerTestCase</span><span class="p">):</span>
-    <span class="n">serializer</span> <span class="o">=</span> <span class="n">ProductUpdateSerializer</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpTestData</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="bp">...</span>
-
-    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">prod</span> <span class="o">=</span> <span class="nf">get_object_or_404</span><span class="p">(</span><span class="n">Product</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">prod_data</span><span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">])</span>
-
-        <span class="n">serializer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">serializer_test</span><span class="p">(</span>
-            <span class="n">expected_query_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">instance</span><span class="o">=</span><span class="n">prod</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">category</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">is_active</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">is_active</span><span class="sh">'</span><span class="p">],</span>
-            <span class="n">is_deleted</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="sh">'</span><span class="s">is_deleted</span><span class="sh">'</span><span class="p">],</span>
-        <span class="p">)</span>
-
-        <span class="n">test_field_list</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">category</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">is_active</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">is_deleted</span><span class="sh">'</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">test_field_list</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">self</span><span class="p">.</span><span class="nf">subTest</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">serializer</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">self</span><span class="p">.</span><span class="n">update_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-</code></pre></div></div>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">core</code> 앱으로부터 <code class="language-plaintext highlighter-rouge">IntegrationSerializerTestCase</code>를 상속받아, 원하는 시리얼라이저를 테스트합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">ProductUpdateSerializer</code>는 아래와 같이 구성되어, <code class="language-plaintext highlighter-rouge">core.serializer.UpdateSerializer</code>를 상속받습니다.
-    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">ProductUpdateSerializer</span><span class="p">(</span><span class="n">UpdateSerializer</span><span class="p">):</span>
-      <span class="n">representation_serializer_class</span> <span class="o">=</span> <span class="n">ProductSerializer</span>
-
-      <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-          <span class="n">model</span> <span class="o">=</span> <span class="n">Product</span>
-          <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
-              <span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">,</span>
-              <span class="sh">"</span><span class="s">category</span><span class="sh">"</span><span class="p">,</span>
-              <span class="sh">"</span><span class="s">is_active</span><span class="sh">"</span><span class="p">,</span>
-              <span class="sh">"</span><span class="s">is_deleted</span><span class="sh">"</span><span class="p">,</span>
-          <span class="p">)</span>
-</code></pre></div>    </div>
-  </li>
-  <li><code class="language-plaintext highlighter-rouge">self.serializer_test</code>의 결과로 반환되는 serializer의 내용들을 활용하여 테스트합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성하게 된 계기 테스트 환경을 구축하는 것이 초반에는 번거로울지 모르지만, 기능 구현에 대한 발전 과정 / 리팩토링 과정을 공유하고 특정 기능에 대해 구체적인 예시로 살펴볼 수 있다는 점에 있어서 편리하다고 생각되었습니다. 서비스를 실행시키고 postman 혹은 화면작업을 통한 이벤트로 구현한 작업을 실행하는 번거로운 작업보다 간단한 python3 manage.py test ~ 명령어를 통해 구현 기능을 미리 검토해볼 수 있다는 장점이 있습니다. 구현 기능을 적용시키기 이전, 테스트를 습관화 하기 위해 사용하던 전략을 정리하기 위해 포스팅합니다.]]></summary></entry><entry><title type="html">[Study] Network - TCP</title><link href="http://localhost:4000/study/study-cs-network-tcp/" rel="alternate" type="text/html" title="[Study] Network - TCP" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-network-tcp</id><content type="html" xml:base="http://localhost:4000/study/study-cs-network-tcp/"><![CDATA[<h3 id="tcp-통신이란">TCP 통신이란?</h3>
-<ul>
-  <li>네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다.</li>
-  <li>unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다.</li>
-  <li>network congetion avoidance algorithm을 사용합니다.</li>
-</ul>
-
-<p><strong>reliable network를 보장한다? 아래 문제들을 해결하는 것</strong></p>
-<ul>
-  <li>packet이 손실될 수 있는 문제</li>
-  <li>packet의 순서가 바뀌는 문제</li>
-  <li>네트워크가 혼잡하게(congestion) 되는 문제</li>
-  <li>receiver가 과부화(overload) 되는 문제</li>
-</ul>
-
-<h3 id="흐름제어">흐름제어</h3>
-<ul>
-  <li>송신측과 수신측의 데이터 처리 속도 차이를 해결하는 것</li>
-  <li>송신측이 수신측보다 데이터 처리 속도가 빠르게 되면 문제가 발생합니다.</li>
-  <li>수신측에서 제한된 저장 용량을 초과한 이후에 도착하는 데이터(packet)는 손실될 수 있습니다. 이를 위해 송신 측의 데이터 전송량을 조절해야 합니다.</li>
-  <li>receiver가 sender에게 상태를 feedback 합니다.</li>
-</ul>
-
-<p><strong>전송의 전체 과정</strong></p>
-<ol>
-  <li>Application Layer에서 데이터 전송 시, sender의 애플리케이션은 소켓에 데이터를 씁니다.</li>
-  <li>이 데이터는 Transport Layer로 전달되어 세그먼트(Segment)라는 단위로 나뉩니다.</li>
-  <li>전송 계층은 이 세그먼트를 Network Layer에 넘깁니다.</li>
-  <li>전송된 데이터는 수신자 쪽으로 전달되고 수신자는 수신 버퍼에 데이터를 저장합니다.<br />
-(이때, 수신자 쪽에서는 수신 버퍼의 용량을 넘치지 않도록 조절해야 합니다.)</li>
-  <li>수신자 쪽에서는 자신의 수신 버퍼의 남은 용량을 송신자에게 알려주는데, 이를 수신 윈도우(receive window)라고 합니다.</li>
-  <li>송신자는 수신자의 수신 윈도우를 확인하여 수신자의 수신 버퍼 용량을 초과하지 않도록 데이터를 전송합니다.</li>
-  <li>데이터 전송 중에 수신 버퍼가 넘치는 현상을 방지하면서, 안정적인 데이터 전송을 보장하며, 이를 흐름제어(Flow Control)이라고 합니다.</li>
-</ol>
-
-<p><strong>해결방법</strong></p>
-<ul>
-  <li>Stop and Wait: 매번 전송한 패킷에 대해 확인 응답을 받은 후에만 그다음 패킷을 전송하는 방법입니다.</li>
-  <li>Sliding Window(Go Back N ARQ): 수신측에서 설정한 윈도우 크기만큼 송신측에서 확인/응답 없이 세그먼트를 전송할 수 있도록 데이터 흐름을 동적으로 조절하는 제어 방법입니다.</li>
-</ul>
-
-<p><strong>Sliding Window</strong></p>
-<ul>
-  <li>목적: 전송은 되었지만, ACK 패킷을 받지 못한 byte의 숫자를 파악하기 위해 사용하는 프로토콜입니다.</li>
-  <li>동작방식: 윈도우에 포함되는 모든 패킷을 전송 후, 그 패킷들의 전달이 확인되는 대로 윈도우를 이동시키며 그다음 패킷을 전송합니다.</li>
-</ul>
-
-<h3 id="혼잡제어">혼잡제어</h3>
-<ul>
-  <li>송신측의 데이터 전달과 네트워크의 데이터 처리 속도 차이를 해결하기 위한 방법입니다.</li>
-  <li>송신측의 데이터는 지역망이나 인터넷으로 연결된 대형 네트워크를 통해 전달됩니다. 따라서, 만약 한 라우터에 데이터가 몰리면, 자신에게 온 데이터를 모두 처리할 수 없게 됩니다.</li>
-  <li>따라서, 이러한 네트워크의 혼잡을 피하기 위해 송신측에서 보내는 데이터의 전송속도를 강제로 줄이게 되며, 이를 혼잡제어라고 합니다.</li>
-</ul>
-
-<p><strong>해결방법</strong></p>
-
-<p>참고: window size는 단위시간당 전송 패킷 수</p>
-
-<p>AMID(Additive Increase / Multiplicate Decrease)</p>
-<ul>
-  <li>처음에 패킷을 하나씩 보내다 문제가 없으면, window size를 1씩 증가시키며 전송하는 방법입니다.</li>
-  <li>패킷 전송에 실패하거나 일정 시간을 넘으면, 패킷의 전송 속도를 절반으로 줄입니다.</li>
-  <li>시간이 흐르면 평형상태로 수렴하게 되는 공평한 방식입니다. (여러 호스트가 한 네트워크를 공유하면 나중에 진입하는 쪽이 불리)</li>
-  <li>초기에 높은 대역폭을 사용하지 못하기 때문에, 오랜 시간이 걸리며, 네트워크 혼잡 상황을 미리 파악하기 힘듭니다.</li>
-  <li>따라서, 네트워크가 혼잡해진 후에야 대역폭을 줄일 수 있습니다.</li>
-</ul>
-
-<p>Slow Start</p>
-<ul>
-  <li>AIMD와 마찬가지로 패킷을 하나씩 보내면서 시작하고, 패킷이 문제없이 도착하면 각각의 ACK 패킷마다 window size를 늘립니다. 한 주기가 지나면 window size가 2배가 됩니다.</li>
-  <li>따라서, 전송속도는 AIMD에 비해 지수 함수 꼴로 증가하지만, 혼잡 현상이 발생하면 window size를 1로 떨어뜨립니다.</li>
-  <li>한 번 혼잡 현상이 발생하고 나면 네트워크의 수용량을 어느 정도 예상할 수 있습니다.</li>
-  <li>그래서, 혼잡 현상이 발생하였던 window size의 절반까지는 이전처럼 지수함수 꼴로 증가시키고, 그 이후부터는 완만하게 1씩 증가시킵니다.</li>
-</ul>
-
-<p>Fast Retransmit</p>
-<ul>
-  <li>패킷을 받는 쪽에서 먼저 도착해야 할 패킷이 도착하지 않고 다음 패킷이 도착한 경우에도 ACK 패킷을 보냅니다.</li>
-  <li>순서대로 잘 도착한 마지막 패킷의 다음 패킷 순번을 ACK 패킷에 실어서 보내므로, 중간에 하나가 손실되면 송신 측에서는 순번이 중복된 ACK를 받게 됩니다.</li>
-  <li>이를 감지하는 순간, 문제가 되는 순번의 패킷을 재전송합니다.</li>
-  <li>중복된 순번의 패킷 3개를 받으면 재전송을 하게 되고, 혼잡 상황이라 판단 후, window size를 줄입니다.</li>
-</ul>
-
-<p>Fast Recovery</p>
-<ul>
-  <li>혼잡 상태가 되면 window size를 1로 줄이지 않고 반으로 줄이고 선형 증가시키는 방법입니다.</li>
-  <li>이를 적용하면 혼잡 상황을 한 번 겪은 후 AIMD 방식으로 동작합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[TCP 통신이란? 네트워크 통신에서 데이터를 안정적이고 신뢰성 있게 전송하기 위한 연결방식입니다. unreliable network에서 reliable network를 보장할 수 있도록 하는 프로토콜입니다. network congetion avoidance algorithm을 사용합니다.]]></summary></entry><entry><title type="html">[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication</title><link href="http://localhost:4000/study/study-cs-database/" rel="alternate" type="text/html" title="[Study] Database - SQL/NoSQL, Partitioning/Sharding/Replication" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-database</id><content type="html" xml:base="http://localhost:4000/study/study-cs-database/"><![CDATA[<h2 id="sql과-nosql">SQL과 NoSQL</h2>
-
-<h3 id="sql">SQL</h3>
-<ul>
-  <li>데이터는 테이블에 레코드로 저장되며, 각 테이블마다 명확히 정의된 구조(필드의 이름, 데이터 유형)가 있습니다. 정해진 스키마에 따라야지만 데이터를 저장할 수 있습니다.</li>
-  <li>데이터는 서로간에 관계를 통해 여러 테이블에 분산됩니다.</li>
-</ul>
-
-<p><strong>장점</strong></p>
-<ul>
-  <li>명확하게 스키마가 정의되어있으며, 데이터의 무결성을 보장합니다.</li>
-  <li>관계는 각 테이블에 중복없이 한 번만 저장하도록 하여 중복도를 낮출 수 있습니다.</li>
-</ul>
-
-<p><strong>단점</strong></p>
-<ul>
-  <li>스키마가 경직되어 있고 변경에 유연하지 않기 때문에, 새로운 기능이 생성될 때마다 컬럼을 추가해야 하여 스키마를 변경해야 합니다.</li>
-  <li>RDB의 기본 철학은 중복제거를 허용하지 않는 것이기 때문에, 중복을 제거하기 위해 정규화를 진행하여 테이블을 분리합니다. 이때, 데이터들을 함께 가져오기 위해서는 <code class="language-plaintext highlighter-rouge">JOIN</code>을 사용해야 하고, DB의 CPU와 메모리를 많이 사용하게 됩니다.</li>
-  <li>대체적으로 수평적 확장(scale-out)이 힘들기 떄문에, 수직적 확장(scale-up)이 많습니다.</li>
-  <li>스키마 변경을 할 때마다, DB와 connection을 맺고 있는 server들에 영향을 미칠 수도 있습니다.</li>
-  <li>결론적으로, RDB는 스키마를 생성하고, 그 스키마에 맞추어 데이터를 저장해야한다는(유연하지 않다는) 단점이 있습니다.</li>
-  <li>transaction을 통한 ACID는 가능하지만, 이를 보장하려면 DB 서버의 performance에 좋지 않은 영향을 미치게 됩니다. Isolation을 보장하기 위해 전체적인 처리량(throughput - 시간당 처리할 수 있는 트랜잭션의 양)이 줄어든다는 단점이 있습니다.</li>
-</ul>
-
-<p><strong>주로 사용하는 경우</strong></p>
-<ul>
-  <li>관계를 맺고 있는 데이터가 자주 변경되는 애플리케이션인 경우입니다.
-(NoSQL은 중복된 값을 변경하려면 모든 컬렉션에서 수행해야하기 때문입니다.)</li>
-  <li>변경될 여지가 없고, 명확한 스키마가 사용자와 데이터에게 중요한 경우입니다.</li>
-</ul>
-
-<h3 id="nosql">NoSQL</h3>
-
-<p><strong>배경</strong></p>
-<ul>
-  <li>인터넷 사용량이 늘어나고 글로벌 사용자가 늘어남에 따라, high-throughput이 요구되었습니다.</li>
-  <li>기존과 다른 비정형 데이터가 증가하게 됨에 따라, 새로운 형태의 데이터가 발생합니다.</li>
-  <li>Not only SQL: 기존의 SQL을 커버할 뿐만 아니라 그 외의 기능들도 커버합니다.</li>
-</ul>
-
-<p><strong>특징</strong></p>
-<ul>
-  <li>NoSQL에서는 레코드를 도큐멘트라고 부릅니다.</li>
-  <li>정해진 스키마를 따르지 않으면 데이터를 추가할 수 없는 SQL과 달리, 다른 구조의 데이터를 같은 컬렉션에 추가할 수 있습니다.</li>
-  <li>도큐멘트는 Json과 비슷한 형태로 가지며, RDB와 같이 여러 테이블에 나누어 담는 것이 아닌, 동일한 컬렉션에 넣게 됩니다. 즉, JOIN할 필요 없이 이미 모든 것을 갖춘 문서를 작성하는 것이 기본 철학입니다.</li>
-  <li>ACID의 일부를 포기하고 high-throughput, low-latency를 추구합니다. 따라서 안정성을 확보하기에는 불리하므로 금융 시스템 처리와 같이 Consistency가 중요한 환경에서 사용하기 조심스럽습니다.</li>
-</ul>
-
-<p><strong>장점</strong></p>
-<ul>
-  <li>스키마가 없기 때문에 유연하며, 언제든지 저장된 데이터를 조정하고 새로운 필드를 추가할 수 있습니다.</li>
-  <li>데이터는 애플리케이션이 필요로 하는 형식으로 저장되며, 읽는 속도가 빨라집니다.</li>
-  <li>scale-out이 쉽기 때문에, 여러 대의 서버(각각의 서버에 데이터를 나누어 저장합니다.)를 사용하여 하나의 클러스터를 구성합니다.</li>
-</ul>
-
-<p><strong>단점</strong></p>
-<ul>
-  <li>너무 유연한 나머지, 데이터 구조를 결정하지 않고 사용하게 될 수 있습니다.</li>
-  <li>데이터가 여러 컬렉션에 중복되어 있기 때문에 중복된 값 수정 시 모든 컬렉션에서 수행해야 합니다.</li>
-</ul>
-
-<p><strong>주로 사용하는 경우</strong></p>
-<ul>
-  <li>정확한 데이터 구조를 알 수 없거나 변경/확장이 될 수 있는 경우입니다.</li>
-  <li>데이터 조회를 자주 하지만, 데이터 수정은 적은 경우입니다.</li>
-  <li>막대한 양의 데이터를 다루기 위해 데이터베이스를 수평적으로 확장해야하는 경우입니다.</li>
-</ul>
-
-<h3 id="데이터베이스의-확장">데이터베이스의 확장</h3>
-<p><strong>수직적 확장 (Scale up)</strong></p>
-<ul>
-  <li>단일 서버의 스펙(성능)을 단순히 향상시키는 것으로, CPU를 업그레이드하는 것입니다.</li>
-  <li>서버의 스펙을 업그레이드 하는 동안 발생하는 다운타임(시스템 이용불가 시간)을 피할 수 없습니다.</li>
-  <li>하나의 서버로 부하가 집중된다는 문제가 발생하며, 단일 장애점(Single Point of Failure, SPOF)을 갖게 됩니다.</li>
-</ul>
-
-<p><strong>수평적 확장 (Scale out)</strong></p>
-<ul>
-  <li>하나의 서버가 처리하는 일을 여러대의 서버가 처리하도록 만듭니다.</li>
-  <li>한 서버처럼 사용하기 위한 클러스터링 작업에 추가비용이 발생하게 됩니다.
-(예를 들어, 로드밸런스 등 네트워크 구축이 있습니다.)</li>
-  <li>기술적으로나 관리적으로나 수직확장에 비해 까다롭습니다.</li>
-  <li>수직적 확장과 다르게 단일 장애점을 가지고 있지 않기 때문에 장애상황에 치명적이지 않습니다.</li>
-  <li>이론적으로 확장에 제한이 없기 때문에 무한대로 확장해나갈 수 있습니다.</li>
-</ul>
-
-<h3 id="추가-redis의-특징">추가: Redis의 특징</h3>
-<ul>
-  <li>in-memory key-value database: 메모리를 사용하여 key-value 형태로 값을 저장하는 DB입니다. 보통 DB보다 메모리나 캐시로 많이 사용합니다.</li>
-  <li>value의 data type: strings, lists, sets hashes, sorted sets 등 다양한 형태를 지원합니다.</li>
-  <li>hash-based sharded cluster</li>
-  <li>High Availability (replication, automatic failover)</li>
-  <li>보통 Frontend에서 데이터를 요청하고, Backend Server에서 DB의 데이터를 받아옵니다. 트래픽이 많아짐에 따라 DB에 connection 하는 비용이 많이 들게 되므로 redis를 Backend Server와 DB Server 사이에 두어 캐싱하는데 많이 사용합니다.</li>
-  <li>memory cache: 저장할 데이터를 key-value 형태로 저장하며 보관하는 시간을 같이 기록합니다. memory를 사용하기 때문에 DB에 속도가 비해 매우 빠릅니다.</li>
-</ul>
-
-<h2 id="partitioning--sharding--replication">Partitioning / Sharding / Replication</h2>
-
-<h3 id="partitioning">Partitioning</h3>
-<ul>
-  <li>DB 테이블을 더 작은 크기의 테이블들로 나누는 것입니다.</li>
-  <li>Vertical partitioning: column을 기준으로 테이블을 나누는 방식입니다.</li>
-  <li>Horizontal partitioning: row를 기준으로 테이블을 나누는 방식입니다.</li>
-</ul>
-
-<h4 id="viertical-partition">Viertical Partition</h4>
-<ul>
-  <li>게시판 테이블이 있을 때, 목록 페이지에서 게시판 내용을 보여주지 않아도 되는 경우가 있습니다. 이 때, post.content 열을 조회하지 않기 위해 <code class="language-plaintext highlighter-rouge">SELECT</code> 문에서 필터링하더라도, DB는 HDD, SSD에서 I/O를 일단 수행하게 됩니다.</li>
-  <li>이를 위해 vertical partion을 구성하여, 목록을 보여줄 때는 <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">title</code>, <code class="language-plaintext highlighter-rouge">writer</code>등으로 한 테이블을 묶고, <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">content</code>로 한 테이블을 묶어서 관리할 수 있습니다.</li>
-</ul>
-
-<h4 id="horizontal-partition">Horizontal Partition</h4>
-<ul>
-  <li>row를 기준으로 테이블을 나누기 때문에 헤드는 유지됩니다. 나뉘어진 테이블은 하나의 DB 내에 존재합니다.</li>
-  <li>한 테이블의 row가 너무 많은 경우에 인덱스의 크기가 커지게 되므로, 풀스캔 및 인덱스에서 읽기/쓰기 처리 시간이 늘어나게 됩니다.</li>
-  <li>가장 많이 사용되는 방법: hash 기반의 파티셔닝. 예를들어 pk를 기준(파티션 키)으로 한다면, pk를 해시함수의 input으로 하여 출력된 파티션 테이블 번호에 저장합니다.</li>
-  <li>해시 기반의 파티셔닝을 사용한다면, 파티션 키를 기준으로 테이블이 나뉘게 되므로 이를 기준으로 조회하게 되면 나위어진 테이블 중 하나만 조회하면 된다는 장점이 있지만, 파티션 키를 기준으로 조회하지 않는 경우에 결국 모든 테이블을 다 조회해야한다는 단점이 있습니다.</li>
-  <li>따라서, 가장 많이 사용될 패턴에 따라서 파티션 키를 정하는 것이 중요하며, 데이터가 균등하게 여러 테이블에 잘 분배될 수 있도록 해시함수를 정하는 것이 중요합니다.</li>
-  <li>해시 기반의 horizontal 파티션은 한번 파티션이 나뉘어진 후에는 파티션을 추가하기가 까다롭다는 단점이 있습니다.</li>
-</ul>
-
-<h3 id="sharding">Sharding</h3>
-<ul>
-  <li>실제로 동작 자체는 horizontal partition처럼 동작하지만, 나뉘어진 각 테이블들이 독립된 DB 서버에 저장됩니다.</li>
-  <li>트래픽에 따라서 DB 접근을 나누어 분배할 수 있기 때문에, DB 서버의 부하(load)를 분산시킬 수 있습니다.</li>
-  <li>이 때의 파티션 키는 Shard Key라고 부릅니다.</li>
-</ul>
-
-<h3 id="replication">Replication</h3>
-<ul>
-  <li>새로운 DB 서버를 만든 후, 데이터를 실시간으로 복제하여 복사본을 유지하는 보조 서버입니다.</li>
-  <li>주가되는 master/primary/leader DB 서버와 slave/secondary/replica DB 서버로 나뉘고, 복제된 서버는 여러대가 될 수 있습니다.</li>
-  <li>만약 주 서버에 문제가 발생하면 빠르게 <code class="language-plaintext highlighter-rouge">Fail over</code> 하여 보조서버에 연결을 유지하므로, 서비스에 타격이 없게 만들 수 있습니다. 이를 고가용성(High availability)를 보장할 수 있습니다.</li>
-  <li>대부분의 서버는 write 트래픽보다 read 트래픽이 많습니다. 이 때, replication으로 구성하면 DB 서버가 받는 트래픽을 나누어 처리할 수 있기 때문에 이점이 있습니다.</li>
-</ul>
-
-<h3 id="참고자료">참고자료</h3>
-<ul>
-  <li><a href="https://d2.naver.com/helloworld/407507">Naver D2 블로그</a> - DBMS 구조</li>
-  <li><a href="https://mangkyu.tistory.com/299">mangkuy님의 블로그</a> - transaction isolation level</li>
-  <li><a href="https://youtu.be/sLJ8ypeHGlM?si=xMBEnPdTyh4w1p3t">쉬운코드님 강의</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL과 NoSQL]]></summary></entry><entry><title type="html">[Study] Operating System - Process, Thread</title><link href="http://localhost:4000/study/study-cs-os-process-thread-old/" rel="alternate" type="text/html" title="[Study] Operating System - Process, Thread" /><published>2023-08-16T00:05:07+09:00</published><updated>2023-08-16T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-process-thread-old</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-process-thread-old/"><![CDATA[<h2 id="프로세스">프로세스</h2>
-<ul>
-  <li>메모리 상에서 실행 중인 프로그램입니다.</li>
-  <li>디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다.</li>
-  <li>코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역</li>
-  <li>데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장)</li>
-  <li>Heap 영역: 동적 할당 시 사용하는 (<code class="language-plaintext highlighter-rouge">new()</code>, <code class="language-plaintext highlighter-rouge">malloc()</code>) 영역입니다.</li>
-  <li>Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역)</li>
-  <li>함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다.</li>
-  <li>하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.</li>
-</ul>
-
-<h3 id="프로세스의-5가지-상태">프로세스의 5가지 상태</h3>
-<ul>
-  <li>생성 (New): 프로세스의 생성 상태</li>
-  <li>실행 (Running): 프로세스가 CPU에 할당되어 실행 중인 상태</li>
-  <li>준비 (Ready): 프로세스가 CPU에 할당되는 것을 기다리는 상태</li>
-  <li>대기 (Waiting): 보류(Block) 상태라고도 하며, 프로세스가 입출력이나 이벤트를 기다리는 상태</li>
-  <li>종료 (Terminated): 프로세스 종료 상태</li>
-</ul>
-
-<h3 id="멀티프로세스">멀티프로세스</h3>
-<ul>
-  <li>하나의 프로그램을 여러 개의 프로세스로 구성하여 각 프로세스가 병렬적으로 작업을 수행하도록 하는 것입니다.</li>
-  <li>장점: 메모리 침법 문제를 OS 차원에서 해결하기 때문에 안전성이 높습니다.</li>
-  <li>단점: 각각의 독립된 메모리 영역을 가지고 있기 때문에, 작업량이 많을수록 오버헤드가 발생합니다. Context Switching으로 인한 성능 저하가 발생합니다.</li>
-</ul>
-
-<h2 id="스레드">스레드</h2>
-<ul>
-  <li>프로세스의 실행 단위로, 한 프로세스 내에서 동작되는 여러 실행 흐름입니다. 프로세스 내의 주소 공간이나 자원을 스레드 간에 공유할 수 있습니다.</li>
-  <li>스레드는 독립적인 동작을 수행하기 위해 존재하며, 독립적인 실행 흐름을 추가하기 위한 최소 조건으로 독립된 Stack 영역만 따로 할당받습니다.</li>
-  <li>스레드는 스레드 ID, 프로그램 카운터, 레지스터 집합, 스택으로 구성됩니다.</li>
-  <li>같은 프로세스에 속한 다른 스레드와 코드, 데이터 섹션, 열린 파일, 신호 등의 운영체제 자원들을 공유합니다.</li>
-  <li>멀티 스레딩: 하나의 프로세스를 다수의 실행 단위로 구분하여 자원을 공유하고, 자원의 생성과 관리의 중복성을 최소화하여 수행능력을 향상시킵니다.</li>
-</ul>
-
-<h3 id="스택을-스레드마다-독립적으로-할당하는-이유">스택을 스레드마다 독립적으로 할당하는 이유</h3>
-<ul>
-  <li>스택은 함수 호출 시 전달되는 인자이며, 되돌아갈 주소값 및 함수 내 변수를 저장하기 위해 사용되는 메모리 공간입니다.</li>
-  <li>스택 메모리 공간이 독립적이라는 것은, 독립적인 함수 호출이 가능하다는 것이며 이는 독립적인 실행 흐름이 가능하다는 것입니다.</li>
-  <li>따라서, 독립적인 실행 흐름을 위한 최소 조건으로 독립된 스택을 할당하는 것입니다.</li>
-</ul>
-
-<h3 id="pc-레지스터를-스레드마다-독립적으로-할당하는-이유">PC 레지스터를 스레드마다 독립적으로 할당하는 이유</h3>
-<ul>
-  <li>PC 값은 스레드의 명령어 수행 위치값을 나타냅니다. 스레드는 CPU를 할당받았다가, 스케줄러에 의해 다시 선점당합니다.</li>
-  <li>따라서, 명령어가 연속적으로 수행되지 못하고 어느 부분까지 수행했는지 기억할 필요가 있으므로, PC 레지스터를 독립적으로 할당합니다.</li>
-</ul>
-
-<h3 id="멀티-스레드">멀티 스레드</h3>
-<ul>
-  <li>장점: 공유 메모리만큼의 시간, 메모리 공간과 시스템 자원 소모가 절약되고, 전역변수와 정적 변수에 대한 자료를 공유할 수 있습니다.</li>
-  <li>단점: 하나의 스레드가 데이터 공간을 망가뜨리면 모든 스레드가 작동 불능 상태가 되기 때문에 안전성에 문제가 있습니다. (공유 메모리를 갖기 때문)
-(이는 뮤텍스와 세마포어를 통해 대비할 수 있습니다.)</li>
-  <li>스레드 간의 통신이 필요한 경우에도 별도의 자원을 이용하지 않고, Heap 영역을 통해 데이터를 주고받습니다.</li>
-  <li>프로세스 간 통신 방법에 비해 훨씬 간단하다는 장점이 있습니다.</li>
-  <li>스레드의 context switch는 캐시 메모리를 비울 필요가 없기 때문에, 프로세스 context switch보다 더 빠릅니다.</li>
-  <li>시스템의 throughput이 향상되고 자원 소모가 줄어들며 자연스럽게 프로그램 응답 시간이 단축됩니다.</li>
-</ul>
-
-<h3 id="멀티-스레딩의-문제">멀티 스레딩의 문제</h3>
-<ul>
-  <li>스레드 간 공유하는 자원에 동시에 접근하는 일이 발생하게 됩니다.</li>
-  <li>따라서, 동기화 작업이 필요하고, 동기화를 위해 작업 처리 순서를 컨트롤하고 공유 자원에 대한 접근을 컨트롤 해야합니다.</li>
-  <li>병목현상이 발생할 수 있으며, 성능이 저하될 가능성이 높습니다. 따라서, 과도한 락으로 인한 병목현상을 줄여야 합니다.</li>
-  <li>멀티 프로세스 방식은 하나의 프로세스가 죽더라도 다른 프로세스에는 영향을 끼치지 않지만, 멀티 스레드는 하나의 스레드가 종료될 때, 전체 스레드도 이에 대한 영향을 받을 수 있습니다.</li>
-</ul>
-
-<h2 id="프로세스-제어-블록-process-control-block">프로세스 제어 블록 (Process Control Block)</h2>
-<ul>
-  <li>PCB는 특정 프로세스에 대한 중요한 정보를 저장하는 운영체제의 자료구조입니다.
-(관련 저장 정보 아래에 서술)</li>
-  <li>운영체제는 프로세스를 관리하기 위해 프로세스의 생성과 동시에 PCB를 생성합니다.</li>
-  <li>CPU를 할당받아 작업을 처리하다가 프로세스 전환이 발생하면, 작업을 저장하고 CPU를 반환해야 하는데, 이때 진행상황을 PCB에 저장합니다.
-(즉, 앞으로 다시 수행할 대기 중인 프로세스에 대한 저장 값을 PCB에 저장합니다.)</li>
-  <li>다시 CPU를 할당받게 되면 이전에 종료됐던 시점부터 다시 작업을 수행합니다.</li>
-  <li>PCB는 Linked List 방식으로 관리되어, List Head에 PCB들이 생성될 때마다 노드가 추가됩니다. 주소값으로 연결이 이루어진 연결리스트이기 때문에 삽입, 삭제가 용이합니다.</li>
-  <li>프로세스가 생성되면 해당 PCB가 생성되고 프로세스 완료 시 제거됩니다.</li>
-</ul>
-
-<p><strong>PCB에 저장되는 정보</strong></p>
-<ul>
-  <li>PID, 프로세스의 상태(new, ready, running, waiting, terminated)</li>
-  <li>프로그램 카운터: 프로세스가 다음에 실행할 명령어의 주소</li>
-  <li>CPU 레지스터</li>
-  <li>CPU 스케쥴링 정보: 프로세스의 우선순위, 스케줄 큐에 대한 포인터</li>
-  <li>메모리 관리 정보: 페이지 테이블 또는 세그먼트 테이블 등과 같은 정보 포함</li>
-  <li>입출력 상태 정보: 프로세스에 할당된 입출력 장치들과 열린 파일 목록</li>
-  <li>어카운팅 정보: 사용된 CPU 시간, 시간제한, 계정번호 등</li>
-</ul>
-
-<h3 id="context-switching">Context Switching</h3>
-<ul>
-  <li>프로세스의 상태 정보를 저장하고 복원하는 일련의 과정으로, 동작 중인 프로세스가 대기하며 해당 프로세스의 상태를 보관하고, 대기하고 있던 다음 순번의 프로세스가 동작하며 이전에 보관했던 프로세스 상태를 복구하는 과정입니다.</li>
-  <li>
-    <p>프로세스는 각 독립된 메모리 영역을 할당받아 사용되므로, 캐시 메모리 초기화와 같은 무거운 작업이 진행될 때 오버헤드가 발생하는 문제가 있습니다. 따라서, 프로세스의 컨텍스트 스위칭이 스레드의 컨텍스트 스위칭보다 늦습니다.</p>
-  </li>
-  <li>CPU가 이전의 프로세스 상태를 PCB에 보관하고, 또 다른 프로세스의 정보를 PCB에서 읽어 레지스터에 적재하는 과정입니다.</li>
-</ul>
-
-<p><strong>발생하는 경우</strong></p>
-<ul>
-  <li>인터럽트가 발생하는 경우</li>
-  <li>실행 중인 CPU의 사용 허가 시간을 모두 소모하는 경우</li>
-  <li>입출력을 위해 대기해야 하는 경우</li>
-</ul>
-
-<h2 id="cpu-scheduling">CPU Scheduling</h2>
-<ul>
-  <li>CPU를 잘 사용하기 위해 프로세스를 잘 배정하기 위한 방법입니다.</li>
-  <li>프로세스가 작업을 수행하려면, 스케줄러로부터 CPU를 할당 받아야하므로, 순서와 처리 시간을 효율적으로 정하기 위한 정책입니다.</li>
-  <li>조건: 오버헤드는 낮게, 사용률은 높게, 기아 현상은 낮게</li>
-  <li>목표
-    <ol>
-      <li>Batch System: 한 번에 하나의 프로그램만 수행하는 것을 말합니다. 따라서, 가능하면 많은 일을 수행하며, 시간보다 처리량이 중요합니다. CPU Utilization과 같은 측면을 극대화하는 것이 배치 시스템에 더 좋습니다.</li>
-      <li>Interactive System: 사용자가 컴퓨터와 대화형으로 동작하기 때문에, 응답시간이 중요합니다. 응답시간을 빠르게, 대기시간은 적게 합니다.</li>
-      <li>Real-time System: 일반적으로 시간이라는 제약 조건이 추가된 시스템이기 때문에, 주어진 인풋에 대한 아웃풋의 처리 시간이 중요합니다. 따라서, 시간제약 조건(Deadline)을 맞추는 것입니다.</li>
-    </ol>
-  </li>
-</ul>
-
-<h3 id="프로세스의-상태-전이">프로세스의 상태 전이</h3>
-<ul>
-  <li>승인 (Admitted): 프로세스 생성이 가능하여 승인.</li>
-  <li>스케줄러 디스패치(Scheduler Dispatch): 준비 상태에 있는 프로세스 중 하나를 선택하여 실행시키는 것.</li>
-  <li>인터럽트(interrupt): 예외, 입출력, 이벤트 등이 발생하여 현재 실행 중인 프로세스를 준비 상태로 바꾸고, 해당 작업을 먼저 처리하는 것.</li>
-  <li>입출력 또는 이벤트 대기 (I/O or Event wait): 실행 중인 프로세스가 입출력이나 이벤트를 처리해야 하는 경우, 입출력/이벤트가 모두 끝날 때까지 대기 상태로 만드는 것.</li>
-  <li>입출력 또는 이벤트 완료 (I/O or Event Completion): 입출력/이벤트가 끝난 프로세스를 준비 상태로 전환하여 스케줄러에 의해 선택될 수 있도록 만드는 것.</li>
-</ul>
-
-<h3 id="선점-스케줄링">선점 스케줄링</h3>
-<ul>
-  <li>한 프로세스가 CPU를 할당받아 실행하고 있을 때, 다른 프로세스가 CPU를 사용하고 있는 프로세스를 중지시키고 CPU를 차지할 수 있는 스케줄링 기법입니다.<br />
-(처리시간에 대한 예측이 어렵습니다.)</li>
-  <li>우선순위가 높은 프로세스를 먼저 수행할 때 유리하며, 빠른 응답 시간을 요구하는 대화식 시분할 시스템에 유용합니다.</li>
-  <li>많은 오버헤드를 초래합니다.</li>
-  <li>Interrupt, I/O or Event Completion, I/O or Event Wait, Exit</li>
-</ul>
-
-<p>Priority Scheduling</p>
-<ul>
-  <li>정적/동적으로 우선순위를 부여하여 우선순위가 높은 순서대로 처리합니다.</li>
-  <li>우선순위가 낮은 프로세스가 무한정 기다리는 Starvation이 발생할 수 있습니다.<br />
-(Aging 방법으로 Starvation 문제를 해결할 수 있음)</li>
-</ul>
-
-<p>Round Robin</p>
-<ul>
-  <li>FCFS에 의해 프로세스들이 보내지면 각 프로세스는 동일한 시간의 Time Quantum만큼 CPU를 할당받습니다.<br />
-(time quantum, time slice: 실행의 최소 단위 시간)</li>
-  <li>할당 시간(time quantum)이 크면 FCFS와 같게 되고, 작으면 컨텍스트 스위칭이 잦아져서 오버헤드가 증가합니다.</li>
-</ul>
-
-<p>Multilevel-Queue</p>
-<ul>
-  <li>작업들을 여러 종류의 그룹으로 나누어 여러 개의 큐를 이용하는 기법입니다.</li>
-  <li>우선순위가 낮은 큐들이 실행하지 못하는 것을 방지하고자 각 큐마다 다른 <code class="language-plaintext highlighter-rouge">time quantum</code>을 설정해 주는 방식이 사용됩니다.</li>
-  <li>우선순위가 높은 큐는 작은 <code class="language-plaintext highlighter-rouge">time quantum</code>을, 우선순위가 낮은 큐는 큰 <code class="language-plaintext highlighter-rouge">time quantum</code>을 할당합니다.</li>
-</ul>
-
-<p>Multilevel-Feedback-Queue</p>
-<ul>
-  <li>Multilevel-Queue에서 자신의 <code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 밑으로 내려가고, <code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 원래 큐에 그대로 있습니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">time quantum</code>을 다 채운 프로세스는 CPU burst 프로세스로 판단됩니다.</li>
-  <li>짧은 작업에 유리하며, interrupt가 잦은 입출력 위주의 작업에 우선권을 줍니다.</li>
-  <li>처리 시간이 짧은 프로세스를 먼저 처리하기 때문에 turn around 평균 시간을 줄여줍니다.</li>
-</ul>
-
-<h3 id="비선점-스케줄링">비선점 스케줄링</h3>
-<ul>
-  <li>이미 사용되는 CPU를 회수하지는 못하고, 끝날 때까지 기다리는 스케줄링 기법입니다.</li>
-  <li>따라서, 프로세스 종료 또는 I/O 이벤트가 있을 때까지 실행이 보장됩니다. 처리시간 예측이 용이합니다.</li>
-  <li>일괄 처리방식이 적합합니다.</li>
-  <li>모든 프로세스 요구에 대해 공정하며, 중요도가 높은 작업이 낮은 작업을 기다리는 경우가 발생할 수도 있습니다.</li>
-  <li>I/O or Event Wait, Exit</li>
-</ul>
-
-<p>FCFS (First Come First Served)</p>
-<ul>
-  <li>큐에 도착한 순서대로 CPU를 할당합니다.</li>
-  <li>실행 시간이 짧은 작업이 뒤로 가면 평균 대기시간이 길어집니다.</li>
-</ul>
-
-<p>SJF (Shortest Job First)</p>
-<ul>
-  <li>수행시간이 가장 짧다고 판단되는 작업을 먼저 수행합니다.</li>
-  <li>FCFS 보다 평균 대기 시간이 감소하고, 짧은 작업에 유리합니다.</li>
-</ul>
-
-<p>HRN (Highest Response-ratio Next)</p>
-<ul>
-  <li>우선순위를 계산하여 점유 불평등을 보완하는 방법으로, SJF의 단점을 보완합니다.</li>
-  <li>우선순위 = (대기시간 + 실행시간) / 실행시간</li>
-</ul>
-
-<h2 id="deadlock교착상태">Deadlock(교착상태)</h2>
-<ul>
-  <li>둘 이상의 프로세스가 다른 프로세스가 점유하고 있는 자원을 기다리기 위해 무한 대기에 빠지는 상황을 의미합니다.</li>
-</ul>
-
-<h3 id="발생조건">발생조건</h3>
-<p>이 중 하나라도 만족하지 않으면 교착상태는 발생하지 않습니다.</p>
-<ul>
-  <li>상호배제(Mutual exclusion): <strong>한 번에 프로세스 하나만 해당 자원을 사용할 수 있다</strong>. 사용 중인 자원을 다른 프로세스가 사용하려면 요청한 자원이 해제될 때까지 기다려야 한다.</li>
-  <li>점유대기(Hold and Wait): 자원을 최소한 하나 보유하고, 다른 프로세스에 할당된 자원을 점유하기 위해 대기하는 프로세스가 존재해야 한다.</li>
-  <li>비선점(No preemption): 프로세스가 어떤 자원의 사용이 끝날 때까지 그 자원을 뺏을 수 없습니다.</li>
-  <li>순환대기(Circular wait): Hold and Wait 관계의 프로세스들이 서로를 기다립니다.</li>
-</ul>
-
-<h3 id="교착상태-방지방법">교착상태 방지방법</h3>
-<ul>
-  <li>예방(Prevention): 할당 구조 측면에서, 교착상태가 발생할 수 있는 요구조건을 만족시키지 않도록 함으로써 교착상태를 방지합니다.</li>
-  <li>회피(Avoidance): 교착상태가 발생할 가능성이 있는 자원을 할당(unsafe allocation)하지 않습니다. (대표적으로, 은행원 알고리즘, 자원 할당 그래프)</li>
-  <li>탐지 및 회복(Detection and Recovery): 교착상태가 발생할 수 있도록 놔두고 교착상태가 발생할 경우 이를 찾아내어 고칩니다.</li>
-</ul>
-
-<p><strong>예방</strong></p>
-<ul>
-  <li>상호 배제 조건 방지: 한 번에 여러 프로세스가 공유 자원을 사용할 수 있도록 합니다.</li>
-  <li>점유 대기 조건 방지
-    <ul>
-      <li>프로세스 대기를 없애기 위해서 프로세스가 실행되기 전에 필요한 모든 자원을 할당합니다. (자원 낭비 발생)</li>
-      <li>자원을 점유하지 않고 있을 때에만 다른 자원을 요청할 수 있도록 합니다. 한 프로세스가 추가적인 자원을 필요로 하면, 자신의 자원을 모두 해제하여 빈상태에서 다시 요청합니다. (기아상태가 될 수 있음)</li>
-    </ul>
-  </li>
-  <li>비선점 조건 방지: 이미 다른 프로세스에 할당된 자원에 대해 선점권이 없다면, 높은 우선순위의 프로세스가 해당 자원을 선점할 수 있도록 합니다.</li>
-  <li>순환대기 조건 방지: 자원을 순환 형태로 대기하도록 하지 않고, 일정한 방향으로 자원을 요구할 수 있도록 합니다. (임의로 순서를 부여)</li>
-</ul>
-
-<p><strong>회피</strong></p>
-<ul>
-  <li>시스템의 프로세스들이 데드락을 발생시키지 않도록 요청되는 자원을 모두에게 할당할 수 있다면, <code class="language-plaintext highlighter-rouge">안정 상태(safe state)</code>에 있다고 말합니다.</li>
-  <li>프로세스들에게 자원을 할당하고 실행 및 종료 등의 작업을 할 때, 데드락을 발생시키지 않게 하는 특정한 순서를 찾는다면, 이를 <code class="language-plaintext highlighter-rouge">안전 순서(safe sequence)</code>라고 합니다.</li>
-  <li>데드락은 불안정 상태에 있을 때 발생합니다. 따라서, 불안정 상태가 데드락보다 더 큰 집합입니다.</li>
-  <li>회피 알고리즘은 자원을 할당한 후에도 시스템이 항상 Safe state에 있도록 할당을 허용하게 됩니다.</li>
-</ul>
-
-<p><strong>탐지 및 회복</strong></p>
-
-<p>교착상태가 발생하도록 두고, 교착상태가 발생한다면 그 후에 해결하는 방식입니다.</p>
-
-<p>탐지 기법</p>
-<ul>
-  <li>Allocation, Request, Available 등으로 시스템에 데드락이 발생했는지 여부를 탐색합니다.</li>
-  <li>자원 할당 그래프를 통해 탐지하는 방법도 있습니다.</li>
-</ul>
-
-<p>회복 기법</p>
-<ul>
-  <li>교착상태에 빠진 모든 프로세스를 중단시키는 방법이 있지만, 연산중이던 프로세스들도 모두 일시에 중단되므로, 작업 중인 부분 결과가 폐기될 수 있습니다.</li>
-  <li>프로세스를 중단시킬 때마다 탐지 알고리즘으로 데드락을 탐지하며 회복시키는 방법이 있습니다. 매번 탐지 알고리즘을 호출 및 수행해야하기 때문에 부담되는 작업일 수 있습니다.</li>
-  <li>프로세스에 할당된 자원을 선점하여 데드락을 해결할 때까지 해당 자원을 다른 프로세스에 할당하는 방법이 있습니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[프로세스 메모리 상에서 실행 중인 프로그램입니다. 디스크로부터 메모리에 적재되어 CPU의 할당을 받습니다. 운영체제로부터 주소 공간, 파일, 메모리 등을 할당받습니다. 코드 영역: 프로그램의 소스 코드 자체를 구성하는 메모리 영역 데이터 영역: 전역변수, 정적변수, 배열 등에 대한 메모리 영역 (초기화 데이터는 data 영역에, 초기화되지 않은 데이터는 bss 영역에 저장) Heap 영역: 동적 할당 시 사용하는 (new(), malloc()) 영역입니다. Stack 영역: 지역변수, 매개변수, 리턴 값 (임시 메모리 영역) 함수의 매개변수, 복귀 주소와 로컬 변수와 같은 임시 자료를 갖는 프로세스 스택, 전역 변수들을 수록하는 데이터 섹션을 포함합니다. 하나의 프로세스가 생성될 때, 기본적으로 하나의 스레드가 같이 생성됩니다.]]></summary></entry></feed>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Strategy" /><summary type="html"><![CDATA[글을 작성한 계기 최근 과제전형을 보며, 백오피스로 주로 사용하는 Django에서 권한 관리에 대한 중요성을 많이 느끼게 되었습니다. ViewSet의 메서드를 사용할 때 Global Permission을 적용시켜야 하는지, Object-level Permission을 적용시켜야하는지 등 기본에 충실해서 학습해야함을 느꼈습니다. 아래 내용들은 단순히 DRF 문서의 번역이 아닌, 실제 사용하며 분석한 내용과 사용 전략이 포함되어있습니다.]]></summary></entry></feed>
