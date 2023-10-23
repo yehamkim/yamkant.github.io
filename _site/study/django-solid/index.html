@@ -1,0 +1,728 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Django] SOLID 원칙에 따른 Django ORM 사용 - Yam’s Dev Logs</title>
+<meta name="description" content="글을 작성하게 된 이유    Spring과 같은 웹 프레임 워크에서는 자바의 클래스 기반의 특성을 활용하여 OOP 방식으로 코드를 작성하는 것이 수월하다는 것을 익히 들어왔고, 공부해왔습니다.   Django에서는 DRF라는 프레임워크가 이에 대한 역할을 어느정도 수행해주지만, 커스텀한 코드들을 짤 때 어떻게 SOLID한 방식으로 작성할 수 있을 것인지, 역할과 책임을 어떻게 분리하여 좋은 코드를 만들 수 잇을 것인지 고민하게 되었습니다.   다양한 자료를 보며 실용적인 코드를 작성할 수 있는 팁을 모아두어 공부하기 위해 블로깅하게 되었습니다.">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Django] SOLID 원칙에 따른 Django ORM 사용">
+<meta property="og:url" content="http://localhost:4000/study/django-solid/">
+
+
+  <meta property="og:description" content="글을 작성하게 된 이유    Spring과 같은 웹 프레임 워크에서는 자바의 클래스 기반의 특성을 활용하여 OOP 방식으로 코드를 작성하는 것이 수월하다는 것을 익히 들어왔고, 공부해왔습니다.   Django에서는 DRF라는 프레임워크가 이에 대한 역할을 어느정도 수행해주지만, 커스텀한 코드들을 짤 때 어떻게 SOLID한 방식으로 작성할 수 있을 것인지, 역할과 책임을 어떻게 분리하여 좋은 코드를 만들 수 잇을 것인지 고민하게 되었습니다.   다양한 자료를 보며 실용적인 코드를 작성할 수 있는 팁을 모아두어 공부하기 위해 블로깅하게 되었습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-10-19T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/django-solid/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 49</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (14)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (20)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Django] SOLID 원칙에 따른 Django ORM 사용</h1>
+    
+    <h2 id="글을-작성하게-된-이유">글을 작성하게 된 이유</h2>
+<ul>
+  <li>Spring과 같은 웹 프레임 워크에서는 자바의 클래스 기반의 특성을 활용하여 OOP 방식으로 코드를 작성하는 것이 수월하다는 것을 익히 들어왔고, 공부해왔습니다.</li>
+  <li>Django에서는 DRF라는 프레임워크가 이에 대한 역할을 어느정도 수행해주지만, 커스텀한 코드들을 짤 때 어떻게 SOLID한 방식으로 작성할 수 있을 것인지, 역할과 책임을 어떻게 분리하여 좋은 코드를 만들 수 잇을 것인지 고민하게 되었습니다.</li>
+  <li>다양한 자료를 보며 실용적인 코드를 작성할 수 있는 팁을 모아두어 공부하기 위해 블로깅하게 되었습니다.</li>
+</ul>
+
+<h3 id="introduction">Introduction</h3>
+<ul>
+  <li>SOLID 원칙은 개발자들이 소프트웨어 시스템을 유연하게 하여, 더 유지보수가 쉽고 확장이 가능하도록 하는 방법입니다.</li>
+  <li>Django의 파트 중 ORM에 대한 부분에 이를 적용하여 쿼리 빌딩을 최적화하고 앱 성능을 향상시키는 방법을 알아보겠습니다.</li>
+</ul>
+
+<h3 id="single-responsibility-principle-srp">Single Responsibility Principle (SRP)</h3>
+<ul>
+  <li>SRP는 클래스가 변경되어야하는 이유는 단 하나의 이유 때문이라는 원칙입니다. (클래스의 단일 책임)</li>
+  <li>Django ORM에서는 SRP를 통해 더 작고 모놀리식 모델을 피해 모델에 집중하여 다양한 태스크를 수행하는 방식으로 작성해야합니다.</li>
+  <li>따라서, SRP를 준수하기 위해 장고 모델에 단일 목적을 제공하고 한 가지 유형의 데이터만 처리하도록 합니다.</li>
+</ul>
+
+<h3 id="openclosed-principle-ocp">Open/Closed Principle (OCP)</h3>
+<ul>
+  <li>소프트웨어 객체는 확장에는 열려있고 수정에는 닫혀있어야 한다는 원칙입니다.</li>
+  <li>Django ORM에서, 이 원칙는 추상 기본 클래스(abstract base class)와 믹스인을 사용하여 기존 코드를 수정하지 않고 기능을 확장함으로써 적용할 수 있습니다.</li>
+  <li>코드 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+  <span class="kn">import</span> <span class="n">datetime</span>
+
+  <span class="k">class</span> <span class="nc">TimestampMixin</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">)</span>
+      <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">)</span>
+      <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+          <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+  <span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">TimestampMixin</span><span class="p">,</span> <span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+      <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">TextField</span><span class="p">()</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="liskov-substitution-principle-lsp">Liskov Substitution Principle (LSP)</h3>
+<ul>
+  <li>LSP는 슈퍼클래스의 객체가 프로그램의 일관성에 영향을 미치지 않고 서브클래스의 객체로 대체될 수 있어야 한다는 원칙입니다.</li>
+  <li>Django ORM에서 이 원칙은 모델을 상속하고, 상속된 모델이 기본 클래스의 예상되는 동작을 유지하도록 할 수 있습니다.</li>
+  <li>코드 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">Content</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">text</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">TextField</span><span class="p">()</span> 
+      <span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="nf">split</span><span class="p">())</span> 
+
+  <span class="k">class</span> <span class="nc">Article</span><span class="p">(</span><span class="n">Content</span><span class="p">):</span>
+      <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+      <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="p">.</span><span class="n">CASCADE</span><span class="p">)</span>    
+      <span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">word_count</span><span class="p">()</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="interface-segregation-principle-isp">Interface Segregation Principle (ISP)</h3>
+<ul>
+  <li>고객이 사용하지 않는 인터페이스에 대해서는 의존하지 않도록 인터페이스 각각을 구체적으로 작성하여 서로 분리해야한다는 원칙입니다. (인터페이스의 단일 책임)</li>
+  <li>Django ORM에서, 사용자 지정 <code class="language-plaintext highlighter-rouge">Model Manger</code>와 <code class="language-plaintext highlighter-rouge">queryset</code>을 만들어 적용할 수 있으며, 고객이 필요한 관련된 기능만을 사용할 수 있도록 합니다.</li>
+  <li>코드 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">ActiveUserManager</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Manager</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">active_users</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">inactive_users</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">is_active</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+  <span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">is_active</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="n">objects</span> <span class="o">=</span> <span class="nc">ActiveUserManager</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>커스텀 <code class="language-plaintext highlighter-rouge">model manager</code>를 통해 기본 objects의 기능을 사용할 뿐만 아니라(ActiveUserManager가 기본 매니저 상속) 커스텀 매니저 기능도 사용할 수 있게 됩니다.<br />
+  (상황에 따라서는 커스텀 매니저와 기본 매니저를 분리해서 지정하는 것도 가능)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="dependency-inversion-principle-dip">Dependency Inversion Principle (DIP)</h3>
+<ul>
+  <li>높은 수준의 모듈이 낮은 수준의 모듈에 의존하면 안된다는 원칙입니다. 대신, 추상화에 의존해야합니다.</li>
+  <li>Django ORM에서 이 원리는 ForeignKey, OneToOneField 및 ManyToManyField와 같은 모델 관계를 사용자 정의하기 위해 Django의 내장 기능을 사용하여 지킬 수 있습니다.</li>
+  <li>이러한 추상화에 의존함으로써, 높은 수준의 애플리케이션 로직을 데이터베이스 스키마의 낮은 수준의 세부 사항과 분리할 수 있다는 장점이 있습니다.</li>
+  <li>코드 예시는 다음과 같습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="n">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+  <span class="kn">from</span> <span class="n">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+  <span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">ForeignKey</span><span class="p">(</span><span class="n">settings</span><span class="p">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="p">.</span><span class="n">CASCADE</span><span class="p">)</span>
+      <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+      <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">TextField</span><span class="p">()</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>외래 키 관계에서, 장고의 내장 설정인 AUTH_USER_MODEL을 추상화로 사용할 수 있습니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="결론">결론</h3>
+<ul>
+  <li>Django의 내장 ORM 기능과 DRF가 알게 모르게 SOLID 원칙에 기반하여 각각의 기능들이 구성되있음을 파악할 수 있었습니다.</li>
+  <li>특히, ORM에서 Manager의 기능에 대해 더 학습하고 공부해야겠다고 생각하여, 계속해서 Django Manager의 기능에 대해 작성해보겠습니다.</li>
+</ul>
+
+<h2 id="django-manager-활용하기">Django Manager 활용하기</h2>
+
+<h3 id="manager를-통해-queryset에-대한-중복-코드를-제거하는-방법">Manager를 통해 QuerySet에 대한 중복 코드를 제거하는 방법</h3>
+<h4 id="일반적인-사용">일반적인 사용</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+<ul>
+  <li>이 때 활성화된 유저만 사용하기 위해서는 필요한 구간마다, <code class="language-plaintext highlighter-rouge">User.objects.filter(active=True)</code>와 같은 방식으로 호출하게 됩니다.</li>
+  <li>만약, <code class="language-plaintext highlighter-rouge">active=True</code> 조건 이외에도 활성화된 유저를 찾는 방식에 추가적인 조건이 사용된다면(ex. 일정날짜 이후 가입 유저만 활성화 유저로 인정하겠다), 모든 구문을 찾아서 변경해주어야 할 것입니다.</li>
+</ul>
+
+<h4 id="코드-수정-이후">코드 수정 이후</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ActiveManager</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Manager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">super</span><span class="p">().</span><span class="nf">get_queryset</span><span class="p">().</span><span class="nf">filter</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">Manager</span><span class="p">()</span>
+    <span class="n">active_objects</span> <span class="o">=</span> <span class="nc">ActiveManager</span><span class="p">()</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ActiveManager</code> 클래스를 추가하여, 메서드로 기입된 기능을 User에게 위임합니다.</li>
+  <li>이때, <code class="language-plaintext highlighter-rouge">ActiveManager</code>는 기본 매니저를 상속받기 때문에, <code class="language-plaintext highlighter-rouge">User.active_objects.exclude(name="admin")</code>와 같은 기능도 사용할 수 있습니다.</li>
+</ul>
+
+<h4 id="default-manager-설정시-주의사항">Default Manager 설정시 주의사항</h4>
+<ul>
+  <li>Default Manager은 기본적으로 Django 프레임워크 내부에서 우선순위에 따라 선정합니다.
+    <ol>
+      <li>Meta.default_manager_name 설정</li>
+      <li>부모(다중 상속받는 경우 가장 첫 번째 클래스) 클래스의 Meta.default_manager_name 설정</li>
+      <li>해당 모델내에서 manager를 정의했다면, 가장 첫 번째 설정된 manager</li>
+    </ol>
+  </li>
+  <li>따라서, 모델 내에서 아래와 같이 명시적으로 작성을 해주는 것이 좋습니다.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">active_objects</span> <span class="o">=</span> <span class="nc">ActiveManager</span><span class="p">()</span>
+      <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">Manager</span><span class="p">()</span>
+
+      <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+          <span class="n">default_manager_name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">objects</span><span class="sh">'</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="custom-queryset-사용하기">Custom QuerySet 사용하기</h3>
+<h4 id="manager-사용에서-queryset-중복-제거">Manager 사용에서 QuerySet 중복 제거</h4>
+<ul>
+  <li>
+    <p>ORM 중복코드를 사용하면, 내부에서 QuerySet 중복 코드가 발생하게 됩니다.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">PersonQuerySet</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">QuerySet</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">authors</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="sh">'</span><span class="s">A</span><span class="sh">'</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="sh">'</span><span class="s">E</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="c1"># class PersonManager(models.Manager):
+</span>  <span class="c1">#     def get_queryset(self):
+</span>  <span class="c1">#         return PersonQuerySet(self.model, using=self._db)
+</span>  <span class="c1">#     def authors(self):
+</span>  <span class="c1">#         return self.get_queryset()
+</span>  <span class="c1">#     def editors(self):
+</span>  <span class="c1">#         return self.get_queryset()
+</span>
+  <span class="k">class</span> <span class="nc">ActivePersonManager</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Manager</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">PersonQuerySet</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="c1"># def authors(self):
+</span>      <span class="c1">#     return self.get_queryset()
+</span>      <span class="c1"># def editors(self):
+</span>      <span class="c1">#     return self.get_queryset()
+</span>
+  <span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="p">):</span>
+      <span class="n">first_name</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+      <span class="n">last_name</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+      <span class="n">role</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+          <span class="p">(</span><span class="sh">'</span><span class="s">A</span><span class="sh">'</span><span class="p">,</span> <span class="nf">_</span><span class="p">(</span><span class="sh">'</span><span class="s">Author</span><span class="sh">'</span><span class="p">)),</span> <span class="p">(</span><span class="sh">'</span><span class="s">E</span><span class="sh">'</span><span class="p">,</span> <span class="nf">_</span><span class="p">(</span><span class="sh">'</span><span class="s">Editor</span><span class="sh">'</span><span class="p">))</span>
+      <span class="p">])</span>
+      <span class="n">active</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nc">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="n">people</span> <span class="o">=</span> <span class="n">PersonManager</span><span class="p">.</span><span class="nf">as_manager</span><span class="p">()</span>
+      <span class="n">active_people</span> <span class="o">=</span> <span class="n">ActivePeopleManager</span><span class="p">.</span><span class="nf">from_queryset</span><span class="p">(</span><span class="n">PersonQuerySet</span><span class="p">)()</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">as_manager</code> 메서드를 통해 커스텀 쿼리셋 자체를 매니저로서 사용할 수 있습니다. 아래와 같은 역할을 합니다.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">PersonManager</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="n">Manager</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="nc">PersonQuerySet</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">model</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">_db</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">authors</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_queryset</span><span class="p">().</span><span class="nf">filter</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="sh">'</span><span class="s">A</span><span class="sh">'</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_queryset</span><span class="p">().</span><span class="nf">filter</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="sh">'</span><span class="s">B</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">from_queryset</code> 메서드를 통해 기존 매니저에 기본 쿼리셋으로 설정할 커스텀 쿼리셋을 추가할 수 있습니다.</p>
+  </li>
+</ul>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://www.nextree.co.kr/p6960/">넥스트리소프트 - 객체지향 개발 5대 원리:SOLID</a></li>
+  <li><a href="https://medium.com/@dkthelearner/leveraging-solid-principles-in-django-orm-for-optimized-query-building-fd52e60133e8">Dinesh Kumar님의 블로그</a></li>
+  <li><a href="https://blog.hwahae.co.kr/all/tech/tech-tech/4108">화해블로그 - Django Manager 적용</a></li>
+</ul>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

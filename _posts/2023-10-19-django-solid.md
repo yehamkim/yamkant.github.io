@@ -1,7 +1,7 @@
 ---
 layout: archive
-title:  "[Django] 파이썬에서 프레임워크에서 구현하는 동기화 / 비동기화"
-date:   2023-10-18 00:05:07 +0900
+title:  "[Django] SOLID 원칙에 따른 Django ORM 사용"
+date:   2023-10-19 00:05:07 +0900
 categories: 
     - Study
 ---
@@ -98,7 +98,7 @@ categories:
 ## Django Manager 활용하기
 
 ### Manager를 통해 QuerySet에 대한 중복 코드를 제거하는 방법
-#### 일반적으로
+#### 일반적인 사용
 ```python
 class User(models.Model):
     name = models.CharField(max_length=50)
@@ -138,38 +138,42 @@ class User(models.Model):
 ### Custom QuerySet 사용하기
 #### Manager 사용에서 QuerySet 중복 제거
 - ORM 중복코드를 사용하면, 내부에서 QuerySet 중복 코드가 발생하게 됩니다.
-```python
-class PersonQuerySet(models.QuerySet):
-    def authors(self):
-        return self.filter(role='A')
-    def editors(self):
-        return self.filter(role='E')
 
-# class PersonManager(models.Manager):
-#     def get_queryset(self):
-#         return PersonQuerySet(self.model, using=self._db)
-#     def authors(self):
-#         return self.get_queryset()
-#     def editors(self):
-#         return self.get_queryset()
+    ```python
+    class PersonQuerySet(models.QuerySet):
+        def authors(self):
+            return self.filter(role='A')
+        def editors(self):
+            return self.filter(role='E')
 
-class ActivePersonManager(models.Manager):
-    def get_queryset(self):
-        return PersonQuerySet.filter(active=True)
-    # def authors(self):
-    #     return self.get_queryset()
-    # def editors(self):
-    #     return self.get_queryset()
+    # class PersonManager(models.Manager):
+    #     def get_queryset(self):
+    #         return PersonQuerySet(self.model, using=self._db)
+    #     def authors(self):
+    #         return self.get_queryset()
+    #     def editors(self):
+    #         return self.get_queryset()
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    role = models.CharField(max_length=1, choices=[('A', _('Author')), ('E', _('Editor'))])
-    active = models.BooleanField(default=True)
-    people = PersonManager.as_manager()
-    active_people = ActivePeopleManager.from_queryset(PersonQuerySet)()
-```
-- `as_manager` 메서드를 통해 커스텀 쿼리셋 자체를 매니저로서 사용할 수 있습니다. 아래와 같은 역할을 합니다.
+    class ActivePersonManager(models.Manager):
+        def get_queryset(self):
+            return PersonQuerySet.filter(active=True)
+        # def authors(self):
+        #     return self.get_queryset()
+        # def editors(self):
+        #     return self.get_queryset()
+
+    class Person(models.Model):
+        first_name = models.CharField(max_length=50)
+        last_name = models.CharField(max_length=50)
+        role = models.CharField(max_length=1, choices=[
+            ('A', _('Author')), ('E', _('Editor'))
+        ])
+        active = models.BooleanField(default=True)
+        people = PersonManager.as_manager()
+        active_people = ActivePeopleManager.from_queryset(PersonQuerySet)()
+    ```
+- `as_manager` 메서드를 통해 커스텀 쿼리셋 자체를 매니저로서 사용할 수 있습니다. 아래와 같은 역할을 합니다.  
+
     ```python
     class PersonManager(models.Manager):
         def get_queryset(self):

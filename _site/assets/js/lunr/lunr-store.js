@@ -274,4 +274,22 @@ var store = [{
         "tags": [],
         "url": "/study/study-db-index/",
         "teaser": null
+      },{
+        "title": "[Django] 파이썬에서 프레임워크에서 구현하는 동기화 / 비동기화",
+        "excerpt":"기억해야할 용어와 각 기능의 차이 동시성과 병렬성 동시성: 하나의 시스템이 여러 작업을 동시에 처리하는 것처럼 보이게 하는 것입니다. 논리적인 개념으로, 싱글 코어에서 멀티 쓰레드를 동작시키는 방식입니다. 병렬성: 여러 작업을 실제로 동시에 처리하는 것입니다. 물리적인 개념으로, 멀티코어에서 멀티 스레드를 동작시키는 방식입니다. sync &amp; async 프로그램의 주 실행흐름을 멈추지 않고 진행할 수...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/django-sync-async/",
+        "teaser": null
+      },{
+        "title": "[Django] SOLID 원칙에 따른 Django ORM 사용",
+        "excerpt":"글을 작성하게 된 이유 Spring과 같은 웹 프레임 워크에서는 자바의 클래스 기반의 특성을 활용하여 OOP 방식으로 코드를 작성하는 것이 수월하다는 것을 익히 들어왔고, 공부해왔습니다. Django에서는 DRF라는 프레임워크가 이에 대한 역할을 어느정도 수행해주지만, 커스텀한 코드들을 짤 때 어떻게 SOLID한 방식으로 작성할 수 있을 것인지, 역할과 책임을 어떻게 분리하여 좋은 코드를 만들...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/django-solid/",
+        "teaser": null
+      },{
+        "title": "[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?",
+        "excerpt":"가비지 컬렉터 메모리를 관리하는 방법 더 이상 사용하지 않는 메모리를 해제하지 않으면 memory leak이 발생합니다. 사용 중이던 메모리를 해제하면 프로그램이 중단되고 데이터가 손실될 수 있습니다. GC의 동작 원리 OS가 프로그램을 프로세스로 실행하게 되면, 프로세스는 메모리에 Code, Data, Heap, Stack 영역을 할당받게 됩니다. 이 때, 힙과 스택 영역에 할당된 메모리들을 해제하는...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-python-garbage-collector/",
+        "teaser": null
       }]

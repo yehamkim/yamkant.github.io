@@ -1,0 +1,647 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까? - Yam’s Dev Logs</title>
+<meta name="description" content="가비지 컬렉터">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?">
+<meta property="og:url" content="http://localhost:4000/study/study-python-garbage-collector/">
+
+
+  <meta property="og:description" content="가비지 컬렉터">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-10-21T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-python-garbage-collector/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 49</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (14)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">study (20)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?</h1>
+    
+    <h1 id="가비지-컬렉터">가비지 컬렉터</h1>
+
+<h3 id="메모리를-관리하는-방법">메모리를 관리하는 방법</h3>
+<ul>
+  <li>더 이상 사용하지 않는 메모리를 해제하지 않으면 memory leak이 발생합니다.</li>
+  <li>사용 중이던 메모리를 해제하면 프로그램이 중단되고 데이터가 손실될 수 있습니다.</li>
+</ul>
+
+<h3 id="gc의-동작-원리">GC의 동작 원리</h3>
+<ul>
+  <li>OS가 프로그램을 프로세스로 실행하게 되면, 프로세스는 메모리에 Code, Data, Heap, Stack 영역을 할당받게 됩니다.</li>
+  <li>이 때, 힙과 스택 영역에 할당된 메모리들을 해제하는 동작을 수행하는 것이 GC 입니다.</li>
+</ul>
+
+<h2 id="파이썬의-gc">파이썬의 GC</h2>
+<ul>
+  <li>파이썬의 GC는 레퍼런스 카운팅, 제너레이셔널 가비지 컬렉션 두가지 방식으로 동작합니다.</li>
+</ul>
+
+<h3 id="reference-counting">Reference Counting</h3>
+<ul>
+  <li>어떤 객체가 참조되어 사용될 때마다 횟수를 카운팅하여 증가시키고, 해제할 때 1씩 감소시킵니다. 0이 되면 객체의 메모리 할당이 해제됩니다.</li>
+  <li>메모리 교체 방식에서 LRU(Least Recently Used)가 참조 횟수를 카운트하여 victim을 고릅니다.</li>
+  <li>레퍼런스 카운트를 증가시키는 방법은 1. 객체를 변수에 할당, 2. 객체를 리스트와 튜플과 같은 자료구조에 추가하거나, 인스턴스 프로퍼티로 추가하는 경우, 3. 함수에 파라미터로 전달하는 경우입니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">sys</span>
+<span class="n">a</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Hello world!</span><span class="sh">"</span>
+<span class="n">sys</span><span class="p">.</span><span class="nf">getrefcount</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="c1"># a의 레퍼런스 카운트: 2
+</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
+<span class="n">c</span> <span class="o">=</span> <span class="p">{</span> <span class="sh">'</span><span class="s">key</span><span class="sh">'</span><span class="p">:</span> <span class="n">a</span> <span class="p">}</span>
+<span class="n">sys</span><span class="p">.</span><span class="nf">getrefcount</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="c1"># a의 레퍼런스 카운트: 4
+</span></code></pre></div></div>
+<ul>
+  <li>a가 위치한 스택의 주소가 콜스택에서 참조되기 때문에 1번, <code class="language-plaintext highlighter-rouge">getrefcount()</code>에 매개변수로 전달될 때 한번 카운트가 증가됩니다.</li>
+</ul>
+
+<h3 id="generational-garbage-collection">Generational Garbage Collection</h3>
+<ul>
+  <li>어떤 동적 객체가 서로를 순환참조하고 있다면, Reference counting 방식에서는 해당 객체들이 메모리에서 해제될 수 없습니다.</li>
+  <li>이를 방지하기 위해, 제너레이셔널 가비지 컬렉션은 순환 참조를 탐지하고 메모리에서 해제합니다.</li>
+  <li>레퍼런스 카운팅과 다르게 가비지 컬렉팅은 개발자가 임계값을 직접 설정하여 동작시킬 수 있습니다.</li>
+</ul>
+
+<h4 id="핵심-개념">핵심 개념</h4>
+<ul>
+  <li>Generation: 가비지 컬렉터 객체를 0~2세대로 분리하여 관리하고, 세대가 낮을수록 더욱 자주 가비지 컬렉팅을 수행합니다. 생성된지 오래되지 않은 객체가 오래된 객체보다 해제될 가능성이 높다는 가설에 근거합니다.</li>
+  <li>
+    <p>Threshold: 세대별 객체의 수가 정해진 스레스홀드를 초과하면, 임계치가 초과된 세대의 객체에 대해 수행합니다.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">import</span> <span class="n">gc</span>
+  <span class="n">gc</span><span class="p">.</span><span class="nf">get_threshold</span><span class="p">()</span> <span class="c1"># 1. stdout: (700, 10, 10)
+</span>  <span class="n">gc</span><span class="p">.</span><span class="nf">get_count</span><span class="p">()</span>     <span class="c1"># 2. stdout: (121, 9, 2)
+</span></code></pre></div>    </div>
+
+    <ul>
+      <li>1번 결과에서 threshold 0이 700이라는 의미는, 0세대 객체가 700개를 초과하면 가비지 컬렉팅이 수행된다는 뜻입니다. 남은 객체들은 1세대 객체로 옮기고 1세대의 count를 1 증가시킵니다.</li>
+      <li>threshold 1, 2가 10이라는 의미는, 객체 수의 임계값이 아닌 가비지 컬렉팅이 발생한 횟수에 대한 임계치입니다. 따라서, 1세대는 7000번 만에, 2세대는 70000번 만에 가비지 컬렉션이 수행됩니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="가비지-컬렉션의-라이프-사이클">가비지 컬렉션의 라이프 사이클</h4>
+<ul>
+  <li>새로운 객체가 만들어질 때 파이썬은 객체를 메모리와 0 세대에 할당합니다. 만약, 0 세대의 객체 수가 threshold 0보다 크다면, <code class="language-plaintext highlighter-rouge">collect_generations()</code>를 실행하게 됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">collection_generations()</code> 메서드가 호출되면 모든 세대(기본적으로 3개의 세대)를 검사하는데, 가장 오래된 세대인 2세대부터 역으로 확인합니다.</li>
+  <li>해당 세대에 객체가 할당된 횟수가 각 세대에 대응되는 threadhold n보다 크면 <code class="language-plaintext highlighter-rouge">collect()</code>를 호출해 가비지 컬렉션을 수행합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">collect()</code> 메서드는 순환 참조 탐지 알고리즘을 수행하고 특정 세대에서 도달할 수 있는 객체와 도달할 수 없는 객체를 구분하여 도달할 수 없는 객체들을 찾습니다.</li>
+  <li>도달할 수 있는 객체 집합은 다음 상위 세대로 합쳐지고, 도달할 수 없는 객체 집합은 콜백을 수행한 후 메모리에서 해제됩니다.</li>
+</ul>
+
+<h4 id="순환참조-되는-경우">순환참조 되는 경우</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+		<span class="k">pass</span>
+<span class="n">a</span> <span class="o">=</span> <span class="nc">MyClass</span><span class="p">()</span>
+<span class="n">a</span><span class="p">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">a</span>
+<span class="k">del</span> <span class="n">a</span>
+</code></pre></div></div>
+<ul>
+  <li>위와 같은 경우,  클래스의 인스턴스를 생성한 다음 프로퍼티로 자신을 할당했습니다.</li>
+  <li>이 때, 객체를 삭제하더라도 객체의 프로퍼티가 자신이기 때문에 순환참조가 발생하여 객체가 즉시 메모리에서 할당 해제되지 않습니다.</li>
+  <li>따라서, 실제 객체를 삭제하더라도 각 객체 내부에서 서로를 참조하기 때문에 레퍼런스가 지워지지 않아, count가 1이 됩니다.</li>
+  <li>순환참조는 다음과 같은 방법으로 탐지할 수 있습니다.
+    <ol>
+      <li>각 객체의 gc_refs 필드를 레퍼런스 카운트와 같은 값으로 설정합니다.</li>
+      <li>각 객체에서 참조하는 다른 컨테이너 객체를 찾고, 참조되는 컨테이너의 gc_refs를 감소 시킵니다.</li>
+      <li>어느 객체의 gc_refs가 0이 되면, 그 객체는 컨테이너 집합 내부에서 순환참조하고 있다는 뜻입니다.</li>
+      <li>해당 객체를 unreachable 객체로 구분하고 메모리에서 해제합니다.</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="generational-garbage-collection-모듈">Generational Garbage Collection 모듈</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gc</span><span class="p">.</span><span class="nf">get_count</span><span class="p">():</span> <span class="n">각</span> <span class="n">세대의</span> <span class="n">객체</span> <span class="n">수를</span> <span class="n">확인합니다</span><span class="p">.</span>
+<span class="n">gc</span><span class="p">.</span><span class="nf">set_threshold</span><span class="p">():</span> <span class="n">세대별</span> <span class="n">임계치를</span> <span class="n">설정합니다</span><span class="p">.</span>
+<span class="n">gc</span><span class="p">.</span><span class="nf">collect_generations</span><span class="p">()</span>
+<span class="p">:</span> <span class="n">모든</span> <span class="n">세대에</span> <span class="n">대해</span> <span class="mi">2</span><span class="n">세대부터</span> <span class="mi">0</span><span class="n">세대까지의</span> <span class="n">순서로</span> <span class="n">확인하고</span><span class="p">,</span> <span class="n">임계치</span> <span class="n">초과시</span> <span class="nf">collect</span><span class="p">()</span> <span class="n">호출합니다</span><span class="p">.</span>
+<span class="n">gc</span><span class="p">.</span><span class="nf">collect</span><span class="p">():</span> <span class="n">가비지</span> <span class="n">컬렉션을</span> <span class="n">수행하여</span> <span class="n">순환참조</span> <span class="n">객체를</span> <span class="n">메모리에서</span> <span class="n">해제합니다</span><span class="p">.</span>
+<span class="n">gc</span><span class="p">.</span><span class="nf">disable</span><span class="p">():</span> <span class="n">가비지</span> <span class="n">컬렉팅을</span> <span class="n">비활성화할</span> <span class="n">수</span> <span class="n">있습니다</span><span class="p">.</span>
+</code></pre></div></div>
+
+<h4 id="gc와-프로그램-성능">GC와 프로그램 성능</h4>
+<ul>
+  <li>가비지 컬렉션을 수행하려면 프로그램을 완전히 중지해야하기 때문에, 객체가 많을수록 가비지 컬렉션을 수행하기 위한 시간이 더 많이 필요합니다.</li>
+  <li>가비지 컬렉션 주기가 짧으면 여유 메모리를 확보할 수 있지만, 프로그램이 중단되는 상황이 많이 발생합니다. 주기가 길면 프로그램이 자주 중단되지는 않지만 메모리 공간에 가비지가 많이 쌓입니다.</li>
+</ul>
+
+<h2 id="파이썬-글로벌-메모리-관리">파이썬 글로벌 메모리 관리</h2>
+
+<h3 id="리눅스에서의-메모리-관리">리눅스에서의 메모리 관리</h3>
+<ul>
+  <li>리눅스에서 프로세스가 메모리를 할당 받으면, 프로세스가 종료되기 전까지 할당받은 메모리를 그대로 가지고 있습니다. 따라서, 프로세스에 할당되는 메모리가 시간이 지남에 따라서</li>
+  <li>파이썬의 경우, C언어를 기반으로 사용하는 Cpython에서는 <code class="language-plaintext highlighter-rouge">glibc</code>를 사용합니다. <code class="language-plaintext highlighter-rouge">glibc</code>는 동적 메모리 할당에 <code class="language-plaintext highlighter-rouge">malloc()</code>과 <code class="language-plaintext highlighter-rouge">free()</code> 함수를 사용합니다.</li>
+  <li>리눅스는 <code class="language-plaintext highlighter-rouge">malloc()</code>을 호출하면 <code class="language-plaintext highlighter-rouge">brk()</code>, <code class="language-plaintext highlighter-rouge">nmap()</code>을 사용하여 메모리를 할당하게 됩니다.</li>
+  <li>128KB보다 작은 경우에는 <code class="language-plaintext highlighter-rouge">brk()</code>, 보다 큰 메모리의 경우 <code class="language-plaintext highlighter-rouge">nmap()</code>을 사용합니다.</li>
+</ul>
+
+<h3 id="파이썬에서의-메모리-관리">파이썬에서의 메모리 관리</h3>
+<ul>
+  <li>파이썬은 PyMalloc을 사용하여 메모리를 할당합니다. PyMalloc은 Arena라는 라이브러리를 기반으로 동작합니다.</li>
+  <li>Arena는 힙 메모리 영역에서 256KB를 OS로부터 할당받은 후, 64개의 4KB(x86 아키텍처 페이지 사이즈) 단위의 메모리 풀(pool)로 나뉘게 됩니다. 각 풀은 다시 512B의 블록으로 나뉘어집니다. 블럭은 객체가 저장될 공간이며, 메모리 풀은 블럭을 관리하는데 사용되고, Arena는 메모리 풀을 관리합니다.</li>
+  <li>객체별로 얼로케이터들은 Arena에서 순서대로 풀을 가지고 옵니다. 각 풀을 사용 가능한 블럭들을 이용해 자신의 객체들을 할당합니다. 풀에 사용 가능한 블록이 없다면 다음 풀로 넘어가고 풀이 없다면 새로운 Arena가 할당되어 Arena의 풀에 실제 객체가 할당됩니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">del</code> 명령어를 사용해 객체를 지우고, reference count가 0이 되거나 순환참조되어 가비지 컬렉션이 진행되더라도 실제로 운영체제로 메모리가 반환되지 않는 이유는 메모리가 Arena 단위로 관리되기 때문입니다.</li>
+  <li>Arena는 하위 64개 풀이 모두 할당되지 않은 상태여야만 운영체제로 반환됩니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<h4 id="garbage-collectiong">Garbage Collectiong</h4>
+<p><a href="https://velog.io/@zihs0822/Python의-GC와-GIL">Python의 Garbage Collecting</a>
+<a href="https://devbull.xyz/python-garbace-collection/">파이썬의 가비지 콜렉션에 대해서</a>
+<a href="https://deeppago.tistory.com/69">Deeppago님의 블로그</a></p>
+<h4 id="파이썬-메모리-관리">파이썬 메모리 관리</h4>
+<p><a href="https://changmyeong.tistory.com/52">파이썬의 메모리 관리</a></p>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,7 +1,7 @@
 ---
 layout: archive
 title:  "[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?"
-date:   2023-10-18 00:05:07 +0900
+date:   2023-10-21 00:05:07 +0900
 categories: 
     - Study
 ---
