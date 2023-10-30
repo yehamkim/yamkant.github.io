@@ -292,4 +292,16 @@ var store = [{
         "tags": [],
         "url": "/study/study-python-garbage-collector/",
         "teaser": null
+      },{
+        "title": "[Study] 파이썬 의존성 관리 툴 Poetry 사용 방법",
+        "excerpt":"Poetry란?     파이썬의 의존성을 관리해주는 툴입니다.   pip으로만 사용하면, Dependency를 관리하기가 까다로워 버전 충돌이 발생할 수 있습니다.   툴 내에서 Virtualenv를 생성하여 경리된 환경에서 개발이 가능하도록 합니다.   기존 파이썬 패키지 관리 툴에서 지원하지 않는 Build, Publish가 가능합니다.   pyproject.toml을 기준으로 여러 툴들의 config 관리를 명시적으로 할 수 있습니다.   참고  https://velog.io/@whattsup_kim/Python-%ED%8C%8C%EC%9D%B4%EC%8D%AC-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0-2-Poetry  ","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-python-poetry/",
+        "teaser": null
+      },{
+        "title": "[Study] Database - 동시성 관련 문제",
+        "excerpt":"트랜잭션 Isolation Level Dirty Read, Non-repeatable Read, Phantom Read를 발생하지 않게 만든다면, 제약사항이 많아집니다. 제약사항이 많아지면 동시처리(concurrency) 가능한 트랜잭션의 수가 줄어들게 되어, 결국 DB의 전체 처리량(throughput)이 하락하게 되는 단점이 있습니다. 개발자는 격리수준을 설정하여 쓰루풋과 데이터 일관성 사이의 트레이드 오프를 관리할 수 있습니다. SQL 표준에서 정의하는 격리수준(Isolation Level)의 허용범위는 아래와 같습니다....","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-db-concurrency/",
+        "teaser": null
       }]

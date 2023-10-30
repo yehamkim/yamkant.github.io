@@ -1,4 +1,274 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-10-23T11:09:46+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?</title><link href="http://localhost:4000/study/study-python-garbage-collector/" rel="alternate" type="text/html" title="[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?" /><published>2023-10-21T00:05:07+09:00</published><updated>2023-10-21T00:05:07+09:00</updated><id>http://localhost:4000/study/study-python-garbage-collector</id><content type="html" xml:base="http://localhost:4000/study/study-python-garbage-collector/"><![CDATA[<h1 id="가비지-컬렉터">가비지 컬렉터</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-10-30T22:34:05+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yam’s Dev Logs</title><subtitle>An amazing website.</subtitle><author><name>Yeham Kim</name></author><entry><title type="html">[Study] Database - 동시성 관련 문제</title><link href="http://localhost:4000/study/study-db-concurrency/" rel="alternate" type="text/html" title="[Study] Database - 동시성 관련 문제" /><published>2023-10-30T00:05:07+09:00</published><updated>2023-10-30T00:05:07+09:00</updated><id>http://localhost:4000/study/study-db-concurrency</id><content type="html" xml:base="http://localhost:4000/study/study-db-concurrency/"><![CDATA[<h2 id="트랜잭션-isolation-level">트랜잭션 Isolation Level</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Dirty Read</code>, <code class="language-plaintext highlighter-rouge">Non-repeatable Read</code>, <code class="language-plaintext highlighter-rouge">Phantom Read</code>를 발생하지 않게 만든다면, 제약사항이 많아집니다.</li>
+  <li>제약사항이 많아지면 동시처리(concurrency) 가능한 트랜잭션의 수가 줄어들게 되어, 결국 DB의 전체 처리량(throughput)이 하락하게 되는 단점이 있습니다.</li>
+  <li>개발자는 격리수준을 설정하여 쓰루풋과 데이터 일관성 사이의 트레이드 오프를 관리할 수 있습니다.</li>
+  <li>
+    <p>SQL 표준에서 정의하는 격리수준(Isolation Level)의 허용범위는 아래와 같습니다.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Isolation Level</th>
+          <th style="text-align: center">Dirty read</th>
+          <th style="text-align: center">Non-repeatable read</th>
+          <th style="text-align: center">Phantom read</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left">Read uncommitted</td>
+          <td style="text-align: center">O</td>
+          <td style="text-align: center">O</td>
+          <td style="text-align: center">O</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">Read committed</td>
+          <td style="text-align: center">X</td>
+          <td style="text-align: center">O</td>
+          <td style="text-align: center">O</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">Repeatable read</td>
+          <td style="text-align: center">X</td>
+          <td style="text-align: center">X</td>
+          <td style="text-align: center">O</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">Serializable</td>
+          <td style="text-align: center">X</td>
+          <td style="text-align: center">X</td>
+          <td style="text-align: center">X</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="dirty-read">Dirty Read</h4>
+<ul>
+  <li>다른 트랜잭션에서 아직 커밋되지 않은 값을 읽는 경우입니다.</li>
+  <li>
+    <p>예시는 다음과 같습니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # given
+  - 2번 트랜잭션은 y = y + 20을 수행하고 1번 트랜잭션은 x = x + y를 수행합니다.
+  # when
+  - 2번 트랜잭션에서 값을 수정하고, 1번 트랜잭션이 그 값을 이용해 값을 수정하고 커밋합니다.
+  - 그후, 2번 트랜잭션에서 오류가 발생하여 롤백하게 됩니다.
+  # then
+  - 1번 트랜잭션은 결과적으로 비정상적인 수정이 되어버린 경우입니다.
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="non-repeatable-read-fuzzy-read">Non-repeatable Read (Fuzzy Read)</h4>
+<ul>
+  <li>하나의 트랜잭션이 같은 데이터의 값이 조회할 때마다 값이 달라지는 경우입니다.</li>
+  <li>
+    <p>예시는 다음과 같습니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # given
+  - 1번 트랜잭션은 x를 두번 읽습니다. 2번 트랜잭션은 x에 40을 더합니다.
+  # when
+  - 1번 트랜잭션에서 x를 한 번 읽습니다.
+  - 2번 트랜잭션이 x에 40을 더하고 커밋하여 값을 수정합니다.
+  # then
+  - 1번 트랜잭션에서 다시 x를 읽으면 첫번째 읽은 값과 다른 값이 조회됩니다.
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="phantom-read">Phantom Read</h4>
+<ul>
+  <li>없던 데이터가 생기게 되는 현상입니다.</li>
+  <li>
+    <p>예시는 다음과 같습니다.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # given
+  - 1번 트랜잭션은 WHERE v=10인 데이터를 두 번 읽습니다.
+  - 2번 트랜잭션은 WHERE v=30인 데이터를 v=10으로 수정합니다.
+  # when
+  - 1번 트랜잭션에서 조건문을 사용하여 데이터를 읽으면 조회되는 튜플은 하나입니다.
+  - 2번 트랜잭션에서 v=30을 v=10으로 수정하고 커밋하면 1번에서 불러올 수 있는 조건이 됩니다.
+  # then
+  - 1번에서 같은 조건으로 다시 조회하게 되면 v=10에 대한 튜플이 2개가 됩니다.
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="실무에서는-어떻게-사용하는가">실무에서는 어떻게 사용하는가?</h3>
+<ul>
+  <li>MySQL: 표준에서 정의하는 위의 네개의 격리 수준을 모두 사용합니다.</li>
+  <li>SQL server: 표준에서 정의하는 네개의 격리 수준을 모두 사용합니다.</li>
+  <li>Oracle: <code class="language-plaintext highlighter-rouge">READ UNCOMMITTED</code>는 사용하지 않습니다. <code class="language-plaintext highlighter-rouge">REPEATABLE READ</code> 대신 <code class="language-plaintext highlighter-rouge">SERIALIZABLE</code>로 설정해야합니다.<br />
+결과적으로, <code class="language-plaintext highlighter-rouge">READ COMMITTED</code>와 <code class="language-plaintext highlighter-rouge">SERIALIZABLE</code> 두 개의 격리 수준만 사용합니다.</li>
+  <li>Postgre SQL: 표준에서 정의하는 네개의 격리 수준 + <code class="language-plaintext highlighter-rouge">Serialization Anomaly</code> 관련 설정을 사용합니다.<br />
+Repeatable read는 snapshot isolation level에 해당합니다.</li>
+</ul>
+
+<h2 id="동시성concurrency이란">동시성(Concurrency)이란?</h2>
+<ul>
+  <li>하나의 CPU 코어에서 시간분할을 통하여 여러 일을 처리하는 것처럼 보여지게 하는 기법을 의미합니다.</li>
+  <li>DB에서는 자원에 접근하기 위해 동시성을 허용하여 트랜잭션이 순서에 상관없이 동시에 실행되는 것을 허용합니다.</li>
+  <li>이를 제대로 파악하지 못하고 설정하면, 데이터를 수정하여 저장했지만 조회했을 때 다른 값이 반환되는 등의 무결성이 깨지는 문제가 발생하게 됩니다.</li>
+</ul>
+
+<h3 id="read-uncommitted">Read uncommitted</h3>
+<ul>
+  <li>하나의 트랜잭션의 변경 이후 커밋, 롤백과 상관없이 다른 트랜잭션에 영향을 미칩니다.</li>
+  <li>1번 트랜잭션이 업데이트를 하고 commit을 하지 않은 상태에서 2번 트랜잭션이 업데이트하고 조회하는 경우입니다.</li>
+  <li>이 경우, <code class="language-plaintext highlighter-rouge">Dirty Read</code> 문제가 발생할 수 있습니다.</li>
+  <li>만약 다른 트랜잭션이 롤백된다면 다시 읽었을 떄 값이 달라집니다.</li>
+  <li>대부분 RDBMS에서는 사용하지 않는 격리 수준입니다.</li>
+</ul>
+
+<h3 id="read-committed">Read committed</h3>
+<ul>
+  <li>하나의 트랜잭션의 변경이 커밋된 후에만 다른 트랜잭션에 변경사항이 반영됩니다.</li>
+  <li>1번 트랜잭션이 값을 <code class="language-plaintext highlighter-rouge">Update</code> 후 1번 트랜잭션의 “커밋 이전”에 2번 트랜잭션이 조회한다면 변경 전 값을 읽습니다.</li>
+  <li>하지만, 1번 트랜잭션이 삽입, 수정 후 “커밋 이후”에 2번 트랜잭션이 값을 조회한다면 변경 후 값을 조회합니다.</li>
+  <li>이 경우, <code class="language-plaintext highlighter-rouge">Non-Repeatable Read</code> 문제가 발생할 수 있습니다.</li>
+  <li>Oracle을 포함한 많은 DBMS가 선택하는 격리 수준입니다.</li>
+</ul>
+
+<h3 id="repeatable-read">Repeatable Read</h3>
+<ul>
+  <li>트랜잭션이 시작되고 종료되기 전까지 한 번 조회한 값은 계속해서 같은 값으로 조회됩니다.</li>
+  <li>이 때, <code class="language-plaintext highlighter-rouge">Update</code>에 대해서는 데이터의 정합성이 보장되지만, <code class="language-plaintext highlighter-rouge">Insert</code>에 대해서는 보장되지 않습니다.</li>
+  <li>이 경우, <code class="language-plaintext highlighter-rouge">Phantom Read</code> 문제가 발생합니다.</li>
+</ul>
+
+<h3 id="serializable">Serializable</h3>
+<ul>
+  <li>가장 엄격한 격리 수준입니다.</li>
+  <li>한 트랜잭션이 테이블을 읽으면 다른 트랜잭션은 그 테이블에 대해 추가, 변경, 삭제가 제한됩니다.</li>
+  <li>정합성 문제는 발생하지 않겠지만, 동시 처리 성능이 떨어집니다.</li>
+</ul>
+
+<h2 id="비관적인-방법">비관적인 방법</h2>
+<ul>
+  <li>현재 수정하려는 데이터가 언제든 다른 요청에 의해 수정될 가능성을 고려하여 데이터에 Lock을 거는 방식입니다.</li>
+  <li>장점: 데이터의 무결성을 완벽히 지킬 수 있습니다.<br />
+(수정할 데이터에 row level lock을 걸어, 다른 요청에서 수정할 수 없습니다.)</li>
+  <li>단점: lock으로 인하여 다른 요청들은 대기상태가 됩니다.<br />
+(기존 Lock의 트랜잭션이 커밋 또는 롤백으로 끝나면 대기하던 요청을 실행합니다.)</li>
+</ul>
+
+<h3 id="방법-1-트랜잭션-격리수준-수정">방법 1: 트랜잭션 격리수준 수정</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SHOW</span> <span class="n">TRANSACTION</span> <span class="k">ISOLATION</span> <span class="k">LEVEL</span><span class="p">;</span>
+<span class="o">#</span> <span class="k">read</span> <span class="k">committed</span>
+</code></pre></div></div>
+
+<ul>
+  <li>기본으로 설정되어있던 격리수준을 높여서 동시성을 해결할 수 있습니다.</li>
+  <li>
+    <p>하지만, 모든 트랜잭션의 격리수준이 올라가게 되며 성능은 하락합니다.</p>
+  </li>
+  <li>postgres의 경우, 기본 격리수준은 <code class="language-plaintext highlighter-rouge">read committed</code>이지만, <code class="language-plaintext highlighter-rouge">repeatable read</code>나 seralizable`로 향상시킵니다.</li>
+</ul>
+
+<h3 id="방법-2-select-for-update">방법 2: select for update</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">#</span> <span class="n">transaction</span> <span class="mi">1</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">aircraft</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span> <span class="mi">20231030</span> <span class="k">for</span> <span class="k">update</span>
+
+<span class="o">#</span> <span class="n">transaction</span> <span class="mi">2</span>
+<span class="o">#</span> <span class="err">이건</span> <span class="err">가능</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">aircraft</span> <span class="k">where</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">20231030</span>
+
+<span class="o">#</span> <span class="n">transaction</span> <span class="mi">2</span>
+<span class="o">#</span> <span class="err">이건</span> <span class="err">불가능</span>
+<span class="k">update</span> <span class="n">aircraft</span> <span class="k">set</span> <span class="n">remaining_seat</span> <span class="o">=</span> <span class="n">remaining_seat</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">where</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">20231030</span>
+</code></pre></div></div>
+
+<ul>
+  <li>row lock을 제어하는 방식입니다.</li>
+  <li>
+    <p>DBMS 전체나 테이블에 lock을 거는 것보다, 좁은 범위에 lock을 사용하여 성능 하향을 최소화합니다.</p>
+  </li>
+  <li>특정 row에 lock을 걸어, 조회는 가능하게 하되, 업데이트는 불가능하도록 막습니다.</li>
+</ul>
+
+<h3 id="방법-3-redis">방법 3: redis</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># django-redis 사용
+</span>
+<span class="kn">from</span> <span class="n">django.core.cache</span> <span class="kn">import</span> <span class="n">cache</span>
+<span class="n">aircraft_reserve_key</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">'</span><span class="s">aircraft_reserve_key:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s">:</span><span class="si">{</span><span class="n">aircraft_id</span><span class="si">}</span><span class="sh">'</span>
+<span class="k">if</span> <span class="n">cache</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="sh">'</span><span class="s">aircraft_reserve_key</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">1</span><span class="sh">'</span><span class="p">,</span> <span class="n">nx</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">aircraft</span> <span class="o">=</span> <span class="n">Aircraft</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">aircraft_id</span><span class="p">)</span>
+    <span class="n">aircraft</span><span class="p">.</span><span class="n">remaining_seat</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="n">aircraft</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+</code></pre></div></div>
+<ul>
+  <li>redis를 사용하여 application 레벨에서 락을 잡는 방법입니다.</li>
+  <li>redis는 setnx(set not exist)를 사용하며, “락이 존재하지 않는다면” “락을 획득한다”는 두 연산을 atomic하게 락을 획득하도록 해줍니다.</li>
+</ul>
+
+<h3 id="참고-django에서-지원하는-select-for-update">참고: Django에서 지원하는 select for update</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">transaction</span><span class="p">.</span><span class="nf">atomic</span><span class="p">():</span>
+    <span class="n">aircraft</span> <span class="o">=</span> <span class="n">Aircraft</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">).</span><span class="nf">select_for_update</span><span class="p">()</span>
+    <span class="n">aircraft</span><span class="p">.</span><span class="n">remaining_seat</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="n">aircraft</span><span class="p">.</span><span class="nf">save</span><span class="p">()</span>
+</code></pre></div></div>
+<ul>
+  <li>항공기를 예약하는 예시로, 예약 시트의 변경이 있는 동안 특정 id의 레코드에 대해 락을 걸어둡니다.</li>
+</ul>
+
+<h4 id="of">of</h4>
+<ul>
+  <li>기본적으로 장고 ORM은 모든 쿼리에 락을 걸어버립니다. 따라서, 특정 모델 클래스를 대상으로 락을 설정할지 지정할 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">select_related</code>와 함께 사용하는 경우 join 테이블의 행도 함께 락을 걸기 때문에 명확히 명시할 수 있습니다.</li>
+</ul>
+
+<h4 id="skip_locked">skip_locked</h4>
+<ul>
+  <li>True로 설정하면 락이 걸린 레코드를 무시하고 락이 걸리지 않은 레코드를 찾습니다.</li>
+</ul>
+
+<h4 id="nowait">nowait</h4>
+<ul>
+  <li>기본 값은 False이며, row 락이 걸려있다면 트랜잭션이 끝날때까지 대기했다가 끝나면 작업을 진행합니다.</li>
+  <li>True일 때 락이 걸린 트랜잭션이 끝날 때까지 기다리지 않고 바로 <code class="language-plaintext highlighter-rouge">DatabaseError</code>를 발생시킵니다.</li>
+</ul>
+
+<h4 id="주의사항">주의사항</h4>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">transaction.atomic()</code> 블럭 내에서 <code class="language-plaintext highlighter-rouge">select_for_update()</code>를 사용해아합니다. 
+(블럭 내에 있는 동안 블럭 내에서 조회한 쿼리에 락이 걸립니다. 다른 트랜잭션은 이를 획득/수정할 수 없습니다.)</li>
+  <li><code class="language-plaintext highlighter-rouge">skip_locked</code> 옵션과 <code class="language-plaintext highlighter-rouge">nowait</code> 옵션은 상호배타적인 관계로, 두 옵션을 모두 사용하게 되면 <code class="language-plaintext highlighter-rouge">ValueError</code>가 발생합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">select_for_update()</code>는 null을 참조하는 경우에는 사용할 수 없습니다.<br />
+<code class="language-plaintext highlighter-rouge">Person.objects.select_related('hometown').select_for_update().exclude(hometown=None)</code></li>
+  <li>eager loading을 사용하여 참조해야합니다.</li>
+</ol>
+
+<h2 id="낙관적인-방법">낙관적인 방법</h2>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">reserve</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="n">Aircraft</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nf">filter</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="nb">id</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">version</span><span class="p">,</span>
+    <span class="p">).</span><span class="nf">update</span><span class="p">(</span>
+        <span class="n">remaining_seat</span><span class="o">=</span><span class="n">remaining_seat</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">version</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">updated</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</code></pre></div></div>
+<ul>
+  <li>version 컬럼이나 updated_at 컬럼을 함께 조회 조건으로 사용하는 방식입니다.</li>
+  <li>데이터를 수정할 때마다 version을 1 증가시키거나, updated_at을 현재시간으로 갱신합니다.</li>
+  <li>동시에 <code class="language-plaintext highlighter-rouge">reverse</code> 메서드가 호출되어 동일한 버전으로 수정하려고 시도한다면 하나의 transaction은 버전 충돌이나서 실패하게 됩니다.</li>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[트랜잭션 Isolation Level Dirty Read, Non-repeatable Read, Phantom Read를 발생하지 않게 만든다면, 제약사항이 많아집니다. 제약사항이 많아지면 동시처리(concurrency) 가능한 트랜잭션의 수가 줄어들게 되어, 결국 DB의 전체 처리량(throughput)이 하락하게 되는 단점이 있습니다. 개발자는 격리수준을 설정하여 쓰루풋과 데이터 일관성 사이의 트레이드 오프를 관리할 수 있습니다. SQL 표준에서 정의하는 격리수준(Isolation Level)의 허용범위는 아래와 같습니다.]]></summary></entry><entry><title type="html">[Study] 파이썬 의존성 관리 툴 Poetry 사용 방법</title><link href="http://localhost:4000/study/study-python-poetry/" rel="alternate" type="text/html" title="[Study] 파이썬 의존성 관리 툴 Poetry 사용 방법" /><published>2023-10-24T00:05:07+09:00</published><updated>2023-10-24T00:05:07+09:00</updated><id>http://localhost:4000/study/study-python-poetry</id><content type="html" xml:base="http://localhost:4000/study/study-python-poetry/"><![CDATA[<h2 id="poetry란">Poetry란?</h2>
+<ul>
+  <li>파이썬의 의존성을 관리해주는 툴입니다.</li>
+  <li>pip으로만 사용하면, Dependency를 관리하기가 까다로워 버전 충돌이 발생할 수 있습니다.</li>
+  <li>툴 내에서 Virtualenv를 생성하여 경리된 환경에서 개발이 가능하도록 합니다.</li>
+  <li>기존 파이썬 패키지 관리 툴에서 지원하지 않는 Build, Publish가 가능합니다.</li>
+  <li>pyproject.toml을 기준으로 여러 툴들의 config 관리를 명시적으로 할 수 있습니다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<p>https://velog.io/@whattsup_kim/Python-%ED%8C%8C%EC%9D%B4%EC%8D%AC-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0-2-Poetry</p>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Poetry란? 파이썬의 의존성을 관리해주는 툴입니다. pip으로만 사용하면, Dependency를 관리하기가 까다로워 버전 충돌이 발생할 수 있습니다. 툴 내에서 Virtualenv를 생성하여 경리된 환경에서 개발이 가능하도록 합니다. 기존 파이썬 패키지 관리 툴에서 지원하지 않는 Build, Publish가 가능합니다. pyproject.toml을 기준으로 여러 툴들의 config 관리를 명시적으로 할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?</title><link href="http://localhost:4000/study/study-python-garbage-collector/" rel="alternate" type="text/html" title="[Study] 파이썬에서는 어떻게 가비지 컬렉팅을 수행할까?" /><published>2023-10-21T00:05:07+09:00</published><updated>2023-10-21T00:05:07+09:00</updated><id>http://localhost:4000/study/study-python-garbage-collector</id><content type="html" xml:base="http://localhost:4000/study/study-python-garbage-collector/"><![CDATA[<h1 id="가비지-컬렉터">가비지 컬렉터</h1>
 
 <h3 id="메모리를-관리하는-방법">메모리를 관리하는 방법</h3>
 <ul>
@@ -1260,392 +1530,4 @@ await send({
   <li>HTTP 요청 헤더를 파싱하여 이를 환경에 추가합니다.</li>
   <li>file-like object로써 POST oriented input을 제공합니다.</li>
   <li>사용자로 하여금 수많은 format 디테일로부터 해방시키고 response를 만들 수 있는 기능을 제공합니다.</li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[각 용어의 정의 웹서버 인터넷을 통해서 요청된 웹 컨텐츠의 전달을 도와주는 하드웨어와 소프트웨어입니다. 웹서버는 기본적으로 ‘정적’인 파일을 전달합니다. 클라이언트가 HTTP 요청을 통해 리소스를 요청하면, 리소스를 그대로 보내줍니다.]]></summary></entry><entry><title type="html">[Study] Database - TRIGGER, Transaction</title><link href="http://localhost:4000/study/study-cs-dbms/" rel="alternate" type="text/html" title="[Study] Database - TRIGGER, Transaction" /><published>2023-09-11T00:05:07+09:00</published><updated>2023-09-11T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-dbms</id><content type="html" xml:base="http://localhost:4000/study/study-cs-dbms/"><![CDATA[<h2 id="sql-trigger">SQL Trigger</h2>
-<ul>
-  <li>데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다.</li>
-  <li>INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능)</li>
-  <li>애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다.</li>
-  <li>트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.</li>
-</ul>
-
-<h4 id="사용자-닉네임-변경-이력-기록">사용자 닉네임 변경 이력 기록</h4>
-<ul>
-  <li>사용자의 닉네임 변경 이력을 저장하는 트리거를 작성한다면,
-    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
-<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">log_user_nickname_trigger</span>
-<span class="k">BEFORE</span> <span class="k">UPDATE</span>
-<span class="k">ON</span> <span class="n">users</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
-<span class="k">BEGIN</span>
-<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">user_log</span> <span class="k">values</span><span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="k">OLD</span><span class="p">.</span><span class="n">nickname</span><span class="p">,</span> <span class="n">NOW</span><span class="p">());</span>
-<span class="k">END</span>
-<span class="err">$$</span>
-<span class="k">delimiter</span> <span class="p">;</span>
-</code></pre></div>    </div>
-  </li>
-  <li>닉네임이 UPDATE 될 때마다 그 전에 트리거를 동작시킵니다.</li>
-  <li>users 테이블에 대해 업데이트가 발생하면, 트리거가 동작하여 각 ROW에 대해 액션을 실행합니다.</li>
-  <li>닉네임이 업데이트될 때마다 기존의 닉네임을 users_log 테이블에 저장하게 됩니다.<br />
-(<code class="language-plaintext highlighter-rouge">OLD</code> 업데이트되기 전의 users의 tuple을 가리킴.)</li>
-</ul>
-
-<h4 id="사용자-누적-구매-비용-저장-통계-기록">사용자 누적 구매 비용 저장 통계 기록</h4>
-<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">delimiter</span> <span class="err">$$</span>
-<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">sum_buy_prices_trigger</span>
-<span class="k">AFTER</span> <span class="k">INSERT</span>
-<span class="k">ON</span> <span class="n">buy</span> <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
-<span class="k">BEGIN</span>
-  <span class="k">DECLARE</span> <span class="n">total</span> <span class="nb">INT</span><span class="p">;</span>
-  <span class="k">DECLARE</span> <span class="n">user_id</span> <span class="nb">INT</span> <span class="k">DEFAULT</span> <span class="k">NEW</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
-
-  <span class="k">select</span> <span class="k">sum</span><span class="p">(</span><span class="n">price</span><span class="p">)</span> <span class="k">into</span> <span class="n">total</span> <span class="k">from</span> <span class="n">buy</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
-  <span class="k">update</span> <span class="n">user_buy_stats</span> <span class="k">set</span> <span class="n">price_sum</span> <span class="o">=</span> <span class="n">total</span> <span class="k">where</span> <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">;</span>
-<span class="k">END</span>
-<span class="err">$$</span>
-<span class="k">delimiter</span> <span class="p">;</span>
-</code></pre></div></div>
-<ul>
-  <li>INSERT 이벤트가 발생한 후에 액션을 수행합니다.</li>
-  <li>total이라는 INT 변수를 선언하고, user_id라는 INT 변수를 선언합니다. 이 때, 초기 값으로 user_id에 insert된 tuple의 user_id를 넣어줍니다.</li>
-</ul>
-
-<h4 id="임직원-평균-연봉-구하기-postgresql">임직원 평균 연봉 구하기 (PostgreSQL)</h4>
-<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">avg_empl_salary_trigger</span>
-  <span class="k">AFTER</span> <span class="k">INSERT</span> <span class="k">OR</span> <span class="k">UPDATE</span> <span class="k">OR</span> <span class="k">DELETE</span>
-  <span class="k">ON</span> <span class="n">employee</span>
-  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">STATEMENT</span>
-  <span class="n">EXCUTE</span> <span class="k">FUNCTION</span> <span class="n">update_avg_empl_salary</span><span class="p">();</span>
-</code></pre></div></div>
-<ul>
-  <li>[MySQL X] 하나 이상의 이벤트가 발생하는 조건에 대해서 트리거를 진행할 수 있습니다.</li>
-  <li>[MySQL X] <code class="language-plaintext highlighter-rouge">FOR EACH ROW</code>와 <code class="language-plaintext highlighter-rouge">FOR EACH STATEMENT</code>의 차이점에 대해서 학습해 보기.</li>
-</ul>
-
-<h2 id="transaction">Transaction</h2>
-<ul>
-  <li>데이터베이스의 상태를 변화시키기 위해 <code class="language-plaintext highlighter-rouge">수행하는 작업의 단위</code>입니다.</li>
-  <li>commit: 하나의 트랜잭션이 성공적으로 끝났고, DB가 일관성있는 상태라면 변경된 상태를 영구적으로 반영하는 것입니다.</li>
-  <li>rollback: 테이블 내에 입력/수정/삭제한 데이터에 대해 commit 이전 변경 사항을 취소합니다. 이 때, 관련된 행에 대한 잠금(locking)이 해제되고, 다른 사용자들이 데이터 변경을 가능하도록 합니다.</li>
-  <li>savepoint: rollback 시, 트랜잭션에 포함된 전체 작업을 rollback하지 않고, 현시점에서 savepoint까지의 트랜잭션의 일부만 rollback 가능합니다.</li>
-</ul>
-
-<h3 id="특징-acid">특징 (ACID)</h3>
-<ul>
-  <li>Atomic(원자성): 트랜잭션이 DB에 모두 반영되거나, 전혀 반영되지 않아야 합니다.</li>
-  <li>Consistency(일관성): 트랜잭션의 작업 처리 결과는 항상 일관성이 있어야 합니다.</li>
-  <li>Isolation(독립성): 둘 이상의 트랜잭션이 동시에 병행 실행되고 있을 때, 서로 다른 트랜잭션 연산은 독립적이어야 합니다.</li>
-  <li>Durability(지속성): 트랜잭션이 성공적으로 완료된다면, 결과는 영구적으로 반영되어야 합니다. (power faile이나 DB crash가 발생하더라도. 이는 DBMS가 보장합니다.)
-    <h4 id="추가">추가</h4>
-  </li>
-  <li>일관성은 기본 키, 외래 키 제약과 같은 명시적인 무결성 제약 조건들 뿐만 아니라, 이체 예시에서 두 계좌 잔고의 합은 이체 전후가 같아야 한다는 사항과 같은 비명시적인 일관성 조건들도 있습니다.</li>
-  <li>Isolation을 엄격하게 구현한다면, DB 서버의 성능에 영향을 주는 요소이기 때문에 여러 종류의 isolationlevel을 제공합니다.</li>
-</ul>
-
-<h3 id="autocommit">Autocommit</h3>
-<ul>
-  <li>각각의 SQL문을 자동으로 transaction 처리하는 개념으로, SQL문이 성공적으로 실행하면 자동으로 commit 합니다. 실패 시, 자동으로 rollback 합니다.</li>
-  <li>MySQL의 경우, autocommit이 기본적으로 활성화되어 있으며, transaction 시작 시 autocommit 기능을 off합니다.</li>
-  <li>autocommit을 off하게 되면, commit을 할 때까지 영구적인 반영이 되는 것은 아니기 때문에, rollback 시 원래 상태로 돌이킬 수 있습니다.</li>
-</ul>
-
-<h3 id="일반적인-사용-패턴">일반적인 사용 패턴</h3>
-<ol>
-  <li>transaction을 시작(begin) 합니다. (autocommit을 off 상태로 변경)</li>
-  <li>데이터를 읽거나 쓰는 등의 SQL 문들을 포함하여 로직을 수행합니다.</li>
-  <li>일련의 과정들이 문제없이 동작했다면 transaction을 commit 합니다.</li>
-  <li>문제가 발생했다면, transaction을 rollback 합니다.</li>
-  <li>commit 및 rollback 후에 autocommit을 on 상태로 변경합니다.</li>
-</ol>
-
-<h2 id="concurrency-control">Concurrency Control</h2>
-<ul>
-  <li>Schedule: 여러 트랜잭션들이 동시에 실행될 때 각 트랜잭션에 속한 operation들의 실행 순서를 의미합니다. 이 때, 각각의 트랜잭션 내의 operation들의 순서는 바뀌지 않습니다.</li>
-  <li>고민거리: 성능 때문에 여러 transaction들을 겹쳐서 실행(nonserial schedule)하면 좋겠지만, 의도치 않은 결과가 발생하는 상황이 생깁니다.</li>
-  <li>해결방법: conflict serializable한 경우에 대해서는 nonserial schedule를 허용합니다.</li>
-  <li>즉, 어떤 스케쥴이라도 serializable하도록 동작하게 만드는 제어기법을 의미합니다.</li>
-</ul>
-
-<h2 id="serializability">Serializability</h2>
-
-<h4 id="serial-schedule">Serial schedule</h4>
-<ul>
-  <li>트랜잭션들이 겹치지 않고 한 번에 하나씩 실행되는 스케쥴을 의미합니다.</li>
-  <li>저장공간에 대해 I/O 작업을 수행하는 동안에 CPU는 쉬고 있지만 serial은 다른 동작을 수행시키지 않으므로 동시성이 없고 좋은 성능을 내지 못합니다.</li>
-</ul>
-
-<h4 id="nonserial-schedule">Nonserial schedule</h4>
-<ul>
-  <li>트랜잭션들이 겹쳐서 실행되는 스케쥴을 의미합니다.</li>
-  <li>I/O 작업 중 다른 트랜잭션을 수행하기 때문에 동시성이 높아져 같은 시간동안 더 많은 트랜잭션을 처리할 수 있습니다.</li>
-  <li>단점: 트랜잭션들이 어떤 형태로 겹쳐서 실행되는지에 따라 결과값이 변경될 우려가 있습니다.</li>
-</ul>
-
-<h4 id="conflict">Conflict</h4>
-<ul>
-  <li>Conflict란, 아래의 세 조건을 만족하는 경우입니다.
-    <ol>
-      <li>두 오퍼레이션이 서로 다른 트랜잭션 소속인 경우</li>
-      <li>두 오퍼레이션이 같은 데이터에 접근하는 경우</li>
-      <li>두 오퍼레이션 중 최소한 하나는 쓰기 오퍼레이션인 경우</li>
-    </ol>
-  </li>
-  <li>두 오퍼레이션 중 하나의 오퍼레이션은 읽는 경우, 다른 하나의 오퍼레이션은 쓰는 경우 발생하는 컨플릭트를 read-write conflict라고 합니다.</li>
-  <li>두 오퍼레이션 모두 쓰는 오퍼레이션이라면 write-write conflict라고 합니다.</li>
-  <li>conflict operation은 순서가 바뀌게 될 때 결과도 바뀝니다.</li>
-  <li>Conflict equivalent란, 아래의 두 조건을 모두 만족하는 경우입니다.
-    <ol>
-      <li>두 스케쥴이 같은 트랜잭션들을 가지는 경우</li>
-      <li>트랜잭션들의 모든 conflicting operation들의 순서가 양쪽 스케쥴 모두 동일한 경우<br />
-(conflicting operation: read-write/write-wr ite conflict)</li>
-    </ol>
-  </li>
-  <li>Serial schedule과 conflict equivalent일 때 Conflict serializable이라고 할 수 있습니다.</li>
-</ul>
-
-<h3 id="conflict-serializable-확인방법-구현">Conflict serializable 확인방법 구현</h3>
-<ul>
-  <li>여러개의 트랜잭션을 동시에 실행하더라도 스케쥴이 conflict serializable 하다는 것이 보장되는 스케줄만 실행되도록 하는 프로토콜을 적용합니다.</li>
-</ul>
-
-<h2 id="unrecoverability">Unrecoverability</h2>
-<ul>
-  <li>스케쥴 내에서 커밋된 트랜잭션(1번)이 “rollback된 트랜잭션(2번)이 수정했던 데이터”를 읽은 경우를 의미합니다. 즉, 1번 트랜잭션은 유효하지 않은 2번 트랜잭션의 데이터에 작업을 하게된 경우입니다. -&gt; unrecoverable schedule</li>
-  <li>위의 상황에서, rollback을 하더라도 이전 상태로 회복 불가능하기 때문에, 이런 스케줄은 DBMS에서 허용하면 안됩니다.</li>
-</ul>
-
-<h4 id="recoverable한-스케쥴">Recoverable한 스케쥴</h4>
-<ul>
-  <li>스케쥴 내에서 그 어떤 트랜잭션도 자신이 읽은 데이터를 수정한 트랜잭션이 먼저 커밋/롤백 되기 전까지 커밋하지 않는 경우에 recoverable한 스케쥴이라 할 수 있습니다.</li>
-  <li>트랜잭션 간에 의존성이 있는 경우, 의존하는 트랜잭션은</li>
-</ul>
-
-<h2 id="isolation-level-격리수준">Isolation Level (격리수준)</h2>
-<p><strong>Read Uncommitted (Level 0)</strong></p>
-<ul>
-  <li>SELECT 문이 수행되는 동안 해당 데이터에 Shared Lock이 걸리지 않는 계층입니다.</li>
-  <li>트랜잭션이 처리중이거나, 아직 commit되지 않은 데이터를 다른 트랜잭션이 읽는 것조차 허용합니다.</li>
-  <li>데이터베이스의 일관성을 유지하는 것이 불가능합니다.</li>
-</ul>
-
-<p><strong>Read Committed (Level 1)</strong></p>
-<ul>
-  <li>대부분의 SQL 서버가 기본적으로 사용하는 격리수준입니다.</li>
-  <li>커밋된 데이터만 조회할 수 있습니다. Phantom Read, Non-Retable Read 문제가 발생할 수 있습니다.</li>
-  <li>트랜잭션이 수행되는 동안 다른 트랜잭션이 접근할 수 없어서 대기하게 됩니다.</li>
-</ul>
-
-<p><strong>Repeatable Read (Level 2)</strong></p>
-<ul>
-  <li>MySQL에서 기본으로 사용하는 격리수준입니다.</li>
-  <li>일반적인 RDBMS는 변경 전의 레코드를 언두 공간에 백업해둡니다. 
-(MVCC. 동일한 레코드에 대해 여러 버전의 데이터가 존재)</li>
-  <li>트랜잭션이 롤백된 경우에 데이터를 복원할 수 있을 뿐 아니라,</li>
-  <li>트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Loack이 걸리는 단계입니다.</li>
-  <li>트랜잭션이 범위 내에서 조회한 데이터 내용이 항상 동일함을 보장합니다.</li>
-  <li>다른 사용자는 트랜잭션 영역에 해당되는 데이터에 대한 수정이 불가능합니다.</li>
-</ul>
-
-<p><strong>Serializable (Level 3)</strong></p>
-<ul>
-  <li>여러 트랜잭션이 동일한 레코드에 동시에 접근(읽기/쓰기/수정 모두)할 수 없습니다. 하지만, 트랜잭션이 순차적으로 처리되어야 하기 때문에 동시처리 성능이 매우 떨어집니다.</li>
-  <li>순수한 SELECT 작업에 대해서도 대상 레코드에 넥스트 키 락을 읽기잠금(공유락, Shared Lock)으로 겁니다.</li>
-  <li>완벽한 읽기 일관성 모드를 제공합니다.</li>
-</ul>
-
-<h3 id="격리수준이-낮을-때-발생할-수-있는-문제">격리수준이 낮을 때 발생할 수 있는 문제</h3>
-
-<p><strong>Dirty Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Read Uncommitted</li>
-  <li>어떤 트랜잭션에서 아직 실행이 끝나지 않았을 때, <code class="language-plaintext highlighter-rouge">다른 트랜잭션에 의한 변경 사항</code>을 트랜잭션 수행 중 조회하게 되는 경우입니다.</li>
-  <li>커밋되지 않은 수정중인 데이터를 다른 트랜잭션에서 읽을 수 있도록 허용할 때 발생합니다.</li>
-</ul>
-
-<p><strong>Non-Repeatable Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Read Committed, Read Uncommitted</li>
-  <li>한 트랜잭션에서 같은 쿼리를 두 번 수행할 때, 그 사이에 다른 트랜잭션 값을 수정/삭제 하면서 두 쿼리의 결과가 다르게 나타나며 일관성이 깨지는 현상입니다.</li>
-</ul>
-
-<p><strong>Phantom Read</strong></p>
-<ul>
-  <li>발생 격리 수준: Repeatable Read, Read Committed, Read Uncommitted</li>
-  <li>트랜잭션 도중에 새로운 레코드 삽입을 허용하기 때문에 나타나는 현상입니다.</li>
-  <li>한 트랜잭션 안에서 일정 범위의 레코드를 두 번 이상 읽을 때, 첫 번째 쿼리에서 없던 레코드가 두 번째 쿼리에서 나타나는 현상입니다.</li>
-</ul>
-
-<h3 id="dbms의-구조">DBMS의 구조</h3>
-<ul>
-  <li>크게 <code class="language-plaintext highlighter-rouge">Query Processor</code>와 <code class="language-plaintext highlighter-rouge">Storage System</code>이 있습니다.</li>
-  <li>입출력은 고정 길이의 page 단위로 disk에 읽거나 씁니다.</li>
-  <li>저장 공간은 비휘발성 저장 장치인 disk에 저장하며, 일부를 Main Memory에 저장합니다.</li>
-</ul>
-
-<h3 id="page-buffer-manageror-buffer-manager">Page Buffer Manager(or Buffer Manager)</h3>
-<ul>
-  <li>DBMS의 Storage System에 속하는 모듈 중 하나로, Main Memory에 유지하는 페이지를 관리합니다.</li>
-  <li>Buffer 관리 정책에 따라서, UNDO 복구와 REDO 복구가 요구되거나 그렇지 않게 되므로, transaction 관리에 매우 중요한 결정을 합니다.</li>
-</ul>
-
-<h3 id="undo">UNDO</h3>
-<ul>
-  <li>트랜잭션은 시작 됐지만 아직 완료되지 않은 commit되지 않은 부분에 대해 연산을 취소합니다.</li>
-  <li>수정된 Page들이 <strong>Buffer 교체 알고리즘에 따라 디스크에 출력</strong>될 수 있습니다.</li>
-  <li>Buffer 관리 정책에 영향을 받습니다.</li>
-</ul>
-
-<h3 id="redo">REDO</h3>
-<ul>
-  <li>이미 commit된 transaction의 수정을 재반영하는 복구 작업입니다.</li>
-  <li>Buffer 관리 정책에 영향을 받습니다.</li>
-</ul>
-
-<h3 id="참고자료">참고자료</h3>
-<ul>
-  <li><a href="https://youtu.be/mEeGf4ZWQKI?si=cTzyiw9E9bCI4DFS">쉬운코드님 trigger 강의</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[SQL Trigger 데이터에 변경(INSERT, UPDATE, DELETE)이 생겼을 때 자동적으로 실행되는 프로시저를 의미합니다. INSERT, UPDATE, DELETE를 한 번에 감지하도록 설정 또한 가능합니다. (MySQL은 불가능) 애플리케이션이 알 수 없는 데이터베이스 서버의 로직이기 때문에, 문제사항 발생 시 대응하기 어렵다는 단점이 있습니다. 트리거를 지나치게 많이 발생시키면, 연쇄적인 트리거 발생이 생길 수 있고 이는 DB에 부담을 주어 응답을 느리게 할 수 있습니다.]]></summary></entry><entry><title type="html">[Study] Operating System - Sync, Async</title><link href="http://localhost:4000/study/study-cs-os-sync-async/" rel="alternate" type="text/html" title="[Study] Operating System - Sync, Async" /><published>2023-09-07T00:05:07+09:00</published><updated>2023-09-07T00:05:07+09:00</updated><id>http://localhost:4000/study/study-cs-os-sync-async</id><content type="html" xml:base="http://localhost:4000/study/study-cs-os-sync-async/"><![CDATA[<h3 id="race-condition">Race condition</h3>
-<ul>
-  <li>여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다.</li>
-  <li>동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다.</li>
-  <li>critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다.
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
-  entry section <span class="c"># critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간</span>
-    critical section
-  <span class="nb">exit </span>section <span class="c"># 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간</span>
-    remainder section
-<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>True<span class="o">)</span>
-</code></pre></div>    </div>
-  </li>
-  <li>하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다.</li>
-  <li>critical section problem의 해결책을 위한 조건은 다음과 같습니다.
-    <ol>
-      <li>mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다.</li>
-      <li>progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다.</li>
-      <li>bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.</li>
-    </ol>
-  </li>
-</ul>
-
-<h3 id="lock">Lock</h3>
-<ul>
-  <li>mutual exclusion을 보장하도록 하는 방법입니다.
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">do</span> <span class="o">{</span>
-  acquire lock
-    critical section
-  release lock
-    remainder section
-<span class="o">}</span> <span class="k">while</span> <span class="o">(</span>TRUE<span class="o">)</span>
-</code></pre></div>    </div>
-  </li>
-  <li>atomic 명령어: 실행 중간에 간섭받거나 중단되지 않으며, 같은 메모리 영역에 대해 동시에 실행되지 않습니다. 이는, CPU 내부에서 함수를 동작시키는 원리입니다.</li>
-  <li>mutual exclusion만 사용한다면 뮤텍스를, 작업 간의 실행 순서에 대한 동기화가 필요하다면 세마포어 사용을 권장합니다.</li>
-</ul>
-
-<p><strong>Spin lock</strong></p>
-<ul>
-  <li>무한루프(while True)를 사용해서 lock을 획득할 떄까지 기다리는 방식입니다.</li>
-  <li>기다리는 동안 CPU를 낭비하게 되는 단점이 있습니다. 다른 작업을 위해 사용해야하는 CPU를 락을 확인하는데 사용하고 있기 때문입니다.</li>
-  <li>멀티코어 환경이고, critical section에서의 작업이 컨텍스트 스위칭보다 더 빨리 끝나면 스핀락이 뮤텍스보다 이점을 갖습니다.</li>
-</ul>
-
-<p><strong>Mutex</strong></p>
-<ul>
-  <li>뮤텍스의 기본 원리는 아래와 같습니다. 락을 가질 수 있을 때까지 휴식을 취하다가 락을 쥐면 그때 깨어나서 critical section에 진입합니다.
-    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">lock</span><span class="p">();</span>
-<span class="p">...</span> <span class="n">critical</span> <span class="n">section</span>
-<span class="n">mutex</span> <span class="o">-&gt;</span> <span class="n">unlock</span><span class="p">();</span>
-
-<span class="c1">//---</span>
-
-<span class="k">class</span> <span class="nc">Mutex</span> <span class="p">{</span>
-  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="n">Mutex</span><span class="o">::</span><span class="n">lock</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="n">Mutex</span><span class="o">::</span><span class="n">unlock</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
-    <span class="p">...</span> <span class="n">lock</span><span class="err">을</span> <span class="err">해제</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
-  <span class="p">}</span>
-  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-    <ul>
-      <li>Point1. 스레드들은 lock을 갖기 위해 경합을 하며, <code class="language-plaintext highlighter-rouge">value</code>가 0인 경우, 무한루프를 돌리지 않고, 스레드를 큐에 넣는 작업을 합니다.</li>
-      <li>Point2. CPU 레벨에서 지원하는 atomic 명령어인 <code class="language-plaintext highlighter-rouge">test_and_set</code>을 사용하여 작업합니다.</li>
-    </ul>
-  </li>
-  <li>priority inheritance 속성을 가집니다. 따라서, 스케쥴러가 스케쥴링을 할 때 우선순위를 조정하여 critical section을 빠져나오도록 할 수 있습니다. (세마포어는 이런 동작 불가능)</li>
-</ul>
-
-<p><strong>Semaphore</strong></p>
-<ul>
-  <li>signal mechanism을 가진 하나 이상의 프로세스/스레드가 critical section에 접근 가능한 장치입니다.
-    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//---</span>
-
-<span class="k">class</span> <span class="nc">Semaphore</span> <span class="p">{</span>
-  <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="n">Semaphore</span><span class="o">::</span><span class="n">wait</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="p">...</span> <span class="err">현재</span> <span class="err">스레드를</span> <span class="err">큐에</span> <span class="err">넣기</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">value</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="n">Semaphore</span><span class="o">::</span><span class="n">signal</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">while</span> <span class="p">(</span><span class="n">test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">guard</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="err">큐에</span> <span class="err">대기중인</span> <span class="err">프로세스</span> <span class="err">존재</span><span class="p">)</span> <span class="p">{</span>
-    <span class="p">...</span> <span class="err">그</span> <span class="err">중</span> <span class="err">하나를</span> <span class="err">깨워서</span> <span class="err">작업을</span> <span class="err">위한</span> <span class="err">준비를</span> <span class="err">진행시키기</span><span class="p">;</span>
-    <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
-  <span class="p">}</span>
-  <span class="n">guard</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>    </div>
-    <ul>
-      <li><code class="language-plaintext highlighter-rouge">value</code>를 0과 1만 가지는 경우에는 바이너리 세마포어, 1외에 값을 가질 수 있는 경우는 카운팅 세마포어라고 합니다.</li>
-      <li><code class="language-plaintext highlighter-rouge">value</code>가 1 외에도 여러값을 가져서, critical section에 하나 이상의 프로세스/스레드가 접근하여 작업이 가능하도록 합니다.</li>
-    </ul>
-  </li>
-  <li>세마포어는 순서를 정해줄 때 사용할 수 있습니다. 예를 들어 task의 진행 방식이 아래와 같다고 생각해봅시다. (signal mechanism을 가짐)
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>task1 <span class="o">{</span>
-  semaphore-&gt;signal<span class="o">()</span>
-<span class="o">}</span>
-
-task2
-semaphore-&gt;wait<span class="o">()</span>
-task3
-</code></pre></div>    </div>
-    <ul>
-      <li>task3를 실행하기 위해, task2가 끝나고 task3을 수행하려면, task1을 먼저 수행하여 <code class="language-plaintext highlighter-rouge">signal</code>을 얻어 와야합니다.</li>
-    </ul>
-  </li>
-  <li>위 예시와 같이 <code class="language-plaintext highlighter-rouge">wait()</code>와 <code class="language-plaintext highlighter-rouge">signal()</code>이 반드시 같은 프로세스나 스레드 안에서 실행될 필요가 없다는 특징이 있습니다.</li>
-  <li>뮤텍스는 락을 가진 프로세스/스레드만 락을 해제할 수 있지만, 세마포어는 <code class="language-plaintext highlighter-rouge">wait</code>를 하는 프로세스와 <code class="language-plaintext highlighter-rouge">signal</code>을 날리는 프로세스가 달라도 됩니다.</li>
-</ul>
-
-<h2 id="참고">참고</h2>
-<ul>
-  <li><a href="https://youtu.be/vp0Gckz3z64?si=diBWEAzKVzTrjK9u">쉬운코드님 운영체제 - 동기화의 목적</a></li>
-</ul>]]></content><author><name>Yeham Kim</name></author><category term="Study" /><summary type="html"><![CDATA[Race condition 여러 프로세스/스레드가 동시에 같은 데이터에 접근할 때 타이밍이나 접근 순서에 따라 결과가 달라지는 상황을 말합니다. 동기화: 여러 프로세스/스레드를 동시에 실행하더라도 공유 데이터의 일관성을 유지하도록 하는 것을 의미합니다. critical section: 공유 데이터의 일관성을 보장하기 위해 하나의 프로세스/스레드만 진입해서 실행 가능한 영역을 의미합니다. do { entry section # critical section에 진입하기 위한 조건을 갖추었는지 확인하는 구간 critical section exit section # 이 후에도 솔루션이 잘 동작할 수 있도록 조치를 취하는 구간 remainder section } while (True) 하나의 메서드가 실행하고 마칠 때까지 한 스레드만 해당 메서드에 접근 가능하도록 한다면 (critical section), 싱글코어든 멀티코어든 해당 메서드의 처리 이후 접근하게 될 것이므로 동기화에 대해 문제가 없습니다. critical section problem의 해결책을 위한 조건은 다음과 같습니다. mutual exclusion (상호 배제): 한 번에 하나의 프로세스/스레드만 critical section에 진입하여 작업 수행이 가능합니다. progress (진행): critical section이 비어있고, 이를 위해 대기하고 있는 프로세스/스레드가 있다면 그 중 하나는 진행이 될 수 있도록 처리해야합니다. bounded waiting (한정된 대기): 어떤 프로세스/스레드가 무한정 critical section에 들어가지 못하고 있는 경우는 없어야 합니다.]]></summary></entry></feed>
+</ul>]]></content><author><name>Yeham Kim</name></author><category term="Django Strategy" /><summary type="html"><![CDATA[각 용어의 정의 웹서버 인터넷을 통해서 요청된 웹 컨텐츠의 전달을 도와주는 하드웨어와 소프트웨어입니다. 웹서버는 기본적으로 ‘정적’인 파일을 전달합니다. 클라이언트가 HTTP 요청을 통해 리소스를 요청하면, 리소스를 그대로 보내줍니다.]]></summary></entry></feed>
