@@ -49,7 +49,14 @@
             <ul>
                 {% for category in site.categories %}
                 {% if category[0] == "Study" %}
-                <li><a href="/categories/study" class="">study ({{category[1].size}})</a></li>
+                <li><a href="/categories/study" class="">Study ({{category[1].size}})</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
+                {% if category[0] == "Algorithm" %}
+                <li><a href="/categories/algorithm" class="">Algorithm ({{category[1].size}})</a></li>
                 {% endif %}
                 {% endfor %}
             </ul>

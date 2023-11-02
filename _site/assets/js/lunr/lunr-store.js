@@ -304,4 +304,10 @@ var store = [{
         "tags": [],
         "url": "/study/study-db-concurrency/",
         "teaser": null
+      },{
+        "title": "[Algorithm] 부분합을 계산하기 위한 알고리즘",
+        "excerpt":"부분합 입력받은 정수 배열에서 연속된 부분배열의 합이 가장 큰 경우를 구하는 문제입니다. 입력 값으로 배열의 크기와 요소들이 주어집니다. 무식하게 풀기 O(N * N) class SolverBruteForce: def solve(self, arr: List[int]): psum = INT_MIN n: int = len(arr) for i in range(n): for j in range(n): if not (i + j &lt;...","categories": ["Algorithm"],
+        "tags": [],
+        "url": "/algorithm/study-algorithm-partial-sum/",
+        "teaser": null
       }]
