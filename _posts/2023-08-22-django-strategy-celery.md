@@ -39,7 +39,7 @@ categories: [Strategy]
 - 서버도 마찬가지로 일반 메서드를 다루는 것처럼 원격 메서드를 다루도록 하는 것입니다.
 
 
-Task Queue란?
+### Task Queue란?
 - Task 대기열은 threads나 machines에 따른 분산 작업을 처리할 때 사용됩니다.
 - 한 태스크 큐의 input은 태스크라 불리는 작업의 unit이며, Dedicated worker 프로세스는 지속적으로 수행하기 위한 새로운 일을 위한 대기열을 모니터링 합니다.
 - Celery는 message들을 통하여 커뮤니케이션하며, client들과 worker들 사이에 중재자의 역할을 하는 broker를 사용합니다.

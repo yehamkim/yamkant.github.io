@@ -310,4 +310,10 @@ var store = [{
         "tags": [],
         "url": "/algorithm/study-algorithm-partial-sum/",
         "teaser": null
+      },{
+        "title": "[Architecture] Clean Architecture in Python",
+        "excerpt":"https://github.com/Enforcer/clean-architecture Python으로 클린 아키텍처 적용하기 도메인 주도 설계 (DDD)가 필요하게 된 이유 일반적 설계 모델(CRUD 방식)의 문제점 생명주기(Invariant Span)가 single model을 넘어서는 경우에 로직이 복잡해집니다. code가 서로 강하게 결합(tightly coupled)되어 있는 경우, 비즈니스 로직을 테스트하기 위해 미리 많은 작업을 세팅해야하는 경우가 생깁니다. (db 불러오기, 웹 프레임워크 코드 실행) 써드파티 서비스들과의...","categories": ["Study"],
+        "tags": [],
+        "url": "/study/study-architecture-ddd/",
+        "teaser": null
       }]
