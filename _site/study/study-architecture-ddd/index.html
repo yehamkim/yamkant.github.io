@@ -1,0 +1,1023 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[Architecture] Clean Architecture in Python - Yam’s Dev Logs</title>
+<meta name="description" content="https://github.com/Enforcer/clean-architecture">
+
+
+  <meta name="author" content="Yeham Kim">
+  
+  <meta property="article:author" content="Yeham Kim">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Yam's Dev Logs">
+<meta property="og:title" content="[Architecture] Clean Architecture in Python">
+<meta property="og:url" content="http://localhost:4000/study/study-architecture-ddd/">
+
+
+  <meta property="og:description" content="https://github.com/Enforcer/clean-architecture">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2023-11-07T00:05:07+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/study/study-architecture-ddd/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Yeham Kim",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Yam's Dev Logs Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--archive">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Yam's Dev Logs
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+<div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Yeham Kim</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>제품을 만드는 개발자입니다.</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Seoul</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:dev.yamkim@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+            <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i><span class="label">GitHub</span></a></li>
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+
+  
+  <!--전체 글 수를 세기 위한 연산. sum 변수에 전체 글 수 저장-->
+
+
+
+<nav class="nav__list">
+    <input id="ac-toc" name="accordion-toc" type="checkbox" />
+    <label for="ac-toc">Toggle menu</label>
+    <ul class="nav__items" id="category_tag_menu">
+        <!--전체 글 수-->
+        <li style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            📂 <span>Total Posts: 53</span>
+        </li>
+        <li>
+            <!--span 태그로 카테고리들을 크게 분류 ex) C/C++/C#-->
+            <span class="nav__sub-title">Django</span>
+            <!--ul 태그로 같은 카테고리들 모아둔 페이지들 나열-->
+            <ul>
+                <!--Cpp 카테고리 글들을 모아둔 페이지인 /categories/cpp 주소의 글로 링크 연결-->
+                <!--category[1].size 로 해당 카테고리를 가진 글의 개수 표시-->
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-strategy" class="">Django Strategy (14)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                <li><a href="/categories/django-deep" class="">Django Deep (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Server</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/server" class="">Server (3)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Study</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/django-study" class="">Django Study (3)</a></li>
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/study" class="">Study (23)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/algorithm" class="">Algorithm (1)</a></li>
+                
+                
+            </ul>
+            <span class="nav__sub-title">Error Handle</span>
+            <ul>
+                
+                
+                <li><a href="/categories/error-async" class="">비동기 처리 (2)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+            <span class="nav__sub-title">Database</span>
+            <ul>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <li><a href="/categories/database" class="">SQL (1)</a></li>
+                
+                
+                
+                
+                
+                
+                
+                
+            </ul>
+        </li>
+    </ul>
+</nav>
+  
+
+</div>
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">[Architecture] Clean Architecture in Python</h1>
+    
+    <p><a href="https://github.com/Enforcer/clean-architecture">https://github.com/Enforcer/clean-architecture</a></p>
+
+<p><a href="https://velog.io/@jahoy/Python%EC%9C%BC%EB%A1%9C-Clean-Architecture-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0">Python으로 클린 아키텍처 적용하기</a></p>
+
+<h2 id="도메인-주도-설계-ddd가-필요하게-된-이유">도메인 주도 설계 (DDD)가 필요하게 된 이유</h2>
+
+<p><strong>일반적 설계 모델(CRUD 방식)의 문제점</strong></p>
+
+<ul>
+  <li>생명주기(Invariant Span)가 single model을 넘어서는 경우에 로직이 복잡해집니다.</li>
+  <li>code가 서로 강하게 결합(tightly coupled)되어 있는 경우, 비즈니스 로직을 테스트하기 위해 미리 많은 작업을 세팅해야하는 경우가 생깁니다. (db 불러오기, 웹 프레임워크 코드 실행)</li>
+  <li>써드파티 서비스들과의 결합이 어려워집니다. 예를 들어, 외부 결제 모듈과 처음 코드를 결합시켰다면, 다른 결제 모듈로 대체하는 경우 수정하기 어려워집니다.</li>
+</ul>
+
+<p><strong>Clean Architecture의 장점</strong></p>
+
+<ul>
+  <li>Framework의 독립성: 프레임워크를 업그레이드 하거나, 교체하기 쉬워집니다.</li>
+  <li>Testaiblity: 모든 비즈니스 로직을 unit test할 수 있습니다.</li>
+  <li>UI/API, 서드파티 모듈, 데이터베이스를 독립적으로 사용할 수 있습니다.</li>
+  <li>매우 유연하며, 확장 가능이 쉽습니다. (CQRS, Event-Sourcing, DDD 방식을 필요로 한다면 적용 가능)</li>
+</ul>
+
+<p><strong>비즈니스 룰</strong></p>
+
+<ul>
+  <li>컴퓨터 프로그램에서 실세계의 규칙에 따라 데이터를 생성, 표시, 저장, 변경하는 부분을 일컬으며, 도메인 로직이라고도 말합니다.</li>
+  <li>유저의 입력(UI)과 DB 사이에서 발생한 정보 교환을 위한 특정 알고리즘이나 규칙이 정의되며, 고객의 요구에 따라 변경될 수 있습니다.</li>
+</ul>
+
+<p><strong>시스템 아키텍쳐</strong></p>
+
+<ul>
+  <li>시스템의 구조(structure), 행위(behavior), 뷰(views)를 정의하는 개념 모델입니다.</li>
+  <li>시스템의 목적을 달성하기 위해 각 컴포넌트가 어떻게 상호작용하며, 어떻게 정보가 교환 되는지 설명합니다.</li>
+</ul>
+
+<h2 id="layers-of-clean-architecture"><strong>Layers of Clean Architecture</strong></h2>
+
+<ul>
+  <li>External World: DB, API, Network등 코드의 바깥쪽 외부 세계를 의미합니다.</li>
+  <li>
+    <p>Infrastructure: DB와 API와 같은 것들에 대한 adapter의 역할을 의미합니다.</p>
+
+    <p><strong>Adapters</strong></p>
+
+    <ul>
+      <li>Domain과 Infrastructure 사이의 번역기 역할을 수행합니다.</li>
+      <li>GUI의 MVC 아키텍처를 완전히 내포합니다. GUI(클라이언트)의 데이터를 받아 Use case들과 Entity들에게 편리한 형태로 repackage 합니다.</li>
+    </ul>
+  </li>
+  <li>Application
+    <ul>
+      <li>Use Case: 하나의 비즈니스 로직으로, 유저 하나의 액션으로 구성됩니다. 입찰하기, 입찰 취소하기 등을 의미합니다. (interface의 구체화 버전으로 생각할 수 있습니다.)</li>
+      <li>Interface: 추상화된 use case와 infrastructure을 추상화합니다.</li>
+    </ul>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1"># application/interfaces/email_sender.py
+</span>  <span class="kn">import</span> <span class="n">abc</span>
+  <span class="k">class</span> <span class="nc">EmailSender</span><span class="p">(</span><span class="n">abc</span><span class="p">.</span><span class="n">ABC</span><span class="p">):</span>
+         <span class="nd">@abc.abstractmethod</span>
+         <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">EmailMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+             <span class="k">pass</span>
+  <span class="c1"># infrastructure/adapters/email_sender.py
+</span>  <span class="kn">import</span> <span class="n">smtplib</span>
+  <span class="kn">from</span> <span class="n">application.interfaces.email_sender</span> <span class="kn">import</span> <span class="n">EmailSender</span>
+  <span class="k">class</span> <span class="nc">LocalhostEmailSender</span><span class="p">(</span><span class="n">EmailSender</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">EmailMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="p">.</span><span class="nc">SMTP</span><span class="p">(</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="mi">1025</span><span class="p">)</span>
+          <span class="c1"># etc
+</span></code></pre></div>    </div>
+  </li>
+  <li>Domain: identity를 가진 Entity로 구성되며, 비즈니스 룰을 담고 있습니다</li>
+</ul>
+
+<h3 id="클린-아키텍쳐의-계층과-방향성">클린 아키텍쳐의 계층과 방향성</h3>
+
+<ul>
+  <li>
+    <p>External World → Infrastructure → Application → Domain의 방향성을 가집니다.</p>
+  </li>
+  <li><strong>Dependency Rule</strong>: 화살표 방향으로 의존성을 가지고 있습니다.
+    <ul>
+      <li>Application은 Domain을 사용해도, Domain은 Application을 사용하지 못합니다.</li>
+      <li>Infrastructure은 Application을 사용해도, Application은 Infrastructure을 사용하지 못합니다.</li>
+    </ul>
+  </li>
+  <li><strong>Business Rules, Processes</strong>: Application Layer와 Domain Layer 상에서 이루어지며, External World를 전혀 모르는 상태로 쉽게 Buisiness Logic의 테스트 코드를 작성할 수 있습니다.</li>
+  <li><strong>Boundary</strong>: 여러개의 Interface들로 정의 됩니다. 모든 detail은 boundary 뒤에 숨어있습니다.</li>
+  <li><strong>Input DTO, Output DTO, Input Boundary</strong>: Application Layer 안에 Detail을 숨기는 Boundary를 형성합니다.
+    <ul>
+      <li>Input DTO: Boundary에 진입할 수 있는 input argument(Request)입니다.</li>
+      <li>Output DTO: Response</li>
+      <li>Input Boundary: Use Case들을 추상화한 Interface입니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PlacingBidInputDto</span><span class="p">:</span>
+    <span class="n">bidder_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">auction_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Decimal</span>   
+    
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PlacingBidOutputDto</span><span class="p">:</span>
+    <span class="n">is_winning</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">current_price</span><span class="p">:</span> <span class="n">Decimal</span>                                   
+    
+<span class="k">class</span> <span class="nc">PlacingBidInputBoundary</span><span class="p">:</span>
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">PlacingBidInputDto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+</code></pre></div></div>
+
+<h2 id="control-flow-in-architecture">Control Flow in Architecture</h2>
+
+<ol>
+  <li>Controller: HTTP 요청을 repack하여 Input DTO로 보내며, 이는 Input Boundary(Use Case의 인터페이스)의 input으로 전달됩니다.</li>
+  <li>Input Boundary: Input DTO를 이용하여 Input DTO의 데이터를 사용하며, 필요한 Entity들을 데이터 액세스 인터페이스를 통해 DB로부터 fetch합니다.</li>
+  <li>Entity: 비즈니스 로직을 수행합니다. 데이터 액세스 인터페이스를 통해 변경 사항을 저장합니다.</li>
+  <li>Use Case: Output Boundary(Presenter의 인터페이스 역할을 함)에 Output DTO를 전달합니다. 이 때, Presenter는 Output DTO의 데이터를 reformat하여 View에 최종적으로 보여주는 역할을 합니다.</li>
+</ol>
+
+<ul>
+  <li>Input DTO, Input Boundary, Output Boundary, OutputDto, UseCase, Data Access Interface는 Application Layer에 속합니다.</li>
+  <li>Entity는 Domain Layer에 속합니다.</li>
+</ul>
+
+<h3 id="sequence-diagram">Sequence diagram</h3>
+
+<h4 id="비즈니스-요구사항-예시">비즈니스 요구사항 (예시)</h4>
+
+<ul>
+  <li>입찰자들은 경매에 입찰할 수 있다.</li>
+  <li>경매에는 모든 입찰자가 볼 수 있는 실시간 가격이 있다.
+    <ul>
+      <li>현재 가격은 가장 낮은 낙찰가의 양에 따라 결정된다.</li>
+      <li>승자가 되려면, 현재 가격보다 높은 가격을 제공해야 한다.</li>
+    </ul>
+  </li>
+  <li>경매에는 시작 가격이 있으며, 시작 가격보다 낮은 금액의 새로운 입찰은 수락되지 않는다.</li>
+</ul>
+
+<h4 id="input-boundary-input-dto">Input Boundary, Input DTO</h4>
+
+<p><a href="https://velog.io/@sawol/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%81%B4%EB%9E%98%EC%8A%A4dataclasses">데이터 클래스(dataclasses)</a></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PlacingBidInputDto</span><span class="p">:</span>
+    <span class="n">bidder_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">auction_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Decimal</span>
+ 
+<span class="k">class</span> <span class="nc">PlacingBidInputBoundary</span><span class="p">(</span><span class="n">abc</span><span class="p">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">input_dto</span><span class="p">:</span> <span class="n">PlacingBidInputDto</span><span class="p">,</span> 
+    		<span class="n">presenter</span><span class="p">:</span> <span class="n">PlacingBidOutputBoundary</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+	<span class="k">pass</span>
+</code></pre></div></div>
+
+<ul>
+  <li>입력 데이터와 관련된 부분입니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@dataclass</code>는 클래스 내부의 필드들의 형식을 정의함과 동시에, 매직 메서드(<strong>init</strong>, <strong>repr</strong> 등)을 기본적으로 세팅해주어 편리합니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">@abc.abstractmethod</code>는 해당 추상 클래스를 상속받는 구체 클래스에서 반드시 메서드를 사용하도록 강제하는 애노테이션입니다.</li>
+  <li>Input Boundary는 Use Case를 추상화합니다.</li>
+</ul>
+
+<h4 id="use-case">Use Case</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PlacingBidUseCase</span><span class="p">(</span><span class="n">PlacingBidInputBoundary</span><span class="p">):</span>
+<span class="sh">"""</span><span class="s">
+1. Auction entity를 data access를 통해 retrieve
+2. entity의 place bid 메소드 호출 (비즈니스 로직 수행)
+3. Command 역할: 업데이트 상태변경 및 저장, return 값 없는 것이 특징
+4. Output DTO 생성
+5. Output DTO를 Output Boundary에 전달
+</span><span class="sh">"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">data_access</span><span class="p">:</span> <span class="n">AuctionsDataAccess</span><span class="p">,</span> <span class="n">output_boundary</span><span class="p">:</span>
+       <span class="n">PlacingBidOutputBoundary</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_data_access</span> <span class="o">=</span> <span class="n">data_access</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_output_boundary</span> <span class="o">=</span> <span class="n">output_boundary</span>
+        
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">input_dto</span><span class="p">:</span> <span class="n">PlacingBidInputDto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">auction</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_data_access</span><span class="p">.</span><span class="nf">get_auction</span><span class="p">(</span><span class="n">input_dto</span><span class="p">.</span><span class="n">auction_id</span><span class="p">)</span>
+        <span class="n">auction</span><span class="p">.</span><span class="nf">place_bid</span><span class="p">(</span><span class="n">input_dto</span><span class="p">.</span><span class="n">bidder_id</span><span class="p">,</span> <span class="n">input_dto</span><span class="p">.</span><span class="n">amount</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_data_access</span><span class="p">.</span><span class="nf">save_auction</span><span class="p">(</span><span class="n">auction</span><span class="p">)</span>
+        <span class="n">output_dto</span> <span class="o">=</span> <span class="nc">PlacingBidOutputDto</span><span class="p">(</span>
+            <span class="n">input_dto</span><span class="p">.</span><span class="n">bidder_id</span> <span class="ow">in</span> <span class="n">auction</span><span class="p">.</span><span class="n">winners</span><span class="p">,</span> <span class="n">auction</span><span class="p">.</span><span class="n">current_price</span>
+        <span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_output_boundary</span><span class="p">.</span><span class="nf">present</span><span class="p">(</span><span class="n">output_dto</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>모든 비즈니스 로직이 담긴 부분입니다.</li>
+  <li>interface들(Higher Layer)과 코드를 구성하고 결합합니다.</li>
+  <li>앞서 말한 방향성에 따라, 뒷단에서 이루어지는 concrete Implementation은 모릅니다.
+(Dependency Injection을 통해 Mapping 해주게 될 것이기 때문)</li>
+  <li>PlacingBidUseCase는 Use Case로, Input Boundary를 구체화합니다.</li>
+</ul>
+
+<h4 id="output-boundary-output-dto">Output Boundary, Output DTO</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PlacingBidOutputDto</span><span class="p">:</span>
+    <span class="n">is_winning</span><span class="p">:</span> <span class="nb">bool</span>
+	<span class="n">current_price</span><span class="p">:</span> <span class="n">Decimal</span>
+
+<span class="k">class</span> <span class="nc">PlacingBidOutputBoundary</span><span class="p">(</span><span class="n">abc</span><span class="p">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">output_dto</span><span class="p">:</span> <span class="n">PlacingBidOutputDto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    	<span class="k">pass</span>
+        
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_presented_data</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    	<span class="k">pass</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Output Boundary는 Presenter를 추상화합니다.</li>
+</ul>
+
+<h4 id="presenter">Presenter</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Presenter: 최종적으로 view에 보여줄 data를 reformat 시키는 역할
+</span><span class="k">class</span> <span class="nc">PlacingBidWebPresenter</span><span class="p">(</span><span class="n">PlacingBidOutputBoundary</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">output_dto</span><span class="p">:</span> <span class="n">PlacingBidOutputDto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_formatted_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sh">'</span><span class="s">current_price</span><span class="sh">'</span><span class="p">:</span> <span class="sa">f</span><span class="sh">'</span><span class="s">$</span><span class="si">{</span><span class="n">output_dto</span><span class="p">.</span><span class="n">current_price</span><span class="p">.</span><span class="nf">quantize</span><span class="p">(</span><span class="sh">"</span><span class="s">.01</span><span class="sh">"</span><span class="p">)</span><span class="si">}</span><span class="sh">'</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">is_winning</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">Congratulations!</span><span class="sh">'</span> <span class="k">if</span> <span class="n">output_dto</span><span class="p">.</span><span class="n">is_winning</span> <span class="k">else</span> <span class="sh">'</span><span class="s">:(</span><span class="sh">'</span>
+        <span class="p">}</span>
+        
+    <span class="k">def</span> <span class="nf">get_presented_data</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_formatted_data</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Presenter는 View에 최종 결과를 보여주게 됩니다.</li>
+</ul>
+
+<h3 id="inject-모듈을-사용한-dependency-rule-생성">inject 모듈을 사용한 Dependency Rule 생성</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">inject</span>
+
+<span class="k">def</span> <span class="nf">di_config</span><span class="p">(</span><span class="n">binder</span><span class="p">:</span> <span class="n">inject</span><span class="p">.</span><span class="n">Binder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">binder</span><span class="p">.</span><span class="nf">bind</span><span class="p">(</span><span class="n">AuctionsDataAccess</span><span class="p">,</span> <span class="nc">DbAuctionsDataAccess</span><span class="p">())</span>
+    <span class="n">binder</span><span class="p">.</span><span class="nf">bind_to_provider</span><span class="p">(</span><span class="n">PlacingBidOutputBoundary</span><span class="p">,</span> <span class="n">PlacingBidWebPresenter</span><span class="p">)</span>
+
+<span class="n">inject</span><span class="p">.</span><span class="nf">configure</span><span class="p">(</span><span class="n">di_config</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">di_config</code>: 추상 클래스와 구현체를 연결하여 Dependency Rule을 생성합니다. 이를 통해, 추상 클래스를 사용할 때 특정 Implementation이 사용되도록 할 수 있습니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AuctionsDataAccess</span><span class="p">(</span><span class="n">abc</span><span class="p">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">auction_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+        
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">auction</span><span class="p">:</span> <span class="n">Auction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    	<span class="k">pass</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Data Access</code>: 데이터베이스의 인터페이스 역할을 수행합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Bid</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">bidder_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Decimal</span>
+
+<span class="c1"># Entities - Auction
+</span><span class="k">class</span> <span class="nc">Auction</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">starting_price</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">,</span> <span class="n">bids</span><span class="p">:</span> <span class="n">typing</span><span class="p">.</span><span class="n">List</span><span class="p">[</span><span class="n">Bid</span><span class="p">]):</span>
+       <span class="n">self</span><span class="p">.</span><span class="nb">id</span> <span class="o">=</span> <span class="nb">id</span>
+       <span class="n">self</span><span class="p">.</span><span class="n">starting_price</span> <span class="o">=</span> <span class="n">starting_price</span>
+       <span class="n">self</span><span class="p">.</span><span class="n">bids</span> <span class="o">=</span> <span class="n">bids</span>
+       
+    <span class="k">def</span> <span class="nf">place_bid</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+       <span class="k">pass</span>
+       
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_price</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decimal</span><span class="p">:</span>
+       <span class="k">pass</span>
+       
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">winners</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="p">.</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+       <span class="k">pass</span>
+</code></pre></div></div>
+
+<h2 id="clean-architecture-변형할-수-있는-형태-소개">Clean Architecture 변형할 수 있는 형태 소개</h2>
+
+<h3 id="presenter에서-get-함수-사용">Presenter에서 get 함수 사용</h3>
+
+<ul>
+  <li>View의 return 값으로 Presenter의 템플릿을 반환하므로써, Presenter가 렌더링 역할을 담당하도록 합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HttpRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HttpResponse</span><span class="p">:</span>
+	<span class="k">return</span> <span class="nc">HttpResponse</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">Hello, world!</span><span class="sh">'</span><span class="p">)</span>
+<span class="o">---</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HttpRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HttpResponse</span><span class="p">:</span>
+	<span class="bp">...</span>
+	<span class="k">return</span> <span class="n">presenter</span><span class="p">.</span><span class="nf">get_html_response</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="cqrs-방식">CQRS 방식</h3>
+
+<ul>
+  <li>Output DTO와 Output Boundary 대신, CQRS 방식으로 처리하는 방법도 있습니다.</li>
+</ul>
+
+<h3 id="input-boundary-제거가능">Input Boundary 제거가능</h3>
+
+<h2 id="user-case-대안">User Case 대안</h2>
+
+<h3 id="facade-패턴">Facade 패턴</h3>
+
+<ul>
+  <li>User Case가 복잡하지 않은 형태라면 Facade 패턴을 사용하여 디자인할 수 있습니다.</li>
+  <li>순차적인 메서드들을 single function 안에 넣어서 구현하는 방식입니다.</li>
+  <li>get an Entity using Data Access Interface, call an Entity’s method, then save it back.</li>
+</ul>
+
+<h3 id="mediatorcommand-bus">Mediator(Command Bus)</h3>
+
+<ul>
+  <li>Output DTO를 사용하지 않는다면, Input DTO를 CQRS의 Commands로 대체하고, Command Bus라고 불리는 Mediator를 도입하는 것도 좋은 대안이 될 수 있습니다.</li>
+  <li>이 때, Use Case는 Command Handler가 되며, Command는 DTO가 됩니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">placing_bid_view</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+	<span class="n">command</span> <span class="o">=</span> <span class="nc">PlaceBid</span><span class="p">(..)</span>
+	<span class="n">command_bus</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Handler로부터 완전히 decouple 시킬 수 있습니다. 따라서, Command classes와 Command Bus만 알고 있으면 됩니다.</li>
+</ul>
+
+<h2 id="dependency-injection">Dependency Injection</h2>
+
+<ul>
+  <li>추상화에 대응되는 어떤 Implementation을 mapping 합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">CreditCardPaymentGateway</span><span class="p">(</span><span class="n">PaymentGateway</span><span class="p">):</span>
+	<span class="k">pass</span>
+
+<span class="c1"># tight coupling (implementation을 그대로 사용한 경우)
+</span><span class="k">class</span> <span class="nc">Order</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">finalise</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">payment_gateway</span> <span class="o">=</span> <span class="nc">CreditCardPaymentGateway</span><span class="p">(</span>
+			<span class="n">settings</span><span class="p">.</span><span class="n">payment</span><span class="p">[</span><span class="sh">'</span><span class="s">url</span><span class="sh">'</span><span class="p">],</span> <span class="n">settings</span><span class="p">.</span><span class="n">payment</span><span class="p">[</span><span class="sh">'</span><span class="s">credentials</span><span class="sh">'</span><span class="p">]</span>
+		<span class="p">)</span>
+		<span class="n">payment_gateway</span><span class="p">.</span><span class="nf">pay</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">total</span><span class="p">)</span>
+
+<span class="c1"># loose coupling (payment_gateway로 추상화한 class를 사용하는 경우)
+</span><span class="k">class</span> <span class="nc">Order</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">payment_gateway</span><span class="p">:</span> <span class="n">PaymentGateway</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">_payment_gateway</span> <span class="o">=</span> <span class="n">PaymentGateway</span>
+	<span class="k">def</span> <span class="nf">finalise</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">_payment_gateway</span><span class="p">.</span><span class="nf">pay</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">total</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Configuration을 통해 Dependency Injection을 관리하면, if문을 사용하지 않아도 됩니다.</li>
+</ul>
+
+<h2 id="cqrs">CQRS</h2>
+
+<ul>
+  <li>시스템의 상태를 변경하는 코드와 상태 변경없이 data를 read하는 코드를 분리합니다.</li>
+  <li>CQRS는 writing을 위해 정규화된 데이터를 사용는 것과, 주기적인 간격으로 업데이트를 유지하는 데이터 메커니즘을 쿼링하기 위해 비정규화된 데이터를 사용하는 것을 허용합니다.</li>
+  <li>Event Sourcing 방식과의 궁합이 좋습니다.</li>
+</ul>
+
+<h3 id="commands"><strong>Commands</strong></h3>
+
+<ul>
+  <li>시스템의 상태를 변화시킵니다.</li>
+  <li>Business requirements 변화에 영향을 많이 받습니다.</li>
+  <li>실행 순서가 중요합니다.</li>
+</ul>
+
+<h3 id="queries"><strong>Queries</strong></h3>
+
+<ul>
+  <li>시스템의 상태를 변경하지 않기 때문에, 간단하고 안전합니다.</li>
+</ul>
+
+<p><img src="Clean%20Architecture%20in%20Python%2002f338c7dcc741178f7b7df9c3804592/Untitled%204.png" alt="Untitled" /></p>
+
+<h3 id="command"><strong>Command</strong></h3>
+
+<ul>
+  <li>Commands는 DTO역할을 하며 Command Handlers에 의해 실행됩니다.</li>
+  <li>개발자는 application에서 service들을 사용하기 위해 Command Handler의 존재를 알 필요가 없습니다.</li>
+  <li>
+    <p>Use Case를 sending a Command로 대체해서 생각합니다.</p>
+
+    <p>Command(DTO) - Command Bus - Command Handler</p>
+  </li>
+</ul>
+
+<h3 id="query"><strong>Query</strong></h3>
+
+<h4 id="query를-dto로-다루는-방법">Query를 DTO로 다루는 방법</h4>
+
+<ul>
+  <li>Command를 다루는 방식과 동일하게 동작합니다. 각각의 쿼리를 single class (DTO) 형태로 나타냅니다.</li>
+  <li>개발자는 Query Handler의 존재를 알 필요가 없습니다.</li>
+  <li>
+    <p>Query class는 Application Layer에 속하고, Query Handler는 Infrastructure layer에 속합니다.</p>
+
+    <p>Query(DTO) - Query Bus - Query Handler</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">GetListOfDeliveryAddresses</span><span class="p">(</span><span class="n">Query</span><span class="p">):</span>
+	<span class="n">Dto</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">DeliveryAddress</span><span class="p">]</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span>
+	<span class="k">def</span> <span class="nf">query_handler</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="n">GetListOfDeliveryAddreses</span><span class="p">)</span>
+			<span class="o">-&gt;</span> <span class="n">GetListOfDeliveryAddresses</span><span class="p">.</span><span class="n">Dto</span><span class="p">:</span>
+		<span class="bp">...</span>
+
+<span class="c1"># using via QueryBus
+</span><span class="n">query</span> <span class="o">=</span> <span class="nc">GetListOfDeliveryAddresses</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">query_bus</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="queries를-분리된-클래스들로-다루는-방법">Queries를 분리된 클래스들로 다루는 방법</h4>
+
+<ul>
+  <li>Query Bus, Query Handler를 사용하지 않고, 각각의 Query는 Abstract class로 Application Layer에 있도록 합니다.</li>
+  <li>concrete implementation은 Infrastructure Layer에 위치하도록 합니다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># somewhere in Application Layer
+</span><span class="k">class</span> <span class="nc">GettingListOfDeliveryAddresses</span><span class="p">(</span><span class="n">Query</span><span class="p">):</span>
+	<span class="n">Dto</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">DeliveryAddress</span><span class="p">]</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span>
+	<span class="nd">@abc.abstractmethod</span>
+	<span class="k">def</span> <span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dto</span><span class="p">:</span>
+		<span class="k">pass</span>
+
+<span class="c1"># in Infrastructure layer
+</span><span class="k">class</span> <span class="nc">SqlGettingListOfDeliveryAddresses</span><span class="p">(</span><span class="n">GettingListOfDeliveryAddresses</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">excute</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GettingListOfDeliveryAddresses</span><span class="p">.</span><span class="n">Dto</span><span class="p">:</span>
+		<span class="n">models</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">session</span><span class="p">.</span><span class="nf">query</span><span class="p">(</span><span class="n">Address</span><span class="p">).</span><span class="nf">filter</span><span class="p">(</span>
+			<span class="p">(</span><span class="n">Address</span><span class="p">.</span><span class="nb">type</span> <span class="o">==</span> <span class="n">Address</span><span class="p">.</span><span class="n">DELIVERY</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Address</span><span class="p">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">self</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span>
+		<span class="p">)</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="nf">_to_dto</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+
+<span class="c1"># 설정파일에서 Sql 관련 설정으로 바인드 해줍니다.
+</span><span class="nd">@inject</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">binder</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+	<span class="n">binder</span><span class="p">.</span><span class="nf">bind</span><span class="p">(</span>
+		<span class="n">GettingListOfDeliveryAddresses</span><span class="p">,</span>
+		<span class="n">to</span><span class="o">=</span><span class="n">SqlGettingListOfDeliveryAddresses</span><span class="p">,</span>
+	<span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="sh">"</span><span class="s">/auction/bids</span><span class="sh">"</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">POST</span><span class="sh">"</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">auction_bids</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="n">GettingListOfDeliveryAddresses</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="nf">excute</span><span class="p">()</span>
+	<span class="bp">...</span>
+
+</code></pre></div></div>
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+          <li><a href="https://github.com/yamkant" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Yeham Kim. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
